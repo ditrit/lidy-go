@@ -6,14 +6,21 @@ namespace: str
 range:
   list: [ oneOf: [ int, unbounded ], oneOf: [ int, unbounded ] ]
 
-metadata: { dictOf: { str: str } } 
+metadata: 
+  dict: 
+    template_version: float
+    template_author: str
+    template_name: str
+  dictOf: { str: str }
 
 imports:
   listOf:
     oneOf:
       - str
-      - dictOf1: { str: str }
-      - dictOf1:
+      - nb: 1
+        dictOf: { str: str }
+      - nb: 1
+        dictOf:
           str:
             required: [file]
             dict:
@@ -57,13 +64,13 @@ string_value_expresion:
 
 value_expression:
   oneOf:
-    - dict: { concat: { listOf1: string_value_expression } }
+    - dict: { concat: { nb: 1, listOf: string_value_expression } }
     - dict: { get_input: str }
     - dict: { get_nodes_of_type: str }
     - dict: { token: { list: [ string_value_expression, str, int] } }
     - dict: { join: { list: [ { listOf: string_value_expression }, str ], optional: [2] } }
-    - dict: { get_property: { list: [ str, str, str, { oneOf: [ int, str] } ], multiple: [4], optional: [2,4] } }
-    - dict: { get_attribute: { list: [ str, str, str, { oneOf: [ int, str] } ], multiple: [4], optional: [2,4] } }
+    - dict: { get_property: { list: [ str, str, str ], listOf: { oneOf: [ int, str] }, optional: [2,4] } }
+    - dict: { get_attribute: { list: [ str, str, str ], listOf: { oneOf: [ int, str] } , optional: [2,4] } }
     - dict: { get_operation_output: { list: [ str, str, str, str ] } }
     - dict: { get_artifact: { list: [ str, str, str, bool ], optional: 3 } }
 
@@ -110,8 +117,8 @@ attribute_assignment:
     - value_expression
     - value
     - dict:
-      description: description
-      value: { oneOf: [ value_expression, value ] }
+        description: description
+        value: { oneOf: [ value_expression, value ] }
 
 attribute_assignments:
   dictOf: { str, attribute_assignment }
@@ -150,7 +157,7 @@ output_parameters:
   dictOf: { str, output_parameter }
 
 repository:
-  anyOf:
+  oneOf:
     - str
     - required: [url]
       dict:

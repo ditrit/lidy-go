@@ -1,0 +1,32 @@
+test_list_simple:
+    list: [ str, str, int]
+
+test_listOf_simple:
+    listOf: str 
+
+test_list_listOf:
+    list: [ str, str, str ]
+    listOf: str
+
+test_list_opt_empty:
+    list: [ str, int, str]
+    optional: [1,2,3]
+
+test_list_optional:
+    list: [ str, str, int, str ]
+    optional: [2]
+
+test_list_optional2:
+    list: [ str, str, int, str ]
+    optional: [3]
+
+test_list_listOf_optional:
+    list: [ str, str, int ]
+    listOf: str
+    optional: [2]
+
+test_list_listOf_optional2:
+    list: [ str, str, int ]
+    listOf: str
+    optional: [2,4]
+

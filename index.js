@@ -6,7 +6,6 @@ const YPair   = require('yaml/pair').default
 const YScalar = require('yaml/scalar').default
 const lineCol = require('line-column')
 
-
 // utils for syntax tree objects
 function ypair_get_key(pair) {
     if (pair instanceof YPair) return pair.stringKey 
@@ -26,133 +25,237 @@ function ymap_has_all(st_dict, keys) {
   return true
 }
 
-function _parseRuleType(src_st, rule_def, keyword) {
+function _parseRuleType(src_st, rule_def, dsl_def, keyword) {
 
         switch (rule_def) {
 
         case 'str':
             if ( src_st instanceof YScalar && typeof src_st.value == 'string' )
                 return src_st.value
-            break;
+            else throw SyntaxError(`'Should be a string in ( ${keyword} ) !`)
 
         case 'int':
-            if ( src_st instanceof YScalar && typeof src_st.value == 'number' )
+            if ( src_st instanceof YScalar && typeof src_st.value == 'number' && Number.isInteger(src_st.value) )
                 return src_st.value
-            break;
+            else throw SyntaxError(`'Should be an int in ( ${keyword} ) !`)
+
+        case 'float':
+            if ( src_st instanceof YScalar && typeof src_st.value == 'number' && !!Number.isInteger(src_st.value) )
+                return src_st.value
+            else throw SyntaxError(`'Should be a float in ( ${keyword} ) !`)
 
         case 'unbounded':
             if ( src_st instanceof YScalar && src_st.value.toLowerCase() == 'undefined' )
                 return src_st.value = 'undefined'
-            break;
+            else throw SyntaxError(`'Should be 'unbounded' in ( ${keyword} ) !`)
 
         default:
-            return parseDsl(src_st, rule_def)
-
+            return parseDsl(src_st, dsl_def, rule_def)
         }
 
 }
 
-function _parseRuleMap(src_st, rule_def, keyword) {
+function _parseRuleMap(src_st, rule_def, dsl_def, keyword) {
 
-        if ( ! (src_st instanceof YMap) )
-        throw SyntaxError(`'Should be a map  ( ${keyword} ) !`)
-        
-        let required = rule_def["required"] || []
-        if ( ! ymap_has_all(src_st, required) ) 
-        throw SyntaxError(`'${required.join(', ')}' element${(required.length > 1) ? "s are" : " is"} required in a ${keyword}`)
-        
-        let defaults = rule_def["defaults"] || {} 
-        let dict     = rule_def["dict"]
-        let ele_key, ele_val
-        let dictOf   = rule_def["dictOf"]
+    if ( ! (src_st instanceof YMap) )
+    throw SyntaxError(`'Should be a map  ( ${keyword} ) !`)
 
-        if (dictOf && Object.keys(dictOf).length == 1) {
-            ele_key = Object.keys(dictOf)[0]
-            ele_val = Object.values(dictOf)[0]
-        } else dictOf = null
+    // required
+    let required = rule_def["required"] || []
+    if ( ! ymap_has_all(src_st, required) ) 
+    throw SyntaxError(`'${required.join(', ')}' element${(required.length > 1) ? "s are" : " is"} required in a ${keyword}`)
 
-        src_st.value = {}
-        for (const item of src_st.items ) {
-            if ( item instanceof YPair ) {
+    // cardinality
+    let nb  = rule_def["nb"]
+    let max = rule_def["max"]
+    let min = rule_def["min"]
+    let nb_items = src_st.items.length
+    if (nb && nb_items != nb)
+    throw SyntaxError(`'this map should have ${nb} element${(nb > 1) ? "s " : " "}(${nb_items} provided)`)
+    if (max && nb_items > max)
+    throw SyntaxError(`'this map should have at most ${max} element${(nb > 1) ? "s " : " "}(${nb_items} provided)`)
+    if (min && nb_items < min)
+    throw SyntaxError(`'this map should have at least ${min} element${(min > 1) ? "s " : " "}(${nb_items} provided)`)
 
-                let pair_key = item && item.key
-                let key = pair_key.value
-                let pair_value = item && item.value
+    // schemas of elements
+    let defaults = rule_def["defaults"] || {} 
+    let dict     = rule_def["dict"]
+    let ele_key, ele_val
+    let dictOf   = rule_def["dictOf"]
 
-                let parsed_key, parsed_val
-                if ( dict && key in dict ) {
-                    parsed_val = parseRule(pair_value, dict[key], keyword) || defaults[key] 
-                    src_st.value[key] = parsed_val
-                } else {
-                    if (ele_key && ele_val) {
-                        parsed_key = parseRule( pair_key, ele_key, keyword )
-                        parsed_val = parseRule( pair_value, ele_val, keyword) || defaults[key] 
-                        src_st.value[parsed_key] = parsed_val 
+    if (dictOf && Object.keys(dictOf).length == 1) {
+        ele_key = Object.keys(dictOf)[0]
+        ele_val = Object.values(dictOf)[0]
+    } else dictOf = null
 
-                    } else throw SyntaxError(`'${key}' is not allowed inside of '${keyword}'`)
-                }
-        
+    src_st.value = {}
+    for (const item of src_st.items ) {
+        if ( item instanceof YPair ) {
+            let pair_key = item && item.key
+            let key = pair_key.value
+            let pair_value = item && item.value
+            let parsed_key, parsed_val
+            if ( dict && key in dict ) {
+                parsed_val = parseRule(pair_value, dict[key], dsl_def, keyword) || defaults[key] 
+                src_st.value[key] = parsed_val
+            } else {
+                if (ele_key && ele_val) {
+                    parsed_key = parseRule( pair_key, ele_key, dsl_def, keyword )
+                    parsed_val = parseRule( pair_value, ele_val, dsl_def, keyword) || defaults[key] 
+                    src_st.value[parsed_key] = parsed_val 
+              } else throw SyntaxError(`'${key}' is not allowed inside of '${keyword}'`)
             }
         }
-
-        return src_st
+     }
+   return src_st
 }
 
-function _parseRuleList(src_st, rule_def, keyword) {
+
+function _parseRuleList(src_st, rule_def, dsl_def, keyword) { 
+
+    if ( ! (src_st instanceof YSeq) )
+    throw SyntaxError(`'Should be a list  ( ${keyword} ) !`)
+
+    // cardinality
+    let nb  = rule_def["nb"]
+    let max = rule_def["max"]
+    let min = rule_def["min"]
+    let nb_items = src_st.items.length
+    if (nb && nb_items !== nb)
+    throw SyntaxError(`'this map should have ${nb} element${(nb > 1) ? "s " : " "}(${nb_items} provided)`)
+    if (max && nb_items > max)
+    throw SyntaxError(`'this map should have at most ${max} element${(nb > 1) ? "s " : " "}(${nb_items} provided)`)
+    if (min && nb_items < min)
+    throw SyntaxError(`'this map should have at least ${min} element${(min > 1) ? "s " : " "}(${nb_items} provided)`)
+
+    // schemas of elements
+    let optional = rule_def["optional"] || []
+    //let defaults = rule_def["defaults"] || {} 
+    let list     = rule_def["list"]
+    let listOf   = rule_def["listOf"]
+
+    let ele = (listOf && listOf instanceof Array && listOf.length == 1) ? listOf[0] :  null
+
+    src_st.value = []
+    let idx = 0
+    let lst_nb = list && list.length
+    let item
+    let parsed_item
+    let parsed_ok = true
+
+    if (list) {
+        for (let lst_idx = 0; lst_idx < lst_nb; lst_idx++ ) {
+            if (parsed_ok == true) {
+                item = src_st.items[idx]
+                idx++
+            }
+            let def_ele = list[lst_idx]
+            let is_optional = optional.includes(lst_idx + 1)
+            try { 
+                parsed_item = parseRule( item, def_ele, dsl_def, keyword) 
+                parsed_ok = true
+            } catch (error) { 
+                if ( ! is_optional) throw (error)
+                parsed_ok = false 
+            }
+            if (parsed_ok == true) src_st.value.push(parsed_item)
+        }
+    }   
+    if (listOf) {
+        is_optional = optional.includes(lst_nb + 1)
+        def_ele = listOf
+        let nb_of = 0
+        for (;idx < nb_items; idx++) {
+            item = src_st.items[idx]
+            parsed_item = parseRule( item, def_ele, dsl_def, keyword) 
+            src_st.value.push(parsed_item)
+            nb_of++
+        }
+        if (nb_of == 0 && is_optional == false ) throw SyntaxError(` ListOf should contain at least one element `)
+    } else if (src_st.items[idx]) throw SyntaxError(`To many elements in the list`)
+
     return src_st
 }
 
-// parsing 
-function parseRule(src_st, rule_def, keyword) {
+function _parseRuleOneOf(src_st, rule_def, dsl_def, keyword) {
 
-    if ( typeof rule_def == 'string' ) return _parseRuleType(src_st, rule_def, keyword);
+    let choices     = rule_def["oneOf"]
+    if (choices) {
+        for (let choice of choices ) {
+            try { 
+                let value = parseRule( src_st, choice, dsl_def, keyword)
+                return src_st
+            } catch (error) { }
+        }
+    } 
+    throw SyntaxError(`No option satisfied in oneOf`)
+}
+
+function _parseRuleEnum(src_st, rule_def, dsl_def, keyword) {
+    // fonctionne pour les scalaires uniquement, revoir pour les valeurs complexes
+    if ( rule_def["enum"].includes( src_st.value ) )
+        return src_st
+    else throw SyntaxError(`${src_st.value} not in enum ${rule_def["enum"]}`)
+}
+
+// parsing 
+function parseRule(src_st, rule_def, dsl_def, keyword) {
+
+    if ( typeof rule_def == 'string' ) return _parseRuleType(src_st, rule_def, dsl_def, keyword);
 
     if (rule_def instanceof Object) {
 
-        if ( "dict" in rule_def || "dictOf" in rule_def ) return _parseRuleMap(src_st, rule_def, keyword)
-        if ( "list" in rule_def || "listOf" in rule_def ) return _parseRuleList(src_st, rule_def, keyword)
+        if ( "dict"  in rule_def || "dictOf" in rule_def ) return _parseRuleMap(src_st, rule_def, dsl_def, keyword)
+        if ( "list"  in rule_def || "listOf" in rule_def ) return _parseRuleList(src_st, rule_def, dsl_def, keyword)
+        if ( "oneOf" in rule_def) return _parseRuleOneOf(src_st, rule_def, dsl_def, keyword)
+        if ( "enum"  in rule_def) return _parseRuleEnum(src_st, rule_def, dsl_def, keyword)
     }
 }
 
-
-function parseDsl(src_st, keyword) {
+function parseDsl(src_st, dsl_def, keyword) {
     let keyrule = dsl_def[keyword]
-    return parseRule(src_st, keyrule, keyword)
+    if (keyrule) {
+        return parseRule(src_st, keyrule, dsl_def, keyword)
+    } else throw (SyntaxError(`No definition found for keyword '${keyword}'`))
 }
 
-// Load dsl definition file
-let  dsl_def_txt
-try { dsl_def_txt = fs.readFileSync('tosca_definition.yaml', 'utf8') }
-catch (e) { console.log(`can not read the language definition file : ${e}`) }
+function parse(src_file, dsl_def_file, keyword) {
+    // Load dsl definition file
+    let  dsl_def_txt
+    try { dsl_def_txt = fs.readFileSync(dsl_def_file, 'utf8') }
+    catch (e) { console.log(`can not read the language definition file : ${e}`) }
 
-// parse dsl definition file
-let dsl_def
-try { dsl_def = yaml.parse(dsl_def_txt) } 
-catch(e) {
-    const dsl_def_linecol = lineCol(dsl_def_txt)
-    const deb = dsl_def_linecol.fromIndex(e.source.range.start - 1)
-    const fin = dsl_def_linecol.fromIndex(e.source.range.end - 1)
-    console.log(`${e.name}: ${e.message} at position ${deb}, ${fin}`)
+    // parse dsl definition file
+    let dsl_def
+    try { dsl_def = yaml.parse(dsl_def_txt) } 
+    catch(e) {
+        const dsl_def_linecol = lineCol(dsl_def_txt)
+        const deb = dsl_def_linecol.fromIndex(e.source.range.start - 1)
+        const fin = dsl_def_linecol.fromIndex(e.source.range.end - 1)
+        console.log(`${e.name}: ${e.message} at position ${deb}, ${fin}`)
+    }
+
+    // Load source code
+    let src_txt
+    try { src_txt = fs.readFileSync(src_file, 'utf8') }
+    catch (e) { console.log(`can not read the TOSCA source file : ${e}`) }
+
+    // parse source code
+    let syntax_tree
+    try { syntax_tree = yaml.parseDocument(src_txt) }
+    catch (e) {
+        const src_linecol = lineCol(src_txt)
+        const deb = src_linecol.fromIndex(e.source.range.start - 1)
+        const fin = src_linecol.fromIndex(e.source.range.end - 1)
+        console.log(`${e.name}: ${e.message} at position ${deb}, ${fin}`)
+    }
+
+    // parse !!!!!
+    let nodes = parseDsl(syntax_tree.contents, dsl_def, keyword)
+    console.log(nodes)
+    console.log(nodes.value)
 }
 
-// Load source code
-let src_txt
-try { src_txt = fs.readFileSync('tosca_types.yaml', 'utf8') }
-catch (e) { console.log(`can not read the TOSCA source file : ${e}`) }
-
-// parse source code
-let syntax_tree
-try { syntax_tree = yaml.parseDocument(src_txt) }
-catch (e) {
-    const src_linecol = lineCol(src_txt)
-    const deb = src_linecol.fromIndex(e.source.range.start - 1)
-    const fin = src_linecol.fromIndex(e.source.range.end - 1)
-    console.log(`${e.name}: ${e.message} at position ${deb}, ${fin}`)
-}
-
-// parse !!!!!
-let nodes = parseDsl(syntax_tree.contents, "service_template")
-console.log(nodes)
+parse('tosca_types.yaml', 'tosca_definition.yaml', 'service_template')
 
 
-console.log(nodes.tmap)

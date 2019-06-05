@@ -1,0 +1,8 @@
+oneoftest:
+  oneOf:
+    - str
+    - int
+    - list: [str, int]
+    - listOf: str
+    - dict: { a: str, b: str}
+  
