@@ -29,6 +29,23 @@ function _parseRuleType(src_st, rule_def, dsl_def, keyword) {
 
         switch (rule_def) {
 
+        case 'null':
+            if ( src_st instanceof YScalar && src_st.value === null )      
+                return src_st.value
+            else throw SyntaxError(`'Should be null value in ( ${keyword} ) !`)
+
+        case 'timestamp':
+            if ( src_st instanceof YScalar )  
+                let timestamp = null
+                try { timestamp = new Date(src_st.value) } catch (e) { timestamp = null }
+            if (!timestamp) throw SyntaxError(`'Should be a timestamp in ( ${keyword} ) !`)
+            return src_st.value
+
+        case 'bool':
+            if ( src_st instanceof YScalar && ( src_st.value === true || src_st.value === false ) )            
+                return src_st.value
+            else throw SyntaxError(`'Should be a boolean in ( ${keyword} ) !`)
+
         case 'str':
             if ( src_st instanceof YScalar && typeof src_st.value == 'string' )
                 return src_st.value
