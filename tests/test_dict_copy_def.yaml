@@ -1,0 +1,21 @@
+metadata: 
+  dict: 
+    template_version: float
+    template_author: str
+    template_name: str
+  dictOf: { str: str }
+
+
+type_common_keys:
+  dict:
+    derived_from: str
+    version: str
+    metadata: metadata
+    description: str
+
+artifact_type:
+  dict:
+    file_ext: str
+    mime_type: str
+    properties: { optional: [1], listOf: str }
+  copy: type_common_keys

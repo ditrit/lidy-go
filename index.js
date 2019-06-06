@@ -40,7 +40,7 @@ function _parseRuleType(src_st, rule_def, dsl_def, keyword) {
             else throw SyntaxError(`'Should be an int in ( ${keyword} ) !`)
 
         case 'float':
-            if ( src_st instanceof YScalar && typeof src_st.value == 'number' && !!Number.isInteger(src_st.value) )
+            if ( src_st instanceof YScalar && typeof src_st.value == 'number' && !Number.isInteger(src_st.value) )
                 return src_st.value
             else throw SyntaxError(`'Should be a float in ( ${keyword} ) !`)
 
@@ -55,10 +55,40 @@ function _parseRuleType(src_st, rule_def, dsl_def, keyword) {
 
 }
 
+function _copyDict(rule_def, dsl_def) { 
+        let copy_rule = rule_def['copy']
+        if (!copy_rule) return rule_def
+        let to_copy_dict = copy_rule && dsl_def[copy_rule]
+        let to_copy_flat_dict = to_copy_dict && _copyDict(to_copy_dict, dsl_def)
+
+        let new_rule = Object.assign({}, rule_def)
+        if ('required' in new_rule) new_rule.required = [...new_rule.required]
+
+        if ('dictOf' in new_rule)
+            if ('dictOf' in to_copy_flat_dict) throw SyntaxError(`Error in grammar : 'dictOf' exists in both rule and copied rule`) 
+        else if (dictOf in to_copy_flat_dict) new_rule.dictOf = to_copy_flat_dict.dictOf
+        
+        if ('dict' in new_rule) new_rule.dict = Object.assign({}, new_rule.dict)
+        else if ('dict' in to_copy_flat_dict) new_rule.dict = {}
+
+        if (to_copy_flat_dict.dict) {
+            for (const key in to_copy_flat_dict.dict) {
+                if (key in new_rule.dict) throw SyntaxError(`Error in grammar : key ${key} exists in both rule and copied rule`) 
+                else new_rule.dict[key] = to_copy_flat_dict.dict[key]
+            }
+        }
+
+        return new_rule
+}
+
 function _parseRuleMap(src_st, rule_def, dsl_def, keyword) {
 
+    if (!src_st) src_st = new YMap()
     if ( ! (src_st instanceof YMap) )
     throw SyntaxError(`'Should be a map  ( ${keyword} ) !`)
+
+    // apply (recursive) copy if 'copy' keyword exists
+    rule_def = _copyDict(rule_def, dsl_def)
 
     // required
     let required = rule_def["required"] || []
@@ -113,6 +143,7 @@ function _parseRuleMap(src_st, rule_def, dsl_def, keyword) {
 
 function _parseRuleList(src_st, rule_def, dsl_def, keyword) { 
 
+    if (!src_st) src_st = new YSeq()
     if ( ! (src_st instanceof YSeq) )
     throw SyntaxError(`'Should be a list  ( ${keyword} ) !`)
 
@@ -138,7 +169,7 @@ function _parseRuleList(src_st, rule_def, dsl_def, keyword) {
 
     src_st.value = []
     let idx = 0
-    let lst_nb = list && list.length
+    let lst_nb = (list && list.length) || 0
     let item
     let parsed_item
     let parsed_ok = true
@@ -193,8 +224,7 @@ function _parseRuleOneOf(src_st, rule_def, dsl_def, keyword) {
 
 function _parseRuleEnum(src_st, rule_def, dsl_def, keyword) {
     // fonctionne pour les scalaires uniquement, revoir pour les valeurs complexes
-    if ( rule_def["enum"].includes( src_st.value ) )
-        return src_st
+    if ( rule_def["enum"].includes( src_st.value ) ) return src_st
     else throw SyntaxError(`${src_st.value} not in enum ${rule_def["enum"]}`)
 }
 
@@ -256,6 +286,5 @@ function parse(src_file, dsl_def_file, keyword) {
     console.log(nodes.value)
 }
 
-parse('tosca_types.yaml', 'tosca_definition.yaml', 'service_template')
-
-
+//parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
+parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')

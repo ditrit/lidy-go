@@ -1,0 +1,7 @@
+derived_from: nom_de_type
+metadata: 
+    template_version: 1.9
+    deux: seconde metadata
+file_ext: .doc
+properties:
+description: un exemple d'artefact
