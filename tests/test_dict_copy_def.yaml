@@ -1,6 +1,9 @@
+version:
+  regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
+
 metadata: 
   dict: 
-    template_version: float
+    template_version: version
     template_author: str
     template_name: str
   dictOf: { str: str }

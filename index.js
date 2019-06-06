@@ -35,10 +35,11 @@ function _parseRuleType(src_st, rule_def, dsl_def, keyword) {
             else throw SyntaxError(`'Should be null value in ( ${keyword} ) !`)
 
         case 'timestamp':
-            if ( src_st instanceof YScalar )  
+            if ( src_st instanceof YScalar ) {
                 let timestamp = null
                 try { timestamp = new Date(src_st.value) } catch (e) { timestamp = null }
-            if (!timestamp) throw SyntaxError(`'Should be a timestamp in ( ${keyword} ) !`)
+                if (!timestamp) throw SyntaxError(`'Should be a timestamp in ( ${keyword} ) !`)
+            }
             return src_st.value
 
         case 'bool':
@@ -245,6 +246,21 @@ function _parseRuleEnum(src_st, rule_def, dsl_def, keyword) {
     else throw SyntaxError(`${src_st.value} not in enum ${rule_def["enum"]}`)
 }
 
+function _parseRuleRegExp(src_st, rule_def, dsl_def, keyword) {
+
+    let re_str = rule_def["regexp"]
+    if ( typeof re_str === 'string' ) {
+        let re = RegExp(re_str) 
+        if (src_st && src_st.value) {
+            let str = (typeof src_st.value === 'number') ? src_st.value.toString() : src_st.value
+            if ( typeof str == 'string' ) {
+                if (re.exec(str)) return str
+                else throw SyntaxError(`'${str}' does not match '${re_str}' for keyword '${keyword}`) 
+            } else throw SyntaxError(`'${str}' is not a string for keyword '${keyword}`) 
+        } else throw SyntaxError(`'${src_st}' does not have a value for keyword '${keyword}`) 
+    } else throw SyntaxError(`Error in grammar : '${re_str}' is not a regular expression in '${keyword}`)
+}
+
 // parsing 
 function parseRule(src_st, rule_def, dsl_def, keyword) {
 
@@ -252,14 +268,17 @@ function parseRule(src_st, rule_def, dsl_def, keyword) {
 
     if (rule_def instanceof Object) {
 
-        if ( "dict"  in rule_def || "dictOf" in rule_def ) return _parseRuleMap(src_st, rule_def, dsl_def, keyword)
-        if ( "list"  in rule_def || "listOf" in rule_def ) return _parseRuleList(src_st, rule_def, dsl_def, keyword)
-        if ( "oneOf" in rule_def) return _parseRuleOneOf(src_st, rule_def, dsl_def, keyword)
-        if ( "enum"  in rule_def) return _parseRuleEnum(src_st, rule_def, dsl_def, keyword)
+        if ( "dict"   in rule_def || "dictOf" in rule_def ) return _parseRuleMap(src_st, rule_def, dsl_def, keyword)
+        if ( "list"   in rule_def || "listOf" in rule_def ) return _parseRuleList(src_st, rule_def, dsl_def, keyword)
+        if ( "oneOf"  in rule_def) return _parseRuleOneOf(src_st, rule_def, dsl_def, keyword)
+        if ( "enum"   in rule_def) return _parseRuleEnum(src_st, rule_def, dsl_def, keyword)
+        if ( "regexp" in rule_def) return _parseRuleRegExp(src_st, rule_def, dsl_def, keyword)
     }
 }
 
 function parseDsl(src_st, dsl_def, keyword) {
+    if (!dsl_def) 
+        console.log("LOG")
     let keyrule = dsl_def[keyword]
     if (keyrule) {
         return parseRule(src_st, keyrule, dsl_def, keyword)
@@ -303,5 +322,5 @@ function parse(src_file, dsl_def_file, keyword) {
     console.log(nodes.value)
 }
 
-//parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
-parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
+parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
+//parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')

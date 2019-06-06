@@ -8,10 +8,30 @@ range:
 
 metadata: 
   dict: 
-    template_version: float
+    template_version: version
     template_author: str
     template_name: str
   dictOf: { str: str }
+
+version:
+  regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
+
+
+size: scalar-unit.size
+scalar-unit.size:
+  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (B|kB|KiB|MB|MiB|GB|GiB|TB|TiB)$'
+
+time: scalar-unit.time
+scalar-unit.time:
+  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (d|h|m|s|ms|us|ns)$'
+
+frequency: scalar-unit.frequency
+scalar-unit.frequency:
+  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (kHz|MHz|GHz)$'
+
+bitrate: scalar-unit.bitrate
+scalar-unit.bitrate:
+  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (bps|Kbps|Kibps|Mbps|Mibps|Gbps|Gibps|Tbps|Tibps|Bps|KBps|KiBps|MBps|MiBps|GBps|GiBps|TBps|TiBps)$'
 
 imports:
   listOf:

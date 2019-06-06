@@ -1,6 +1,6 @@
 derived_from: nom_de_type
 metadata: 
-    template_version: 1.9
+    template_version: 1.9.45.alpha-23
     deux: seconde metadata
 file_ext: .doc
 properties:
