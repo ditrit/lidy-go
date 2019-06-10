@@ -4,198 +4,198 @@ description: str
 namespace: str
 
 range:
-  list: [ oneOf: [ int, unbounded ], oneOf: [ int, unbounded ] ]
+  _list: [ _oneOf: [ int, unbounded ], _oneOf: [ int, unbounded ] ]
 
 metadata: 
-  dict: 
+  _dict: 
     template_version: version
     template_author: str
     template_name: str
-  dictOf: { str: str }
+  _dictOf: { str: str }
 
 version:
-  regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
+  _regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
 
 
 size: scalar-unit.size
 scalar-unit.size:
-  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (B|kB|KiB|MB|MiB|GB|GiB|TB|TiB)$'
+  _regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (B|kB|KiB|MB|MiB|GB|GiB|TB|TiB)$'
 
 time: scalar-unit.time
 scalar-unit.time:
-  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (d|h|m|s|ms|us|ns)$'
+  _regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (d|h|m|s|ms|us|ns)$'
 
 frequency: scalar-unit.frequency
 scalar-unit.frequency:
-  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (kHz|MHz|GHz)$'
+  _regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (kHz|MHz|GHz)$'
 
 bitrate: scalar-unit.bitrate
 scalar-unit.bitrate:
-  regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (bps|Kbps|Kibps|Mbps|Mibps|Gbps|Gibps|Tbps|Tibps|Bps|KBps|KiBps|MBps|MiBps|GBps|GiBps|TBps|TiBps)$'
+  _regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (bps|Kbps|Kibps|Mbps|Mibps|Gbps|Gibps|Tbps|Tibps|Bps|KBps|KiBps|MBps|MiBps|GBps|GiBps|TBps|TiBps)$'
+
+string_value_expresion:
+  _oneOf: 
+    - str
+    - value_expression
+
+value_expression:
+  _oneOf:
+    - _dict: { concat: { _nb: 1, _listOf: string_value_expression } }
+    - _dict: { get_input: str }
+    - _dict: { get_nodes_of_type: str }
+    - _dict: { token: { _list: [ string_value_expression, str, int] } }
+    - _dict: { join: { _list: [ { _listOf: string_value_expression }, str ], _optional:: [2] } }
+    - _dict: { get_property: { _list: [ str, str, str ], _listOf: { _oneOf: [ int, str] }, _optional:: [2,4] } }
+    - _dict: { get_attribute: { _list: [ str, str, str ], _listOf: { _oneOf: [ int, str] } , _optional:: [2,4] } }
+    - _dict: { get_operation_output: { _list: [ str, str, str, str ] } }
+    - _dict: { get_artifact: { _list: [ str, str, str, bool ], _optional:: 3 } }
 
 imports:
-  listOf:
-    oneOf:
+  _listOf:
+    _oneOf:
       - str
-      - nb: 1
-        dictOf: { str: str }
-      - nb: 1
-        dictOf:
+      - _nb: 1
+        _dictOf: { str: str }
+      - _nb: 1
+        _dictOf:
           str:
-            required: [file]
-            dict:
+            _require:d: [file]
+            _dict:
               file: str
               repository: str
               namespace_prefix: str
               namespace_uri: str
 
 constraint:
-  oneOf:
-    - dict: { equal: any }
-    - dict: { greater_than: value }
-    - dict: { greater_or_equal: value }
-    - dict: { less_than: value }
-    - dict: { less_or_equal: value }
-    - dict: { in_range: range }
-    - dict: { valid_values: list }
-    - dict: { length: int }
-    - dict: { min_length: int }
-    - dict: { max_length: int }
-    - dict: { pattern: str }
-    - dict: { schema: str }
+  _oneOf:
+    - _dict: { equal: any }
+    - _dict: { greater_than: value }
+    - _dict: { greater_or_equal: value }
+    - _dict: { less_than: value }
+    - _dict: { less_or_equal: value }
+    - _dict: { in_range: range }
+    - _dict: { valid_values: _list }
+    - _dict: { length: int }
+    - _dict: { min_length: int }
+    - _dict: { max_length: int }
+    - _dict: { pattern: str }
+    - _dict: { schema: str }
 
 constraints:
-  listOf: constraint
+  _listOf: constraint
 
 entry_schema:
-  oneOf:
+  _oneOf:
     - str
-    - required: [ type ]
-      dict:
+    - _required: [ type ]
+      _dict:
         type: str
         description: description
         constraints: constraints 
         entry_schema: entry_schema
 
-string_value_expresion:
-  oneOf: 
-    - str
-    - value_expression
-
-value_expression:
-  oneOf:
-    - dict: { concat: { nb: 1, listOf: string_value_expression } }
-    - dict: { get_input: str }
-    - dict: { get_nodes_of_type: str }
-    - dict: { token: { list: [ string_value_expression, str, int] } }
-    - dict: { join: { list: [ { listOf: string_value_expression }, str ], optional: [2] } }
-    - dict: { get_property: { list: [ str, str, str ], listOf: { oneOf: [ int, str] }, optional: [2,4] } }
-    - dict: { get_attribute: { list: [ str, str, str ], listOf: { oneOf: [ int, str] } , optional: [2,4] } }
-    - dict: { get_operation_output: { list: [ str, str, str, str ] } }
-    - dict: { get_artifact: { list: [ str, str, str, bool ], optional: 3 } }
-
 property:
-  required: [ type ]
-  dict:
+  _required: [ type ]
+  _dict:
     type: str
     description: description
     constraints: constraints
     required: bool
     default: value
-    status: { enum: [ supported, unsupported, experimental, deprecated, optional ] }
+    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ] }
     metadata: metadata
     entry_schema: entry_schema 
 
 properties:
-  dictOf: { str, property }
+  _dictOf: { str, property }
 
 property_assignment:
-  oneOf:
+  _oneOf:
     - value_expression
     - value
-    - dict:
+    - _dict:
         description: description
-        value: { oneOf: [ value_expression, value] }
+        value: { _oneOf: [ value_expression, value] }
 
 property_assignments:
-  dictOf: { str, property_assignment }
+  _dictOf: { str, property_assignment }
 
 attribute:
-  required: [ type ]
-  dict:
+  _required: [ type ]
+  _dict:
     type: str 
     description: description
     default: value
-    status: { enum: [ supported, unsupported, experimental, deprecated, optional ] }
+    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ] }
     entry_schema: entry_schema 
 
 attributes:
-  dictOf: { str, attribute }
+  _dictOf: { str, attribute }
 
 attribute_assignment:
-  oneOf:
+  _oneOf:
     - value_expression
     - value
-    - dict:
+    - _dict:
         description: description
-        value: { oneOf: [ value_expression, value ] }
+        value: { _oneOf: [ value_expression, value ] }
 
 attribute_assignments:
-  dictOf: { str, attribute_assignment }
+  _dictOf: { str, attribute_assignment }
 
 input_parameter:
-  required: [ type ]
-  dict:
+  _required: [ type ]
+  _dict:
     type: str 
     description: description
     constraints: constraints
-    required: bool
+    _require:d: bool
     default: value
-    status: { enum: [ supported, unsupported, experimental, deprecated, optional ] }
+    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ] }
     entry_schema: entry_schema 
-    value: { oneOf: [ value, value_expression ] } 
+    value: { _oneOf: [ value, value_expression ] } 
 
 input_parameters:
-  dictOf: { str, input_parameter }
+  _dictOf: { str, input_parameter }
 
 input_assignments:
   property_assignments
 
 output_parameter:
-  required: [ type ]
-  dict:
+  _require:d: [ type ]
+  _dict:
     type: str 
     description: description
     constraints: constraints
-    required: bool
+    _require:d: bool
     default: value
-    status: { enum: [ supported, unsupported, experimental, deprecated, optional ]}
+    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ]}
     entry_schema: entry_schema 
-    value: { oneOf: [ value, value_expression ] } 
+    value: { _oneOf: [ value, value_expression ] } 
 
 output_parameters:
-  dictOf: { str, output_parameter }
+  _dictOf: { str, output_parameter }
 
 repository:
-  oneOf:
+  _oneOf:
     - str
-    - required: [url]
-      dict:
+    - _require:d: [url]
+      _dict:
         url: str
         description: description
         credential:
-          required: [token]
-          dict:
+          _require:d: [token]
+          _dict:
             protocol: str
             token: str
             token_type: str
             user: str
 
 artifact_def: 
-  oneOf:
+  _oneOf:
     - str
-    - require: [type, file]
-      dict:
+    - _require:: [type, file]
+      _dict:
         type: str
         file: str
         repository: str
@@ -203,162 +203,162 @@ artifact_def:
         deploy_path: str
 
 artifact_defs:
-  dictOf: { str, artifact_def }
+  _dictOf: { str, artifact_def }
 
 type_common_keys:
-  dict:
+  _dict:
     derived_from: str
     version: version
     metadata: metadata
     description: description
 
 artifact_type:
-  dict:
+  _dict:
     file_ext: str
     mime_type: str
     properties: properties
   copy: type_common_keys
 
 artifact_types:
-  dictOf: { str, artifact_type}
+  _dictOf: { str, artifact_type}
 
 data_type:
-  dict:
+  _dict:
     properties: properties
     constraints: constraints
   copy: type_common_keys
 
 implementation:
-  oneOf:
+  _oneOf:
     - str
-    - dict:
-        primary: {oneOf: [ str, artifact_def ]}
-        dependencies: { listOf: {oneOf: [str, artifact_def]}}
+    - _dict:
+        primary: {_oneOf: [ str, artifact_def ]}
+        dependencies: { _listOf: {_oneOf: [str, artifact_def]}}
 
 operation_def:
-  dict:
+  _dict:
     description: description
     inputs: properties
     implementation: implementation
 
 operation_def_template:
-  dict:
+  _dict:
     description: description
     inputs: input_assignments
     implementation: implementation
 
 interface_type:
-  dict:
+  _dict:
     inputs: properties
   copy: type_common_keys
-  dictOf:
+  _dictOf:
     str: operation_def
 
 interface_types:
-  dictOf: { str: interface_def }
+  _dictOf: { str: interface_def }
 
 interface_def:
-  required: [ type ]
-  dict:
+  _require:d: [ type ]
+  _dict:
     - type: str
     - inputs: properties
   copy: operation_def
 
 interface_defs:
-  dictOf: { str, interface_def }
+  _dictOf: { str, interface_def }
 
 interface_def_template:
-  dict: 
+  _dict: 
     - inputs: properties
   copy: operation_def
 
 interface_defs_template:
-  dictOf: { str, interface_def_template }
+  _dictOf: { str, interface_def_template }
 
 capability_type:
-  dict:
+  _dict:
     - properties: properties
     - attributes: attributes
-    - valid_source_types: { listOf: str }
+    - valid_source_types: { _listOf: str }
   copy: type_common_keys
 
 capability_def:
-  oneOf:
-    - dict:
+  _oneOf:
+    - _dict:
         - type: str
         - description: description
         - properties: properties
         - attributes: attributes
-        - valid_source_types: { listOf: str } 
+        - valid_source_types: { _listOf: str } 
         - occurrences: range
     - str
 
 capability_defs:
-  dictOf: { str: capability_def }
+  _dictOf: { str: capability_def }
 
 capability_assignment:
-  dict:
+  _dict:
     - properties: property_assignments
     - attributes: attribute_assignments
-      required: true
+      _require:d: true
 
 capability_assignments:
-  dictOf: { str: capability_assignment }
+  _dictOf: { str: capability_assignment }
 
 properties_filter:
-  listOf:
-    nb: 1 
-    dictOf:
+  _listOf:
+    _nb: 1 
+    _dictOf:
       str: 
-        oneOf:
+        _oneOf:
           - constraint
           - value
-          - listOf: { oneOf: [ constraint, value ] }
+          - _listOf: { _oneOf: [ constraint, value ] }
 
 capabilities_filter:
-  listOf:
-    nb: 1 
-    dictOf:
-      str: { dict: { properties: properties_filter } }
+  _listOf:
+    _nb: 1 
+    _dictOf:
+      str: { _dict: { properties: properties_filter } }
 
 node_filter:
-  dict:
+  _dict:
     properties: properties_filter
     capabilities: capabilities_filter
 
-requirement_defs:
-  listOf:
-      nb: 1
-      dictOf:
+_require:ment_defs:
+  _listOf:
+      _nb: 1
+      _dictOf:
         str:
-          oneOf:
+          _oneOf:
             - str
-            - required: [ capability ]
-              dict:
+            - _require:d: [ capability ]
+              _dict:
                 capability: str
                 description: description
                 node: str
                 occurences: range
                 relationship:  
-                    oneOf:
+                    _oneOf:
                       - str
-                      - dict:
+                      - _dict:
                           type: str
                           interfaces: interface_defs
 
-requirement_assignments:
-  listOf:
-    nb: 1
-    dictOf:
+_require:ment_assignments:
+  _listOf:
+    _nb: 1
+    _dictOf:
       str: 
-        oneOf:
+        _oneOf:
           - str
-          - dict:
+          - _dict:
               node: str
               relationship:  
-                oneOf:
+                _oneOf:
                   - str
-                  - dict:
+                  - _dict:
                       type: str
                       properties: property_assignments
                       interfaces: interface_defs_template
@@ -367,50 +367,50 @@ requirement_assignments:
               node_filter: node_filter
 
 workflow_condition_clause:
-  listOf:
-    nb: 1
-    dict:
+  _listOf:
+    _nb: 1
+    _dict:
       or: workflow_condition_clause
       and: workflow_condition_clause
       assert: 
-        listOf: { nb: 1, dictOf: { str: constraints } }
-    dictOf: 
-      str: { nb: 1, dictOf: { str: constraints } }
+        _listOf: { _nb: 1, _dictOf: { str: constraints } }
+    _dictOf: 
+      str: { _nb: 1, _dictOf: { str: constraints } }
 
 workflow_preconditions:
-  listOf:
-    dict:
+  _listOf:
+    _dict:
       target: str
       target_relationship: str
       condition: workflow_condition_clause
 
 workflow_activities:
-  listOf:
-    dict:
+  _listOf:
+    _dict:
       delegate: str
       set_state: str
       call_operation: str
       inline: str
 
 workflow_steps:
-  listOf:
-      nb: 1
-      dictOf:
+  _listOf:
+      _nb: 1
+      _dictOf:
         str:
-          dict:
+          _dict:
             target: str
             target_relationship: str
             filter: workflow_condition_clause
             activities: workflow_activities
             operation_host: str
             on_succes: 
-              oneOf: [ str, { listOf: str } ]
+              _oneOf: [ str, { _listOf: str } ]
             on_failure:
-              oneOf: [ str, { listOf: str } ]
+              _oneOf: [ str, { _listOf: str } ]
 
 workflow_source_weaving:
-  listOf:
-    dict:
+  _listOf:
+    _dict:
       after: str
       before: str
       wait_target: str
@@ -418,8 +418,8 @@ workflow_source_weaving:
       activity: str
 
 workflow_target_weaving:
-  listOf:
-    dict:
+  _listOf:
+    _dict:
       after: str
       before: str
       wait_source: str
@@ -427,11 +427,11 @@ workflow_target_weaving:
       activity: str
 
 declarative_workflow_node_defs:
-  listOf:
-    nb: 1
-    dictOf:
+  _listOf:
+    _nb: 1
+    _dictOf:
       str:
-        dict:
+        _dict:
           description: description
           metadata: metadata
           inputs: properties
@@ -439,11 +439,11 @@ declarative_workflow_node_defs:
           steps: workflow_steps
           
 declarative_workflow_rel_defs:
-  listOf:
-    nb: 1
-    dictOf:
+  _listOf:
+    _nb: 1
+    _dictOf:
       str: 
-        dict:
+        _dict:
           description: description
           metadata: metadata
           inputs: properties
@@ -452,11 +452,11 @@ declarative_workflow_rel_defs:
           target_weaving: workflow_target_weaving
 
 imperative_workflow_defs:
-  listOf:
-    nb: 1
-    dictOf:
+  _listOf:
+    _nb: 1
+    _dictOf:
       str: 
-        dict:
+        _dict:
           description: description
           metadata: metadata
           inputs: properties
@@ -464,54 +464,54 @@ imperative_workflow_defs:
           steps: workflow_steps
 
 node_type:
-  dict:
+  _dict:
     properties: properties
     attributes: attributes
     capabilities: capability_defs
-    requirements: requirement_defs
+    _require:ments: _require:ment_defs
     interfaces: interface_defs
     workflows: declarative_workflow_node_defs
   copy: type_common_keys
 
 node_types:
-  dictOf: { str, node_type }
+  _dictOf: { str, node_type }
 
 node_template:
-  required: [ type ]
-  dict: 
+  _require:d: [ type ]
+  _dict: 
     type: str
     metadata: metadata
     description: description
-    directives: { list: str }
+    directives: { _list: str }
     properties: property_assignments
     attributes: attribute_assignments
     capabilities: capability_assignments
-    requirements: requirement_assignments
+    _require:ments: _require:ment_assignments
     interfaces: interface_defs_template
     artifacts: artifact_defs
     node_filter: node_filter
     copy: str
 
 node_templates:
-  dictOf: { str, node_template }
+  _dictOf: { str, node_template }
 
 relationship_type:
-  dict:
+  _dict:
     properties: properties
     attributes: attributes
     interfaces: interface_defs
-    valid_target_types: { listOf: str }
+    valid_target_types: { _listOf: str }
     workflows: declarative_workflow_rel_defs
   copy: type_common_keys
 
 relationship_types:
-  dictOf: { str, relationship_type }
+  _dictOf: { str, relationship_type }
 
 relationship_template:
-  required: [ type ]
-  dict:
+  _require:d: [ type ]
+  _dict:
     type: str
-    description: required
+    description: _require:d
     metadata: metadata
     properties: properties
     attributes: attributes
@@ -519,142 +519,142 @@ relationship_template:
     copy: str
 
 relationship_templates:
-  dictOf: { str, relationship_template }
+  _dictOf: { str, relationship_template }
 
 group_type:
-  dict:
+  _dict:
     properties: properties
     capabilities: capability_defs
-    requirements: requirement_defs
+    _require:ments: _require:ment_defs
     interfaces: interface_defs
-    members: { listOf: str }
+    members: { _listOf: str }
   copy: type_common_keys
 
 group_types:
-  dictOf: { str: group_type }
+  _dictOf: { str: group_type }
 
 group_def:
-  required: [type]
-  dict:
+  _require:d: [type]
+  _dict:
     type: str
     description: description
     properties: properties
-    members: { listOf: str }
+    members: { _listOf: str }
     interfaces: interface_defs_template
 
 group_defs:
-  dictOf: { str, group_def }
+  _dictOf: { str, group_def }
 
 trigger_defs:
-  listOf:
-      nb: 1
-      dictOf:
+  _listOf:
+      _nb: 1
+      _dictOf:
         str:
-          dict:
+          _dict:
             description: description
-            event: { oneOf: [ str, { dict: { type: str } } ] }
+            event: { _oneOf: [ str, { _dict: { type: str } } ] }
             schedule: value
             target_filter: 
-              dict:
+              _dict:
                 node: str
-                requirement: str
+                _require:ment: str
                 capability: str
             condition:
-                oneOf:
+                _oneOf:
                   - constraint
-                  - dict: { constraint: constraint }
+                  - _dict: { constraint: constraint }
             period: str
             evaluations: int
             method: str
-            action: { oneOf: [ str, operation_def ] }
+            action: { _oneOf: [ str, operation_def ] }
 
 policy_type:
-  dict:
+  _dict:
     properties: properties
-    targets: { listOf: str }
+    targets: { _listOf: str }
     triggers: trigger_defs
   copy: type_common_keys
 
 policy_types:
-  dictOf: { str,  policy_type }
+  _dictOf: { str,  policy_type }
 
 policy_defs:
-  listOf:
-      nb: 1
-      dictOf:
+  _listOf:
+      _nb: 1
+      _dictOf:
         str: 
-          dict:
+          _dict:
             type: str
             description: description
             properties: property_assignments
-            targets: { listOf: str }
+            targets: { _listOf: str }
             triggers: trigger_defs
 
 properties_mapping:
-  dictOf:
+  _dictOf:
     str:
-      oneOf:
+      _oneOf:
         - value
         - value_expression
-        - listOf: { str }
+        - _listOf: { str }
           max: 3
-        - nb: 1
-          dict:
+        - _nb: 1
+          _dict:
             mapping: 
-              oneOf: [ str, { max: 3, listOf: { str } } ]
+              _oneOf: [ str, { max: 3, _listOf: { str } } ]
             value: 
-              oneOf: [ value, value_expression ]
+              _oneOf: [ value, value_expression ]
 
 attributes_mapping:
-  dictOf:
+  _dictOf:
     str:
-      oneOf:
+      _oneOf:
         - value
         - value_expression
-        - listOf: { str }
+        - _listOf: { str }
           max: 3
-        - nb: 1
-          dict:
+        - _nb: 1
+          _dict:
             mapping: 
-              oneOf: [ str, { max: 3, listOf: { str } } ]
+              _oneOf: [ str, { max: 3, _listOf: { str } } ]
             value: 
-              oneOf: [ value, value_expression ]
+              _oneOf: [ value, value_expression ]
 
 capabilities_mapping:
-  dictOf:
+  _dictOf:
     str:
-      oneOf:
-        - { listOf: str, max: 2 }
-        - dict:
-            mapping: { oneOf: [ str, {listOf: str, max: 3 } ] }
+      _oneOf:
+        - { _listOf: str, max: 2 }
+        - _dict:
+            mapping: { _oneOf: [ str, {_listOf: str, max: 3 } ] }
             properties: property_assignments
             attributes: attribute_assignments
 
-requirements_mapping:
-  dictOf:
+_require:ments_mapping:
+  _dictOf:
     str:
-      oneOf:
-        - { listOf: str, max: 2 }
-        - dict:
-            mapping: { oneOf: [ str, {listOf: str, max: 3 } ] }
+      _oneOf:
+        - { _listOf: str, max: 2 }
+        - _dict:
+            mapping: { _oneOf: [ str, {_listOf: str, max: 3 } ] }
             properties: property_assignments
             attributes: attribute_assignments
 
 interfaces_mapping:
-  dictOf: { str: {dict: { idDefinition: str } } }
+  _dictOf: { str: {_dict: { idDefinition: str } } }
 
 substitution_mappings:
-  required: [ node_type ]
-  dict:
+  _require:d: [ node_type ]
+  _dict:
     node_type: str
     properties: properties_mapping
     capabilities: capabilities_mapping
-    requirements: requirements_mapping
+    _require:ments: _require:ments_mapping
     attributes: attributes_mapping
     interfaces: interfaces_mapping
 
 topology_template:
-  dict:
+  _dict:
     description: description
     inputs: input_parameters
     outputs: output_parameters
@@ -666,8 +666,8 @@ topology_template:
     workflows: imperative_workflow_defs
 
 service_template:
-  required: [ tosca_definitions_version ]
-  dict:
+  _require:d: [ tosca_definitions_version ]
+  _dict:
     tosca_definitions_version: str
     description: description
     namespace: namespace
