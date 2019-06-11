@@ -1,24 +1,24 @@
 version:
-  regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
+  _regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
 
 metadata: 
-  dict: 
+  _dict: 
     template_version: version
     template_author: str
     template_name: str
-  dictOf: { str: str }
+  _dictOf: { str: str }
 
 
 type_common_keys:
-  dict:
+  _dict:
     derived_from: str
     version: str
     metadata: metadata
     description: str
 
 artifact_type:
-  dict:
+  _dict:
     file_ext: str
     mime_type: str
-    properties: { optional: [1], listOf: str }
-  copy: type_common_keys
+    properties: { _optional: [1], _listOf: str }
+  _copy: type_common_keys
