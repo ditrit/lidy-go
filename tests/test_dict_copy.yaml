@@ -1,8 +1,7 @@
 derived_from: nom_de_type
 metadata: 
-    template_version: 1.9.45.alpha-23
+    template_version: 1.9.45.alpha-23*zedzede
     deux: seconde metadata
 file_ext: .doc
 properties:
 description: un exemple d'artefact
-alfredcd: dede

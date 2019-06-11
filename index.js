@@ -103,9 +103,8 @@ function _newMap(src_st) {
 }
 
 function _locate(src_idx, range) {
-    console.log(range)
-    let begin = src_idx.fromIndex( (range[0] > 1 ) ? range[0] - 1: 0 )
-    let end = src_idx.fromIndex( (range[1] > 1 ) ? range[1] - 1 : 0 )
+    let begin = src_idx.fromIndex( (range[0] > 1 ) ? range[0] : 0 )
+    let end = src_idx.fromIndex( (range[1] > 1 ) ? range[1]  : 0 )
     let loc_str = ` at ${begin.line}:${begin.col} <-> ${end.line}:${end.col}`
     return loc_str
 }
@@ -155,7 +154,7 @@ function _parseAtomic(src_st, rule_def, dsl_def, keyword, src_idx) {
         case 'any': 
             res = _parseRuleAnyYaml(src_st)
             break
-        default: res= parseDsl(src_st, dsl_def, rule_def)
+        default: res= parseDsl(src_st, dsl_def, rule_def, src_idx)
     }
     return res
 }
@@ -370,7 +369,7 @@ function _parseRuleRegExp(src_st, rule_def, dsl_def, keyword, src_idx) {
 // parsing 
 function parseRule(src_st, rule_def, dsl_def, keyword, src_idx) {
 
-    if ( typeof rule_def == 'string' ) return _parseAtomic(src_st, rule_def, dsl_def, keyword);
+    if ( typeof rule_def == 'string' ) return _parseAtomic(src_st, rule_def, dsl_def, keyword, src_idx);
 
     if (rule_def instanceof Object) {
 
