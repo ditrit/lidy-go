@@ -16,7 +16,6 @@ metadata:
 version:
   _regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
 
-
 size: scalar-unit.size
 scalar-unit.size:
   _regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (B|kB|KiB|MB|MiB|GB|GiB|TB|TiB)$'
@@ -37,6 +36,18 @@ string_value_expresion:
   _oneOf: 
     - str
     - value_expression
+
+value:
+  _oneOf:
+    - str
+    - int
+    - float
+    - version
+    - range
+    - frequency
+    - bitrate
+    - time
+    - size
 
 value_expression:
   _oneOf:

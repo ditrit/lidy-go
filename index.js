@@ -362,8 +362,8 @@ function _parseRuleRegExp(src_st, rule_def, dsl_def, keyword, src_idx) {
         let str_res = _newString(src_st)
         if (str_res && re.exec(str_res)) {
             str_res.range = src_st.range
-        }  else throw SyntaxError(`'${str_res}' does not match '${re_str}' for grammar keyword '${keyword} ${_locate(src_idx, src_st.range)}`) 
-    } else throw SyntaxError(`'${str_res}' can not be used as a regular expression ( keyword '${keyword} ) ${_locate(src_idx, src_st.range)}`) 
+        }  else throw SyntaxError(`'${str_res}' does not match '${re_str}' for grammar keyword '${keyword}' ${_locate(src_idx, src_st.range)}`) 
+    } else throw SyntaxError(`'${str_res}' can not be used as a regular expression ( keyword '${keyword}' ) ${_locate(src_idx, src_st.range)}`) 
 }
 
 // parsing 
@@ -390,42 +390,54 @@ function parseDsl(src_st, dsl_def, keyword, src_idx) {
     } else throw (SyntaxError(`Keyword '${keyword}' not found in language definition`))
 }
 
+function getTextFromFile(file_path, file_descr) {
+    let txt
+    try { txt = fs.readFileSync(file_path, 'utf8') }
+    catch (e) { console.log(`can not read ${file_descr} file : ${e}`) }
+    return txt
+}
+
+function parseYaml(src_txt, document) {
+    let linecol_idx = lineCol(src_txt + "\n")
+    var src_st
+    try { 
+        var src_st = (document === true) ? yaml.parseDocument(src_txt) : yaml.parse(src_txt) 
+    } catch(e) {
+        const deb = linecol_idx.fromIndex(e.source.range.start - 1)
+        const fin = linecol_idx.fromIndex(e.source.range.end - 1)
+        console.log(`${e.name}: ${e.message}\n\t at position ${deb}, ${fin}`)
+    }
+    return { syntax_tree: src_st, content: src_txt, linecol: linecol_idx }
+}
+
+function parseYamlDocument(src_txt) {
+    return parseYaml(src_txt, true)
+}
+
 function parse(src_file, dsl_def_file, keyword) {
-    // Load dsl definition file
-    let  dsl_def_txt
-    try { dsl_def_txt = fs.readFileSync(dsl_def_file, 'utf8') }
-    catch (e) { console.log(`can not read the language definition file : ${e}`) }
 
-    // parse dsl definition file
-    let dsl_def
-    try { dsl_def = yaml.parse(dsl_def_txt) } 
-    catch(e) {
-        const dsl_def_linecol = lineCol(dsl_def_txt)
-        const deb = dsl_def_linecol.fromIndex(e.source.range.start - 1)
-        const fin = dsl_def_linecol.fromIndex(e.source.range.end - 1)
-        console.log(`${e.name}: ${e.message}\n\t at position ${deb}, ${fin}`)
-    }
+    let  dsl_txt = getTextFromFile(dsl_def_file, "language definition")
+    let dsl = parseYaml(dsl_txt)
 
-    // Load source code
-    let src_txt
-    try { src_txt = fs.readFileSync(src_file, 'utf8') }
-    catch (e) { console.log(`Error : Can not read source file : ${e}`) }
+    let src_txt = getTextFromFile(src_file, "source")
+    let src = parseYamlDocument(src_txt)
 
-    // parse source code
-    let syntax_tree
-    let src_idx = lineCol(src_txt)
-    try { syntax_tree = yaml.parseDocument(src_txt) }
-    catch (e) {
-        const deb = src_idx.fromIndex(e.source.range.start - 1)
-        const fin = src_idx.fromIndex(e.source.range.end - 1)
-        console.log(`${e.name}: ${e.message}\n\t at position ${deb}, ${fin}`)
-    }
+    let nodes = parseDsl(src.syntax_tree.contents, dsl.syntax_tree, keyword, src.linecol)
+    return nodes
+}
 
-    // parse !!!!!
-    let nodes = parseDsl(syntax_tree.contents, dsl_def, keyword, src_idx)
+function parseString(src_txt, dsl_def_file, keyword) {
+
+    let  dsl_txt = getTextFromFile(dsl_def_file, "language definition")
+    let dsl = parseYaml(dsl_txt)
+
+    let src = parseYamlDocument(src_txt)
+
+    let nodes = parseDsl(src.syntax_tree.contents, dsl.syntax_tree, keyword, src.linecol)
     return nodes
 }
 
 //parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
 let res = parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
 //parse('tests/tosca_types.yaml', 'tests/yaml_def.yaml', 'yamldoc') 
+
