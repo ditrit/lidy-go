@@ -426,7 +426,7 @@ function parse(src_file, dsl_def_file, keyword) {
     return nodes
 }
 
-function parseString(src_txt, dsl_def_file, keyword) {
+function parse_string(src_txt, dsl_def_file, keyword) {
 
     let  dsl_txt = getTextFromFile(dsl_def_file, "language definition")
     let dsl = parseYaml(dsl_txt)
@@ -437,7 +437,10 @@ function parseString(src_txt, dsl_def_file, keyword) {
     return nodes
 }
 
-//parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
-let res = parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
+parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
+//let res = parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
 //parse('tests/tosca_types.yaml', 'tests/yaml_def.yaml', 'yamldoc') 
+
+exports.parse_string=parse_string
+exports.parse=parse
 
