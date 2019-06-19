@@ -16,6 +16,9 @@ metadata:
 version:
   _regexp: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
 
+url:
+  _regexp: '^(https?:\\/\\/)?((([a-z\\d]([a-z\\d_-]*[a-z\\d])*)\\.?)+[a-z\\d_-]{2,}|((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*(\\?[;&a-z\\d%_.~+=-]*)?(\\#[-a-z\\d_]*)?$'
+
 size: scalar-unit.size
 scalar-unit.size:
   _regexp: '([+-] *)?[0-d]+(\.[0-9]+)? (B|kB|KiB|MB|MiB|GB|GiB|TB|TiB)$'
@@ -70,7 +73,7 @@ imports:
       - _nb: 1
         _dictOf:
           str:
-            _require:d: [file]
+            _required: [file]
             _dict:
               file: str
               repository: str
@@ -113,7 +116,7 @@ property:
     constraints: constraints
     required: bool
     default: value
-    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ] }
+    status: { _in: [ supported, unsupported, experimental, deprecated, _optional: ] }
     metadata: metadata
     entry_schema: entry_schema 
 
@@ -137,7 +140,7 @@ attribute:
     type: str 
     description: description
     default: value
-    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ] }
+    status: { _in: [ supported, unsupported, experimental, deprecated, _optional: ] }
     entry_schema: entry_schema 
 
 attributes:
@@ -160,9 +163,9 @@ input_parameter:
     type: str 
     description: description
     constraints: constraints
-    _require:d: bool
+    required: bool
     default: value
-    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ] }
+    status: { _in: [ supported, unsupported, experimental, deprecated, _optional: ] }
     entry_schema: entry_schema 
     value: { _oneOf: [ value, value_expression ] } 
 
@@ -173,14 +176,14 @@ input_assignments:
   property_assignments
 
 output_parameter:
-  _require:d: [ type ]
+  _required: [ type ]
   _dict:
     type: str 
     description: description
     constraints: constraints
-    _require:d: bool
+    required: bool
     default: value
-    status: { _enum: [ supported, unsupported, experimental, deprecated, _optional: ]}
+    status: { _in: [ supported, unsupported, experimental, deprecated, _optional: ]}
     entry_schema: entry_schema 
     value: { _oneOf: [ value, value_expression ] } 
 
@@ -190,12 +193,12 @@ output_parameters:
 repository:
   _oneOf:
     - str
-    - _require:d: [url]
+    - _required: [url]
       _dict:
         url: str
         description: description
         credential:
-          _require:d: [token]
+          _required: [token]
           _dict:
             protocol: str
             token: str
@@ -205,7 +208,7 @@ repository:
 artifact_def: 
   _oneOf:
     - str
-    - _require:: [type, file]
+    - _required: [type, file]
       _dict:
         type: str
         file: str
@@ -228,7 +231,7 @@ artifact_type:
     file_ext: str
     mime_type: str
     properties: properties
-  copy: type_common_keys
+  _copy: type_common_keys
 
 artifact_types:
   _dictOf: { str, artifact_type}
@@ -237,7 +240,7 @@ data_type:
   _dict:
     properties: properties
     constraints: constraints
-  copy: type_common_keys
+  _copy: type_common_keys
 
 implementation:
   _oneOf:
@@ -261,7 +264,7 @@ operation_def_template:
 interface_type:
   _dict:
     inputs: properties
-  copy: type_common_keys
+  _copy: type_common_keys
   _dictOf:
     str: operation_def
 
@@ -269,11 +272,11 @@ interface_types:
   _dictOf: { str: interface_def }
 
 interface_def:
-  _require:d: [ type ]
+  _required: [ type ]
   _dict:
     - type: str
     - inputs: properties
-  copy: operation_def
+  _copy: operation_def
 
 interface_defs:
   _dictOf: { str, interface_def }
@@ -281,7 +284,7 @@ interface_defs:
 interface_def_template:
   _dict: 
     - inputs: properties
-  copy: operation_def
+  _copy: operation_def
 
 interface_defs_template:
   _dictOf: { str, interface_def_template }
@@ -291,7 +294,7 @@ capability_type:
     - properties: properties
     - attributes: attributes
     - valid_source_types: { _listOf: str }
-  copy: type_common_keys
+  _copy: type_common_keys
 
 capability_def:
   _oneOf:
@@ -311,7 +314,7 @@ capability_assignment:
   _dict:
     - properties: property_assignments
     - attributes: attribute_assignments
-      _require:d: true
+      required: true
 
 capability_assignments:
   _dictOf: { str: capability_assignment }
@@ -337,14 +340,14 @@ node_filter:
     properties: properties_filter
     capabilities: capabilities_filter
 
-_require:ment_defs:
+requirement_defs:
   _listOf:
       _nb: 1
       _dictOf:
         str:
           _oneOf:
             - str
-            - _require:d: [ capability ]
+            - _required: [ capability ]
               _dict:
                 capability: str
                 description: description
@@ -357,7 +360,7 @@ _require:ment_defs:
                           type: str
                           interfaces: interface_defs
 
-_require:ment_assignments:
+requirement_assignments:
   _listOf:
     _nb: 1
     _dictOf:
@@ -479,16 +482,16 @@ node_type:
     properties: properties
     attributes: attributes
     capabilities: capability_defs
-    _require:ments: _require:ment_defs
+    requirements: requirement_defs
     interfaces: interface_defs
     workflows: declarative_workflow_node_defs
-  copy: type_common_keys
+  _copy: type_common_keys
 
 node_types:
   _dictOf: { str, node_type }
 
 node_template:
-  _require:d: [ type ]
+  _required: [ type ]
   _dict: 
     type: str
     metadata: metadata
@@ -497,7 +500,7 @@ node_template:
     properties: property_assignments
     attributes: attribute_assignments
     capabilities: capability_assignments
-    _require:ments: _require:ment_assignments
+    requirements: requirement_assignments
     interfaces: interface_defs_template
     artifacts: artifact_defs
     node_filter: node_filter
@@ -513,16 +516,16 @@ relationship_type:
     interfaces: interface_defs
     valid_target_types: { _listOf: str }
     workflows: declarative_workflow_rel_defs
-  copy: type_common_keys
+  _copy: type_common_keys
 
 relationship_types:
   _dictOf: { str, relationship_type }
 
 relationship_template:
-  _require:d: [ type ]
+  _required: [ type ]
   _dict:
     type: str
-    description: _require:d
+    description: description
     metadata: metadata
     properties: properties
     attributes: attributes
@@ -536,16 +539,16 @@ group_type:
   _dict:
     properties: properties
     capabilities: capability_defs
-    _require:ments: _require:ment_defs
+    requirements: requirement_defs
     interfaces: interface_defs
     members: { _listOf: str }
-  copy: type_common_keys
+  _copy: type_common_keys
 
 group_types:
   _dictOf: { str: group_type }
 
 group_def:
-  _require:d: [type]
+  _required: [type]
   _dict:
     type: str
     description: description
@@ -568,7 +571,7 @@ trigger_defs:
             target_filter: 
               _dict:
                 node: str
-                _require:ment: str
+                requirement: str
                 capability: str
             condition:
                 _oneOf:
@@ -584,7 +587,7 @@ policy_type:
     properties: properties
     targets: { _listOf: str }
     triggers: trigger_defs
-  copy: type_common_keys
+  _copy: type_common_keys
 
 policy_types:
   _dictOf: { str,  policy_type }
@@ -641,7 +644,7 @@ capabilities_mapping:
             properties: property_assignments
             attributes: attribute_assignments
 
-_require:ments_mapping:
+requirements_mapping:
   _dictOf:
     str:
       _oneOf:
@@ -655,12 +658,12 @@ interfaces_mapping:
   _dictOf: { str: {_dict: { idDefinition: str } } }
 
 substitution_mappings:
-  _require:d: [ node_type ]
+  _required: [ node_type ]
   _dict:
     node_type: str
     properties: properties_mapping
     capabilities: capabilities_mapping
-    _require:ments: _require:ments_mapping
+    requirements: requirements_mapping
     attributes: attributes_mapping
     interfaces: interfaces_mapping
 
@@ -677,7 +680,7 @@ topology_template:
     workflows: imperative_workflow_defs
 
 service_template:
-  _require:d: [ tosca_definitions_version ]
+  _required: [ tosca_definitions_version ]
   _dict:
     tosca_definitions_version: str
     description: description

@@ -345,13 +345,22 @@ function _parseRuleOneOf(src_st, rule_def, dsl_def, keyword, src_idx) {
     throw SyntaxError(`No option satisfied in oneOf ${_locate(src_idx, src_st.range)}`)
 }
 
-function _parseRuleEnum(src_st, rule_def, dsl_def, keyword, src_idx) {
+function _parseRuleIn(src_st, rule_def, dsl_def, keyword, src_idx) {
     // fonctionne pour les scalaires uniquement, revoir pour les valeurs complexes
-    if ( rule_def["_enum"].includes( src_st.value ) ) {
+    if ( rule_def["_in"].includes( src_st.value ) ) {
         let str_res = _newString(src_st)
         str_res.range = src_st.range
         return str_res
-    } else throw SyntaxError(`${src_st.value} not in enum ${rule_def["enum"]} ${_locate(src_idx, src_st.range)}`)
+    } else throw SyntaxError(`${src_st.value} is not in  ${rule_def["_in"]} ${_locate(src_idx, src_st.range)}`)
+}
+
+function _parseRuleNotIn(src_st, rule_def, dsl_def, keyword, src_idx) {
+    // fonctionne pour les scalaires uniquement, revoir pour les valeurs complexes
+    if ( ! rule_def["_notin"].includes( src_st.value ) ) {
+        let str_res = _newString(src_st)
+        str_res.range = src_st.range
+        return str_res
+    } else throw SyntaxError(`${src_st.value} should not be in ${rule_def["_notin"]} ${_locate(src_idx, src_st.range)}`)
 }
 
 function _parseRuleRegExp(src_st, rule_def, dsl_def, keyword, src_idx) {
@@ -376,7 +385,8 @@ function parseRule(src_st, rule_def, dsl_def, keyword, src_idx) {
         if ( "_dict"   in rule_def || "_dictOf" in rule_def ) return _parseRuleMap(src_st, rule_def, dsl_def, keyword, src_idx)
         if ( "_list"   in rule_def || "_listOf" in rule_def ) return _parseRuleList(src_st, rule_def, dsl_def, keyword, src_idx)
         if ( "_oneOf"  in rule_def) return _parseRuleOneOf(src_st, rule_def, dsl_def, keyword, src_idx)
-        if ( "_enum"   in rule_def) return _parseRuleEnum(src_st, rule_def, dsl_def, keyword, src_idx)
+        if ( "_in"     in rule_def) return _parseRuleIn(src_st, rule_def, dsl_def, keyword, src_idx)
+        if ( "_notin"  in rule_def) return _parseRuleNotIn(src_st, rule_def, dsl_def, keyword, src_idx)
         if ( "_regexp" in rule_def) return _parseRuleRegExp(src_st, rule_def, dsl_def, keyword, src_idx)
     }
 }
