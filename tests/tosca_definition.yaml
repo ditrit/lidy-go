@@ -491,7 +491,7 @@ node_types:
   _dictOf: { str, node_type }
 
 node_template:
-  _required: [ type ]
+  _required: [ type|copy ]
   _dict: 
     type: str
     metadata: metadata
@@ -522,7 +522,7 @@ relationship_types:
   _dictOf: { str, relationship_type }
 
 relationship_template:
-  _required: [ type ]
+  _required: [ type|copy ]
   _dict:
     type: str
     description: description

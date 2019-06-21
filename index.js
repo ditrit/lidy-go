@@ -7,8 +7,13 @@ const YScalar = require('yaml/scalar').default
 const lineCol = require('line-column')
 
 function ymap_has_all(st_dict, keys) {
-  for (const k of keys) {
-    if (! st_dict.has(k) ) return false
+  for (const key of keys) {
+      let items = key.split('|')
+      let found = false
+      for (const item of items) {
+          if (found = st_dict.has(item)) break;
+      }
+    if (! found ) return false
   }
   return true
 }
