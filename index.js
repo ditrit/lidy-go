@@ -6,44 +6,44 @@ const YPair   = require('yaml/pair').default
 const YScalar = require('yaml/scalar').default
 const lineCol = require('line-column')
 
-function ymap_has_all(st_dict, keys) {
+function ymap_has_all(tree, keys) {
   for (const key of keys) {
       let items = key.split('|')
       let found = false
       for (const item of items) {
-          if (found = st_dict.has(item)) break;
+          if (found = tree.has(item)) break;
       }
     if (! found ) return false
   }
   return true
 }
 
-function _newTimestamp(src_st) {
+function _newTimestamp(tree) {
     let timestamp = NaN
-    if ( src_st instanceof YScalar ) {
-        try { timestamp = Date.parse(src_st.value) } catch (erreur) { }
+    if ( tree instanceof YScalar ) {
+        try { timestamp = Date.parse(tree.value) } catch (erreur) { }
         if (isNaN(timestamp)) 
             timestamp = null
         else
-            timestamp.range = src_st.range
+            timestamp.range = tree.range
     } 
     return timestamp
 }
 
-function _newBoolean(src_st) {
+function _newBoolean(tree) {
     let bool_val = null
-    if ( src_st instanceof YScalar && ( src_st.value === true || src_st.value === false ) ) {
+    if ( tree instanceof YScalar && ( tree.value === true || tree.value === false ) ) {
         bool_val = new Boolean(true)
-        bool_val.range = src_st.range
+        bool_val.range = tree.range
     }
     return bool_val
 }
 
-function _newUnbounded(src_st) {
+function _newUnbounded(tree) {
     let unbounded = null
-    if ( src_st instanceof YScalar && typeof src_st.value == 'string' && src_st.value.toLowerCase() == 'unbounded' ) {
+    if ( tree instanceof YScalar && typeof tree.value == 'string' && tree.value.toLowerCase() == 'unbounded' ) {
         unbounded = new Number(Infinity)
-        unbounded.range = src_st.range
+        unbounded.range = tree.range
         unbounded.isUnbounded = true
         unbounded.isInteger = true
         unbounded.isFloat = true
@@ -51,20 +51,20 @@ function _newUnbounded(src_st) {
     return unbounded
 }
 
-function _newString(src_st) {
+function _newString(tree) {
     let str = null
-    if ( src_st instanceof YScalar && (typeof src_st.value === 'string' || typeof src_st.value === 'number' )) {
-        str = new String(src_st.value)
-        str.range = src_st.range                
+    if ( tree instanceof YScalar && (typeof tree.value === 'string' || typeof tree.value === 'number' )) {
+        str = new String(tree.value)
+        str.range = tree.range                
     }
     return str
 }
 
-function _newInteger(src_st) {
+function _newInteger(tree) {
     let num = null
-    if ( src_st instanceof YScalar && typeof src_st.value == 'number' && Number.isInteger(src_st.value) ) {
-        num = new Number(src_st.value)
-        num.range = src_st.range
+    if ( tree instanceof YScalar && typeof tree.value == 'number' && Number.isInteger(tree.value) ) {
+        num = new Number(tree.value)
+        num.range = tree.range
         num.isUnbounded = false
         num.isInteger = true
         num.isFloat = false
@@ -72,11 +72,11 @@ function _newInteger(src_st) {
     return num
 }
 
-function _newFloat(src_st) {
+function _newFloat(tree) {
     let num = null
-    if ( src_st instanceof YScalar && typeof src_st.value == 'number' && !Number.isInteger(src_st.value) ) {
-        num = new Number(src_st.value)
-        num.range = src_st.range
+    if ( tree instanceof YScalar && typeof tree.value == 'number' && !Number.isInteger(tree.value) ) {
+        num = new Number(tree.value)
+        num.range = tree.range
         num.isUnbounded = false
         num.isInteger = false
         num.isFloat = true
@@ -84,25 +84,25 @@ function _newFloat(src_st) {
     return num
 }
 
-function _newList(src_st) {
+function _newList(tree) {
     let list_array = null
-    if ( src_st instanceof YSeq ) {
-        list_array = src_st.items.map(x => _parseRuleAnyYaml(x))
-        list_array.range = src_st.range
+    if ( tree instanceof YSeq ) {
+        list_array = tree.items.map(x => _parseRuleAnyYaml(x))
+        list_array.range = tree.range
     }
     return list_array
 }
 
-function _newMap(src_st) {
+function _newMap(tree) {
     let map = null
-    if ( src_st instanceof YMap ) {
+    if ( tree instanceof YMap ) {
         map = new Map()
-        for (item of src_st.items) {
+        for (item of tree.items) {
             let key = item.key.value
             let value  = item.value
             map.set(key, _parseRuleAnyYaml(value))
         }
-        map.range = src_st.range
+        map.range = tree.range
         return map
     }
 }
@@ -115,51 +115,51 @@ function _locate(src_idx, range) {
 }
 
 
-function _parseAtomic(src_st, rule_def, dsl_def, keyword, src_idx) {
+function _parseAtomic(tree, rule_def, keyword, info) {
 
     let res = null
     switch (rule_def) {
 
         case 'null': 
-            if (! (src_st instanceof YScalar && src_st.value === null)) 
-            throw SyntaxError(`'Should be null value in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            if (! (tree instanceof YScalar && tree.value === null)) 
+            throw SyntaxError(`'Should be null value in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'timestamp': 
-            res = _newTimestamp(src_st) 
-            if (!res) throw SyntaxError(`'Should be a timestamp in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newTimestamp(tree) 
+            if (!res) throw SyntaxError(`'Should be a timestamp in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'bool': 
-            res = _newBoolean(src_st) 
-            if (!res) throw SyntaxError(`'Should be a boolean in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newBoolean(tree) 
+            if (!res) throw SyntaxError(`'Should be a boolean in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'unbounded': 
-            res = _newUnbounded(src_st) 
-            if (!res) throw SyntaxError(`'Should be 'unbounded' in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newUnbounded(tree) 
+            if (!res) throw SyntaxError(`'Should be 'unbounded' in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'int': 
-            res = _newInteger(src_st) 
-            if (!res) throw SyntaxError(`'Should be an int in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newInteger(tree) 
+            if (!res) throw SyntaxError(`'Should be an int in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'float': 
-            res = _newFloat(src_st) 
-            if (!res) throw SyntaxError(`'Should be a float in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newFloat(tree) 
+            if (!res) throw SyntaxError(`'Should be a float in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'list': 
-            res= _newList(src_st) 
-            if (!res) throw SyntaxError(`'Should be a list in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res= _newList(tree) 
+            if (!res) throw SyntaxError(`'Should be a list in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'map': 
-            res = _newMap(src_st) 
-            if (!res) throw SyntaxError(`'Should be a map in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newMap(tree) 
+            if (!res) throw SyntaxError(`'Should be a map in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'str': 
-            res = _newString(src_st) 
-            if (!res) throw SyntaxError(`'Should be a string in ( ${keyword} ) ! ${_locate(src_idx, src_st.range)}`)
+            res = _newString(tree) 
+            if (!res) throw SyntaxError(`'Should be a string in ( ${keyword} ) ! ${_locate(info.index, tree.range)}`)
             break
         case 'any': 
-            res = _parseRuleAnyYaml(src_st)
+            res = _parseRuleAnyYaml(tree)
             break
-        default: res= parseDsl(src_st, dsl_def, rule_def, src_idx)
+        default: res= parseDsl(tree, info, rule_def)
     }
     return res
 }
@@ -177,12 +177,12 @@ function _parseRuleAnyYaml(src_st) {
     return res
 }
 
-function _copyDict(rule_def, dsl_def) { 
+function _copyDict(rule_def, info) { 
     
     let copy_rule = rule_def['_copy']
     if (!copy_rule) return rule_def
-    let to_copy_dict = copy_rule && dsl_def[copy_rule]
-    let to_copy_flat_dict = to_copy_dict && _copyDict(to_copy_dict, dsl_def)
+    let to_copy_dict = copy_rule && info.dsl[copy_rule]
+    let to_copy_flat_dict = to_copy_dict && _copyDict(to_copy_dict, info.dsl)
 
     let new_rule = Object.assign({}, rule_def)
     if ('_required' in new_rule) new_rule._required = [...new_rule._required]
@@ -204,31 +204,31 @@ function _copyDict(rule_def, dsl_def) {
     return new_rule
 }
 
-function _parseRuleMap(src_st, rule_def, dsl_def, keyword, src_idx) {
+function _parseRuleMap(tree, rule_def, keyword, info) {
 
-    if (!src_st) src_st = new YMap()
-    if ( ! (src_st instanceof YMap) )
-    throw SyntaxError(`'Should be a map  ( ${keyword} )  ! ${_locate(src_idx, src_st.range)}`)
+    if (!tree) tree = new YMap()
+    if ( ! (tree instanceof YMap) )
+    throw SyntaxError(`'Should be a map  ( ${keyword} )  ! ${_locate(info.index, tree.range)}`)
 
     // apply (recursive) copy if 'copy' keyword exists
-    rule_def = _copyDict(rule_def, dsl_def)
+    rule_def = _copyDict(rule_def, info)
 
     // required
     let required = rule_def["_required"] || []
-    if ( ! ymap_has_all(src_st, required) ) 
-    throw SyntaxError(`'${required.join(', ')}' element${(required.length > 1) ? "s are" : " is"} required in a ${keyword} ${_locate(src_idx, src_st.range)}`)
+    if ( ! ymap_has_all(tree, required) ) 
+    throw SyntaxError(`'${required.join(', ')}' element${(required.length > 1) ? "s are" : " is"} required in a ${keyword} ${_locate(info.index, tree.range)}`)
 
     // cardinality
     let nb  = rule_def["_nb"]
     let max = rule_def["_max"]
     let min = rule_def["_min"]
-    let nb_items = src_st.items.length
+    let nb_items = tree.items.length
     if (nb && nb_items != nb)
-    throw SyntaxError(`'this map should have ${nb} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`'this map should have ${nb} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(info.index, tree.range)}`)
     if (max && nb_items > max)
-    throw SyntaxError(`'this map should have at most ${max} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`'this map should have at most ${max} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(info.index, tree.range)}`)
     if (min && nb_items < min)
-    throw SyntaxError(`'this map should have at least ${min} element${(min > 1) ? "s " : " "}(${nb_items} provided) ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`'this map should have at least ${min} element${(min > 1) ? "s " : " "}(${nb_items} provided) ${_locate(info.index, tree.range)}`)
 
     // schemas of elements
     let defaults = rule_def["_defaults"] || {} 
@@ -242,23 +242,23 @@ function _parseRuleMap(src_st, rule_def, dsl_def, keyword, src_idx) {
     } else dictOf = null
 
     let map = new Map()
-    map.range = src_st.range
-    for (const item of src_st.items ) {
+    map.range = tree.range
+    for (const item of tree.items ) {
         if ( item instanceof YPair ) {
             let pair_key = item && item.key
             let key = pair_key.value
             let pair_value = item && item.value
             let parsed_key, parsed_val
             if ( dict && key in dict ) {
-                parsed_val = parseRule(pair_value, dict[key], dsl_def, keyword, src_idx) || defaults[key] 
+                parsed_val = parseRule(pair_value, dict[key], keyword, info) || defaults[key] 
                 map.set(key, parsed_val)
             } else {
                 if (ele_key && ele_val) {
-                    parsed_key = parseRule( pair_key, ele_key, dsl_def, keyword, src_idx)
-                    parsed_val = parseRule( pair_value, ele_val, dsl_def, keyword, src_idx) || defaults[key] 
+                    parsed_key = parseRule( pair_key, ele_key, keyword, info)
+                    parsed_val = parseRule( pair_value, ele_val, keyword, info) || defaults[key] 
                     map.set(parsed_key, parsed_val) 
                 } else {
-                    let message = `'${key}' is not allowed inside of '${keyword}' ${_locate(src_idx, src_st.range)}`
+                    let message = `'${key}' is not allowed inside of '${keyword}' ${_locate(info.index, tree.range)}`
                     throw SyntaxError(message)
                 }
             }
@@ -268,23 +268,23 @@ function _parseRuleMap(src_st, rule_def, dsl_def, keyword, src_idx) {
 }
 
 
-function _parseRuleList(src_st, rule_def, dsl_def, keyword, src_idx) { 
+function _parseRuleList(tree, rule_def, keyword, info) { 
 
-    if (!src_st) src_st = new YSeq()
-    if ( ! (src_st instanceof YSeq) )
-    throw SyntaxError(`'Should be a list  ( ${keyword} ) ${_locate(src_idx, src_st.range)} !`)
+    if (!tree) tree = new YSeq()
+    if ( ! (tree instanceof YSeq) )
+    throw SyntaxError(`'Should be a list  ( ${keyword} ) ${_locate(info.index, tree.range)} !`)
 
     // cardinality
     let nb  = rule_def["_nb"]
     let max = rule_def["_max"]
     let min = rule_def["_min"]
-    let nb_items = src_st.items.length
+    let nb_items = tree.items.length
     if (nb && nb_items !== nb)
-    throw SyntaxError(`'this map should have ${nb} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`'this map should have ${nb} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(info.index, tree.range)}`)
     if (max && nb_items > max)
-    throw SyntaxError(`'this map should have at most ${max} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`'this map should have at most ${max} element${(nb > 1) ? "s " : " "}(${nb_items} provided) ${_locate(info.index, tree.range)}`)
     if (min && nb_items < min)
-    throw SyntaxError(`'this map should have at least ${min} element${(min > 1) ? "s " : " "}(${nb_items} provided) ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`'this map should have at least ${min} element${(min > 1) ? "s " : " "}(${nb_items} provided) ${_locate(info.index, tree.range)}`)
 
     // schemas of elements
     let optional = rule_def["_optional"] || []
@@ -292,7 +292,7 @@ function _parseRuleList(src_st, rule_def, dsl_def, keyword, src_idx) {
     let list     = rule_def["_list"]
     let listOf   = rule_def["_listOf"]
 
-    src_st.value = []
+    tree.value = []
     let idx = 0
     let lst_nb = (list && list.length) || 0
     let item
@@ -300,18 +300,18 @@ function _parseRuleList(src_st, rule_def, dsl_def, keyword, src_idx) {
     let parsed_ok = true
 
     let list_array = []
-    list_array.range = src_st.range
+    list_array.range = tree.range
 
     if (list) {
         for (let lst_idx = 0; lst_idx < lst_nb; lst_idx++ ) {
             if (parsed_ok == true) {
-                item = src_st.items[idx]
+                item = tree.items[idx]
                 idx++
             }
             let def_ele = list[lst_idx]
             let is_optional = optional.includes(lst_idx + 1)
             try { 
-                parsed_item = parseRule( item, def_ele, dsl_def, keyword, src_idx) 
+                parsed_item = parseRule( item, def_ele, keyword, info) 
                 parsed_ok = true
             } catch (error) { 
                 if ( ! is_optional) throw (error)
@@ -325,83 +325,82 @@ function _parseRuleList(src_st, rule_def, dsl_def, keyword, src_idx) {
         def_ele = listOf
         let nb_of = 0
         for (;idx < nb_items; idx++) {
-            item = src_st.items[idx]
-            parsed_item = parseRule( item, def_ele, dsl_def, keyword, src_idx) 
+            item = tree.items[idx]
+            parsed_item = parseRule( item, def_ele, keyword, info) 
             list_array.push(parsed_item)
             nb_of++
         }
-        if (nb_of == 0 && is_optional == false ) throw SyntaxError(` ListOf should contain at least one element ${_locate(src_idx, src_st.range)}`)
-    } else if (src_st.items[idx]) throw SyntaxError(`To many elements in the list ${_locate(src_idx, src_st.range)}`)
+        if (nb_of == 0 && is_optional == false ) throw SyntaxError(` ListOf should contain at least one element ${_locate(info.index, tree.range)}`)
+    } else if (tree.items[idx]) throw SyntaxError(`To many elements in the list ${_locate(info.index, tree.range)}`)
 
     return list_array
 }
 
-function _parseRuleOneOf(src_st, rule_def, dsl_def, keyword, src_idx) {
+function _parseRuleOneOf(tree, rule_def, keyword, info) {
 
     let choices     = rule_def["_oneOf"]
     if (choices) {
         for (let choice of choices ) {
             try { 
-                let res = parseRule( src_st, choice, dsl_def, keyword, src_idx)
+                let res = parseRule( tree, choice, keyword, info)
                 return res
             } catch (error) { }
         }
     } 
-    throw SyntaxError(`No option satisfied in oneOf ${_locate(src_idx, src_st.range)}`)
+    throw SyntaxError(`No option satisfied in oneOf ${_locate(info.index, tree.range)}`)
 }
 
-function _parseRuleIn(src_st, rule_def, dsl_def, keyword, src_idx) {
+function _parseRuleIn(tree, rule_def, keyword, info) {
     // fonctionne pour les scalaires uniquement, revoir pour les valeurs complexes
-    if ( rule_def["_in"].includes( src_st.value ) ) {
-        let str_res = _newString(src_st)
-        str_res.range = src_st.range
+    if ( rule_def["_in"].includes( tree.value ) ) {
+        let str_res = _newString(tree)
+        str_res.range = tree.range
         return str_res
-    } else throw SyntaxError(`${src_st.value} is not in  ${rule_def["_in"]} ${_locate(src_idx, src_st.range)}`)
+    } else throw SyntaxError(`${tree.value} is not in  ${rule_def["_in"]} for grammar keyword '${keyword} ${_locate(info.index, tree.range)}`)
 }
 
-function _parseRuleNotIn(src_st, rule_def, dsl_def, keyword, src_idx) {
+function _parseRuleNotIn(tree, rule_def, keyword, info) {
     // fonctionne pour les scalaires uniquement, revoir pour les valeurs complexes
-    if ( ! rule_def["_notin"].includes( src_st.value ) ) {
-        let str_res = _newString(src_st)
-        str_res.range = src_st.range
+    if ( ! rule_def["_notin"].includes( tree.value ) ) {
+        let str_res = _newString(tree)
+        str_res.range = tree.range
         return str_res
-    } else throw SyntaxError(`${src_st.value} should not be in ${rule_def["_notin"]} ${_locate(src_idx, src_st.range)}`)
+    } else throw SyntaxError(`${tree.value} should not be in ${rule_def["_notin"]} for grammar keyword '${keyword} ${_locate(info.index, tree.range)}`)
 }
 
-function _parseRuleRegExp(src_st, rule_def, dsl_def, keyword, src_idx) {
-
+function _parseRuleRegExp(tree, rule_def, keyword, info) {
     let re_str = rule_def["_regexp"]
     if ( typeof re_str === 'string' ) {
         let re = new RegExp(re_str) 
-        let str_res = _newString(src_st)
+        let str_res = _newString(tree)
         if (str_res && re.exec(str_res)) {
-            str_res.range = src_st.range
-        }  else throw SyntaxError(`'${str_res}' does not match '${re_str}' for grammar keyword '${keyword}' ${_locate(src_idx, src_st.range)}`) 
-    } else throw SyntaxError(`'${str_res}' can not be used as a regular expression ( keyword '${keyword}' ) ${_locate(src_idx, src_st.range)}`) 
+            str_res.range = tree.range
+        }  else throw SyntaxError(`'${str_res}' does not match '${re_str}' for grammar keyword '${keyword}' ${_locate(info.index, tree.range)}`) 
+    } else throw SyntaxError(`'${str_res}' can not be used as a regular expression ( keyword '${keyword}' ) ${_locate(info.index, tree.range)}`) 
 }
 
 // parsing 
-function parseRule(src_st, rule_def, dsl_def, keyword, src_idx) {
+function parseRule(tree, rule_def, keyword, info) {
 
-    if ( typeof rule_def == 'string' ) return _parseAtomic(src_st, rule_def, dsl_def, keyword, src_idx);
+    if ( typeof rule_def == 'string' ) return _parseAtomic(tree, rule_def, keyword, info);
 
     if (rule_def instanceof Object) {
 
-        if ( "_dict"   in rule_def || "_dictOf" in rule_def ) return _parseRuleMap(src_st, rule_def, dsl_def, keyword, src_idx)
-        if ( "_list"   in rule_def || "_listOf" in rule_def ) return _parseRuleList(src_st, rule_def, dsl_def, keyword, src_idx)
-        if ( "_oneOf"  in rule_def) return _parseRuleOneOf(src_st, rule_def, dsl_def, keyword, src_idx)
-        if ( "_in"     in rule_def) return _parseRuleIn(src_st, rule_def, dsl_def, keyword, src_idx)
-        if ( "_notin"  in rule_def) return _parseRuleNotIn(src_st, rule_def, dsl_def, keyword, src_idx)
-        if ( "_regexp" in rule_def) return _parseRuleRegExp(src_st, rule_def, dsl_def, keyword, src_idx)
+        if ( "_dict"   in rule_def || "_dictOf" in rule_def ) return _parseRuleMap(tree, rule_def, keyword, info)
+        if ( "_list"   in rule_def || "_listOf" in rule_def ) return _parseRuleList(tree, rule_def, keyword, info)
+        if ( "_oneOf"  in rule_def) return _parseRuleOneOf(tree, rule_def, keyword, info)
+        if ( "_in"     in rule_def) return _parseRuleIn(tree, rule_def, keyword, info)
+        if ( "_notin"  in rule_def) return _parseRuleNotIn(tree, rule_def, keyword, info)
+        if ( "_regexp" in rule_def) return _parseRuleRegExp(tree, rule_def, keyword, info)
     }
 }
 
-function parseDsl(src_st, dsl_def, keyword, src_idx) {
-    if (!dsl_def) 
+function parseDsl(tree, info, keyword) {
+    if (!tree) 
         console.log("LOG")
-    let keyrule = dsl_def[keyword]
+    let keyrule = info.dsl[keyword]
     if (keyrule) {
-        return parseRule(src_st, keyrule, dsl_def, keyword, src_idx)
+        return parseRule(tree, keyrule, keyword, info)
     } else throw (SyntaxError(`Keyword '${keyword}' not found in language definition`))
 }
 
@@ -412,50 +411,59 @@ function getTextFromFile(file_path, file_descr) {
     return txt
 }
 
-function parseYaml(src_txt, document) {
-    let linecol_idx = lineCol(src_txt + "\n")
-    var src_st
+function parseYaml(src_txt, document = false) {
+    let index = lineCol(src_txt + "\n")
+    let tree
     try { 
-        var src_st = (document === true) ? yaml.parseDocument(src_txt) : yaml.parse(src_txt) 
+        if ( document === true ) {
+            let doc = yaml.parseDocument(src_txt)
+            tree = doc.contents
+        } else {
+            tree = yaml.parse(src_txt)
+        }
     } catch(e) {
-        const deb = linecol_idx.fromIndex(e.source.range.start - 1)
-        const fin = linecol_idx.fromIndex(e.source.range.end - 1)
+        const deb = index.fromIndex(e.source.range.start - 1)
+        const fin = index.fromIndex(e.source.range.end - 1)
         console.log(`${e.name}: ${e.message}\n\t at position ${deb}, ${fin}`)
     }
-    return { syntax_tree: src_st, content: src_txt, linecol: linecol_idx }
+    return { tree: tree, index: index }
 }
 
 function parseYamlDocument(src_txt) {
     return parseYaml(src_txt, true)
 }
 
-function parse(src_file, dsl_def_file, keyword) {
+function _parse(src_file, src_txt, dsl_def_file, keyword) {
 
-    let  dsl_txt = getTextFromFile(dsl_def_file, "language definition")
+    let dsl_txt = getTextFromFile(dsl_def_file, "language definition")
     let dsl = parseYaml(dsl_txt)
+    let dsl_tree = {}
+    let dsl_classes = {}
+    for (const label in dsl.tree) {
+        [ key, classname ] = label.split("->")
+        dsl_tree[key] = dsl.tree[label]
+        dsl_classes[key] = classname
+    }
 
-    let src_txt = getTextFromFile(src_file, "source")
-    let src = parseYamlDocument(src_txt)
+    let src_content = (src_file) ? getTextFromFile(src_file, "source") : src_txt
+    let src = parseYamlDocument(src_content)
 
-    let nodes = parseDsl(src.syntax_tree.contents, dsl.syntax_tree, keyword, src.linecol)
+    let info = { dsl: dsl_tree, classes: dsl_classes, index: src.index, filename: src_file }
+    let nodes = parseDsl(src.tree, info, keyword)
     return nodes
+}
+
+function parse_file(src_file, dsl_def_file, keyword) {
+    return _parse(src_file, null, dsl_def_file, keyword)
 }
 
 function parse_string(src_txt, dsl_def_file, keyword) {
-
-    let  dsl_txt = getTextFromFile(dsl_def_file, "language definition")
-    let dsl = parseYaml(dsl_txt)
-
-    let src = parseYamlDocument(src_txt)
-
-    let nodes = parseDsl(src.syntax_tree.contents, dsl.syntax_tree, keyword, src.linecol)
-    return nodes
+    return _parse(null, src_txt, dsl_def_file, keyword)
 }
 
-parse('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
+parse_file('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
 //let res = parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
 //parse('tests/tosca_types.yaml', 'tests/yaml_def.yaml', 'yamldoc') 
 
 exports.parse_string=parse_string
-exports.parse=parse
-
+exports.parse_file=parse_file
