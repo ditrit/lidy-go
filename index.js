@@ -6,6 +6,13 @@ const YPair   = require('yaml/pair').default
 const YScalar = require('yaml/scalar').default
 const lineCol = require('line-column')
 
+class DynamicClass {
+    constructor (classes, className, args) {
+        return new classes[(args) ? className : "ToscaNull"](args);
+    }
+}
+
+
 function ymap_has_all(tree, keys) {
   for (const key of keys) {
       let items = key.split('|')
@@ -444,11 +451,21 @@ function _parse(src_file, src_txt, dsl_def_file, keyword) {
         dsl_tree[key] = dsl.tree[label]
         dsl_classes[key] = classname
     }
+    let classes = {}
+    if ('@import_classes' in dsl_tree) {
+        try {
+            classes  = require(dsl_tree['@import_classes'])
+        } catch(e) {
+            console.log(`Can not load DLS classes definition\n  ${e.name}: ${e.message}`)
+        }
+    } else {
+            console.log('No DSL classes definition')
+    }
 
     let src_content = (src_file) ? getTextFromFile(src_file, "source") : src_txt
     let src = parseYamlDocument(src_content)
 
-    let info = { dsl: dsl_tree, classes: dsl_classes, index: src.index, filename: src_file }
+    let info = { dsl: dsl_tree, typed_rules: dsl_classes, index: src.index, filename: src_file, classes: classes }
     let nodes = parseDsl(src.tree, info, keyword)
     return nodes
 }
@@ -467,3 +484,4 @@ parse_file('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_tem
 
 exports.parse_string=parse_string
 exports.parse_file=parse_file
+
