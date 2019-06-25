@@ -1,4 +1,4 @@
-class TString {
+class TString extends String {
     constructor(args) {
         this.range = args.range
 
@@ -59,6 +59,12 @@ class TFreq {
     }
 }
 class TBitrate {
+    constructor(args) {
+        this.range = args.range
+
+    }
+}
+class TVersion {
     constructor(args) {
         this.range = args.range
 
@@ -240,6 +246,7 @@ const classes = {
     TTime,
     TFreq,
     TBitrate,
+    TVersion,
     TImport,
     TConstraint,
     TProperty,

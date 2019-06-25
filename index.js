@@ -6,12 +6,6 @@ const YPair   = require('yaml/pair').default
 const YScalar = require('yaml/scalar').default
 const lineCol = require('line-column')
 
-class DynamicClass {
-    constructor (classes, className, args) {
-        return new classes[(args) ? className : "ToscaNull"](args);
-    }
-}
-
 
 function ymap_has_all(tree, keys) {
   for (const key of keys) {
@@ -166,9 +160,9 @@ function _parseAtomic(tree, rule_def, keyword, info) {
         case 'any': 
             res = _parseRuleAnyYaml(tree)
             break
-        default: res= parseDsl(tree, info, rule_def)
     }
-    return res
+    if (res) return _dslObject(res, keyword, info)
+    else return parseDsl(tree, info, rule_def)
 }
 
 function _parseRuleAnyYaml(src_st) {
@@ -382,8 +376,21 @@ function _parseRuleRegExp(tree, rule_def, keyword, info) {
         let str_res = _newString(tree)
         if (str_res && re.exec(str_res)) {
             str_res.range = tree.range
+            return str_res
         }  else throw SyntaxError(`'${str_res}' does not match '${re_str}' for grammar keyword '${keyword}' ${_locate(info.index, tree.range)}`) 
     } else throw SyntaxError(`'${str_res}' can not be used as a regular expression ( keyword '${keyword}' ) ${_locate(info.index, tree.range)}`) 
+}
+
+function _dslObject(yamlObject, key_value, info) {
+    let classname
+    if ( typeof key_value == 'string' ) classname =  info.typed_rules[key_value]
+    else throw SyntaxError(`'${key_value}' is not a key in the grammar`)
+
+    if (classname)
+        if (classname in info.classes) return new (info.classes)[classname](yamlObject)
+        else throw SyntaxError(`'${classname}' is not a known class`)
+    else
+        return yamlObject
 }
 
 // parsing 
@@ -393,12 +400,12 @@ function parseRule(tree, rule_def, keyword, info) {
 
     if (rule_def instanceof Object) {
 
-        if ( "_dict"   in rule_def || "_dictOf" in rule_def ) return _parseRuleMap(tree, rule_def, keyword, info)
-        if ( "_list"   in rule_def || "_listOf" in rule_def ) return _parseRuleList(tree, rule_def, keyword, info)
-        if ( "_oneOf"  in rule_def) return _parseRuleOneOf(tree, rule_def, keyword, info)
-        if ( "_in"     in rule_def) return _parseRuleIn(tree, rule_def, keyword, info)
-        if ( "_notin"  in rule_def) return _parseRuleNotIn(tree, rule_def, keyword, info)
-        if ( "_regexp" in rule_def) return _parseRuleRegExp(tree, rule_def, keyword, info)
+        if ( "_dict"   in rule_def || "_dictOf" in rule_def ) return _parseRuleMap(tree, rule_def, keyword, info);
+        if ( "_list"   in rule_def || "_listOf" in rule_def ) return _parseRuleList(tree, rule_def, keyword, info);
+        if ( "_oneOf"  in rule_def) return _parseRuleOneOf(tree, rule_def, keyword, info);
+        if ( "_in"     in rule_def) return _parseRuleIn(tree, rule_def, keyword, info);
+        if ( "_notin"  in rule_def) return _parseRuleNotIn(tree, rule_def, keyword, info);
+        if ( "_regexp" in rule_def) return _parseRuleRegExp(tree, rule_def, keyword, info);
     }
 }
 
@@ -407,7 +414,8 @@ function parseDsl(tree, info, keyword) {
         console.log("LOG")
     let keyrule = info.dsl[keyword]
     if (keyrule) {
-        return parseRule(tree, keyrule, keyword, info)
+        let yamlObject = parseRule(tree, keyrule, keyword, info)
+        return _dslObject(yamlObject, keyword, info)
     } else throw (SyntaxError(`Keyword '${keyword}' not found in language definition`))
 }
 
@@ -445,16 +453,17 @@ function _parse(src_file, src_txt, dsl_def_file, keyword) {
     let dsl_txt = getTextFromFile(dsl_def_file, "language definition")
     let dsl = parseYaml(dsl_txt)
     let dsl_tree = {}
-    let dsl_classes = {}
+    let dsl_key2class = {}
     for (const label in dsl.tree) {
         [ key, classname ] = label.split("->")
         dsl_tree[key] = dsl.tree[label]
-        dsl_classes[key] = classname
+        dsl_key2class[key] = classname
     }
     let classes = {}
     if ('@import_classes' in dsl_tree) {
         try {
-            classes  = require(dsl_tree['@import_classes'])
+            let path = dsl_tree['@import_classes']
+            classes  = require(path)
         } catch(e) {
             console.log(`Can not load DLS classes definition\n  ${e.name}: ${e.message}`)
         }
@@ -465,7 +474,7 @@ function _parse(src_file, src_txt, dsl_def_file, keyword) {
     let src_content = (src_file) ? getTextFromFile(src_file, "source") : src_txt
     let src = parseYamlDocument(src_content)
 
-    let info = { dsl: dsl_tree, typed_rules: dsl_classes, index: src.index, filename: src_file, classes: classes }
+    let info = { dsl: dsl_tree, typed_rules: dsl_key2class, index: src.index, filename: src_file, classes: classes }
     let nodes = parseDsl(src.tree, info, keyword)
     return nodes
 }
@@ -478,7 +487,8 @@ function parse_string(src_txt, dsl_def_file, keyword) {
     return _parse(null, src_txt, dsl_def_file, keyword)
 }
 
-parse_file('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
+let resultat = parse_file('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
+console.log(`resultat : ${resultat}`)
 //let res = parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
 //parse('tests/tosca_types.yaml', 'tests/yaml_def.yaml', 'yamldoc') 
 
