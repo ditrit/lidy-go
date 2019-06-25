@@ -487,11 +487,6 @@ function parse_string(src_txt, dsl_def_file, keyword) {
     return _parse(null, src_txt, dsl_def_file, keyword)
 }
 
-let resultat = parse_file('tests/tosca_types.yaml', 'tests/tosca_definition.yaml', 'service_template')
-console.log(`resultat : ${resultat}`)
-//let res = parse('tests/test_dict_copy.yaml', 'tests/test_dict_copy_def.yaml', 'artifact_type')
-//parse('tests/tosca_types.yaml', 'tests/yaml_def.yaml', 'yamldoc') 
-
 exports.parse_string=parse_string
 exports.parse_file=parse_file
 

@@ -4,5 +4,6 @@ metadata:
     deux: seconde metadata
 file_ext: .doc
 properties:
+  - voir: si
+  - cela: va
 description: un exemple d'artefact
-optional list of:

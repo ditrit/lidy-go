@@ -20,5 +20,5 @@ artifact_type:
   _dict:
     file_ext: str
     mime_type: str
-    properties: { _optional: [1], _listOf: str }
+    properties: { _optional: [1], _listOf: { _dictOf: { str: str }, _nb: 1 } }
   _copy: type_common_keys
