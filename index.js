@@ -1,5 +1,6 @@
-const fs     = require('fs')
-const yaml   = require('yaml' )
+const fs      = require('fs')
+const path    = require('path')
+const yaml    = require('yaml' )
 const YMap    = require('yaml/map' ).default
 const YSeq    = require('yaml/seq').default
 const YPair   = require('yaml/pair').default
@@ -451,6 +452,7 @@ function parseYamlDocument(src_txt) {
 function _parse(src_file, src_txt, dsl_def_file, keyword) {
 
     let dsl_txt = getTextFromFile(dsl_def_file, "language definition")
+    let dsl_dir = path.resolve(path.dirname(dsl_def_file))
     let dsl = parseYaml(dsl_txt)
     let dsl_tree = {}
     let dsl_key2class = {}
@@ -462,10 +464,10 @@ function _parse(src_file, src_txt, dsl_def_file, keyword) {
     let classes = {}
     if ('@import_classes' in dsl_tree) {
         try {
-            let path = dsl_tree['@import_classes']
-            classes  = require(path)
+            var class_path = `${dsl_dir}/${dsl_tree['@import_classes']}`
+            classes  = require(class_path)
         } catch(e) {
-            console.log(`Can not load DLS classes definition\n  ${e.name}: ${e.message}`)
+            throw(`Error : Can not load the DLS classes definition file ${class_path}\n  ${e.name}: ${e.message}`)
         }
     } else {
             console.log('No DSL classes definition')
