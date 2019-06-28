@@ -162,7 +162,7 @@ function _parseAtomic(tree, rule_def, keyword, info) {
             res = _parseRuleAnyYaml(tree)
             break
     }
-    if (res) return _dslObject(res, keyword, info)
+    if (res) return _dslObject(res, rule_def, info)
     else return parseDsl(tree, info, rule_def)
 }
 
@@ -388,10 +388,14 @@ function _dslObject(yamlObject, key_value, info) {
     else throw SyntaxError(`'${key_value}' is not a key in the grammar`)
 
     if (classname)
-        if (classname in info.classes) return new (info.classes)[classname](yamlObject)
-        else throw SyntaxError(`'${classname}' is not a known class`)
-    else
+        if (classname in info.classes) {
+            let ret= new (info.classes)[classname](yamlObject)
+            return ret
+        } else throw SyntaxError(`'${classname}' is not a known class`)
+    else {
+        let ret = yamlObject
         return yamlObject
+    }
 }
 
 // parsing 
