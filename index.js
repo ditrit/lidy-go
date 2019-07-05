@@ -130,7 +130,7 @@ function _parseAtomic(tree, rule_def, keyword, info) {
             res = _newTimestamp(tree) 
             if (!res) throw SyntaxError(`'Should be a timestamp in ( ${keyword} ) ! ${_locate(info, tree.range)}`)
             break
-        case 'bool': 
+        case 'boolean': 
             res = _newBoolean(tree) 
             if (!res) throw SyntaxError(`'Should be a boolean in ( ${keyword} ) ! ${_locate(info, tree.range)}`)
             break
@@ -179,18 +179,18 @@ function _parseRuleAnyYaml(src_st) {
     return res
 }
 
-function _copyDict(rule_def, info) { 
+function _copyDict(rule_def, info, keyword) { 
     
     let copy_rule = rule_def['_copy']
     if (!copy_rule) return rule_def
-    let to_copy_dict = copy_rule && info.dsl[copy_rule]
-    let to_copy_flat_dict = to_copy_dict && _copyDict(to_copy_dict, info.dsl)
+    let to_copy_dict = copy_rule && info.dsl_tree[copy_rule]
+    let to_copy_flat_dict = to_copy_dict && _copyDict(to_copy_dict, info.dsl, keyword)
 
     let new_rule = Object.assign({}, rule_def)
     if ('_required' in new_rule) new_rule._required = [...new_rule._required]
 
     if ('_dictOf' in new_rule)
-        if ('_dictOf' in to_copy_flat_dict) throw SyntaxError(`Error in grammar : '_dictOf' exists in both rule and copied rule`) 
+        if ('_dictOf' in to_copy_flat_dict) throw SyntaxError(`Error in grammar : '_dictOf' exists in both rule and copied rule (${keyword})`) 
     else if ('_dictOf' in to_copy_flat_dict) new_rule._dictOf = to_copy_flat_dict._dictOf
         
     if ('_dict' in new_rule) new_rule._dict = Object.assign({}, new_rule._dict)
@@ -198,7 +198,7 @@ function _copyDict(rule_def, info) {
 
     if (to_copy_flat_dict._dict) {
         for (const key in to_copy_flat_dict._dict) {
-            if (key in new_rule._dict) throw SyntaxError(`Error in grammar : key ${key} exists in both rule and copied rule`) 
+            if (key in new_rule._dict) throw SyntaxError(`Error in grammar : key ${key} exists in both rule and copied rule (${keyword})`) 
             else new_rule._dict[key] = to_copy_flat_dict._dict[key]
         }
     }
@@ -213,7 +213,7 @@ function _parseRuleMap(tree, rule_def, keyword, info) {
     throw SyntaxError(`'Should be a map  ( ${keyword} )  ! ${_locate(info, tree.range)}`)
 
     // apply (recursive) copy if 'copy' keyword exists
-    rule_def = _copyDict(rule_def, info)
+    rule_def = _copyDict(rule_def, info, keyword)
 
     // required
     let required = rule_def["_required"] || []
@@ -349,7 +349,7 @@ function _parseRuleOneOf(tree, rule_def, keyword, info) {
             } catch (error) { }
         }
     } 
-    throw SyntaxError(`No option satisfied in oneOf ${_locate(info, tree.range)}`)
+    throw SyntaxError(`No option satisfied in oneOf ${_locate(info, tree.range)} for keyword '${keyword}'`)
 }
 
 function _parseRuleIn(tree, rule_def, keyword, info) {
@@ -417,7 +417,7 @@ function parseRule(tree, rule_def, keyword, info) {
 function parseDsl(tree, info, keyword) {
     if (!tree) 
         console.log("LOG")
-    let keyrule = info.dsl[keyword]
+    let keyrule = info.dsl_tree[keyword]
     if (keyrule) {
         let yamlObject = parseRule(tree, keyrule, keyword, info)
         return _dslObject(yamlObject, keyword, info)
@@ -426,7 +426,7 @@ function parseDsl(tree, info, keyword) {
 
 function getTextFromFile(file_path, file_descr) {
     let txt
-    try { txt = fs.readFileSync(file_path, 'utf8') }
+    try { txt = fs.readFileSync(file_path.toString(), 'utf8') }
     catch (e) { console.log(`can not read ${file_descr} file : ${e}`) }
     return txt
 }
@@ -453,23 +453,25 @@ function parseYamlDocument(src_txt, filename) {
     return parseYaml(src_txt, filename, true)
 }
 
-function _parse(src_file, src_txt, dsl_def_file, keyword) {
+// exported functions 
+//
 
+// parse DSL definition file
+function parse_dsl_def(info, dsl_def_file) {
     let dsl_txt = getTextFromFile(dsl_def_file, "language definition")
     let dsl_dir = path.resolve(path.dirname(dsl_def_file))
     let dsl = parseYaml(dsl_txt, dsl_def_file)
-    let dsl_tree = {}
-    let dsl_key2class = {}
+    info.dsl_tree = {}
+    info.typed_rules = {}
     for (const label in dsl.tree) {
         [ key, classname ] = label.split("->")
-        dsl_tree[key] = dsl.tree[label]
-        dsl_key2class[key] = classname
+        info.dsl_tree[key] = dsl.tree[label]
+        info.typed_rules[key] = classname
     }
-    let classes = {}
-    if ('@import_classes' in dsl_tree) {
+    if ('@import_classes' in info.dsl_tree) {
         try {
-            var class_path = `${dsl_dir}/${dsl_tree['@import_classes']}`
-            classes  = require(class_path)
+            var class_path = `${dsl_dir}/${info.dsl_tree['@import_classes']}`
+            info.classes  = require(class_path)
         } catch(e) {
             throw(`Error : Can not load the DLS classes definition file ${class_path}\n  ${e.name}: ${e.message}`)
         }
@@ -477,22 +479,55 @@ function _parse(src_file, src_txt, dsl_def_file, keyword) {
             console.log('No DSL classes definition')
     }
 
+    return info
+}
+
+// parse source file - step 1 : yaml parsing
+function parse_src_yaml(info, src_file, src_txt=null) {
+
     let src_content = (src_file) ? getTextFromFile(src_file, "source") : src_txt
     let src = parseYamlDocument(src_content, src_file)
 
-    let info = { dsl: dsl_tree, typed_rules: dsl_key2class, index: src.index, filename: src_file, classes: classes }
-    let nodes = parseDsl(src.tree, info, keyword)
-    return nodes
+    info.filename = src_file
+    info.index = src.index
+    info.src_tree = src.tree
+
+    return info
 }
 
+// parse source_file - step 2 : dsl parsing
+function parse_src_dsl(info, keyword) {
+    info.nodes = parseDsl(info.src_tree, info, keyword)
+    return info
+}
+
+
+function _parse(src_file, src_txt, dsl_def_file, keyword) {
+
+    let info = {}
+
+    info = parse_dsl_def(info, dsl_def_file)
+
+    info = parse_src_yaml(info, src_file, src_txt)
+
+    info = parse_src_dsl(info, keyword)
+    
+    return info
+}
+
+// all in one parsing function giving source file and dsl definition file
 function parse_file(src_file, dsl_def_file, keyword) {
     return _parse(src_file, null, dsl_def_file, keyword)
 }
 
+// all in one parsing function giving source string and dsl definition file
 function parse_string(src_txt, dsl_def_file, keyword) {
     return _parse(null, src_txt, dsl_def_file, keyword)
 }
 
 exports.parse_string=parse_string
 exports.parse_file=parse_file
+exports.parse_dsl_def=parse_dsl_def
+exports.parse_src_yaml=parse_src_yaml
+exports.parse_src_dsl=parse_src_dsl
 
