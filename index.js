@@ -470,16 +470,23 @@ function parse_dsl_def(info, dsl_def_file) {
     }
     if ('@import_classes' in info.dsl_tree) {
         try {
-            var class_path = `${dsl_dir}/${info.dsl_tree['@import_classes']}`
-            info.classes  = require(class_path)
+            var classes_path = `${dsl_dir}/${info.dsl_tree['@import_classes']}`
+            info.classes  = require(classes_path)
         } catch(e) {
-            throw(`Error : Can not load the DLS classes definition file ${class_path}\n  ${e.name}: ${e.message}`)
+            throw(`Error : Can not load the DLS classes definition file ${classes_path}\n  ${e.name}: ${e.message}`)
         }
-    } else {
-            console.log('No DSL classes definition')
     }
 
     return info
+}
+
+function import_classes(info, classes_path) {
+    try {
+        info.classes = require(classes_path)
+    } catch(e) {
+        throw(`Error : Can not load the DLS classes definition file ${classes_path}\n  ${e.name}: ${e.message}`)
+    }
+return info
 }
 
 // parse source file - step 1 : yaml parsing
@@ -530,4 +537,6 @@ exports.parse_file=parse_file
 exports.parse_dsl_def=parse_dsl_def
 exports.parse_src_yaml=parse_src_yaml
 exports.parse_src_dsl=parse_src_dsl
+exports.import_classes=import_classes
+
 
