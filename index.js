@@ -424,27 +424,30 @@ function parseDsl(tree, info, keyword) {
     } else throw (SyntaxError(`Keyword '${keyword}' not found in language definition`))
 }
 
-function getTextFromFile(file_path, file_descr) {
+function getTextFromFile(file_path) {
     let txt
     try { txt = fs.readFileSync(file_path.toString(), 'utf8') }
-    catch (e) { console.log(`can not read ${file_descr} file : ${e}`) }
+    catch (e) { console.log(`can not read file : ${e}`) }
     return txt
 }
 
 function parseYaml(src_txt, filename, document = false) {
-    let index = lineCol(src_txt + "\n")
+
+    let src_content = (filename) ? getTextFromFile(src_file) : src_txt
+
+    let index = lineCol(src_content + "\n")
     let tree
     try { 
         if ( document === true ) {
-            let doc = yaml.parseDocument(src_txt)
+            let doc = yaml.parseDocument(src_content)
             tree = doc.contents
         } else {
-            tree = yaml.parse(src_txt)
+            tree = yaml.parse(src_content)
         }
     } catch(e) {
         const deb = index.fromIndex(e.source.range.start - 1)
         const fin = index.fromIndex(e.source.range.end - 1)
-        console.log(`${e.name}: ${e.message}\n\t at position ${deb}, ${fin} ${(filename) ? 'in file ' + filename : '' }`)
+        console.log(`${e.name}: ${e.message}\n\t at position ${deb}, ${fin} ${(filename) ? 'in file ' + filename : ' ' }`)
     }
     return { tree: tree, index: index }
 }
@@ -453,14 +456,10 @@ function parseYamlDocument(src_txt, filename) {
     return parseYaml(src_txt, filename, true)
 }
 
-// exported functions 
-//
-
 // parse DSL definition file
 function parse_dsl_def(info, dsl_def_file) {
-    let dsl_txt = getTextFromFile(dsl_def_file, "language definition")
     let dsl_dir = path.resolve(path.dirname(dsl_def_file))
-    let dsl = parseYaml(dsl_txt, dsl_def_file)
+    let dsl = parseYaml(null, dsl_def_file)
     info.dsl_tree = {}
     info.typed_rules = {}
     for (const label in dsl.tree) {
@@ -492,8 +491,7 @@ return info
 // parse source file - step 1 : yaml parsing
 function parse_src_yaml(info, src_file, src_txt=null) {
 
-    let src_content = (src_file) ? getTextFromFile(src_file, "source") : src_txt
-    let src = parseYamlDocument(src_content, src_file)
+    let src = parseYamlDocument(src_txt, src_file)
 
     info.filename = src_file
     info.index = src.index
