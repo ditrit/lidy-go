@@ -433,7 +433,7 @@ function getTextFromFile(file_path) {
 
 function parseYaml(src_txt, filename, document = false) {
 
-    let src_content = (filename) ? getTextFromFile(src_file) : src_txt
+    let src_content = (filename) ? getTextFromFile(filename) : src_txt
 
     let index = lineCol(src_content + "\n")
     let tree
@@ -536,5 +536,6 @@ exports.parse_dsl_def=parse_dsl_def
 exports.parse_src_yaml=parse_src_yaml
 exports.parse_src_dsl=parse_src_dsl
 exports.import_classes=import_classes
+exports.parseYaml=parseYaml
 
 
