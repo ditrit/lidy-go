@@ -389,7 +389,7 @@ function _dslObject(yamlObject, key_value, info) {
 
     if (classname)
         if (classname in info.classes) {
-            let ret= new (info.classes)[classname](yamlObject)
+            let ret= new (info.classes)[classname](yamlObject, info)
             return ret
         } else throw SyntaxError(`'${classname}' is not a known class`)
     else {
