@@ -168,14 +168,14 @@ function _parseAtomic(tree, rule_def, keyword, info) {
 
 function _parseRuleAnyYaml(src_st) {
     let res = null
-    res = _newTimestamp(src_st) 
-    if (!res) res = _newBoolean(src_st) 
-    if (!res) res = _newUnbounded(src_st) 
-    if (!res) res = _newString(src_st) 
-    if (!res) res = _newInteger(src_st) 
-    if (!res) res = _newFloat(src_st) 
     if (!res) res = _newList(src_st) 
     if (!res) res = _newMap(src_st) 
+    if (!res) res = _newBoolean(src_st) 
+    if (!res) res = _newUnbounded(src_st) 
+    if (!res) res = _newInteger(src_st) 
+    if (!res) res = _newFloat(src_st) 
+    if (!res) res = _newString(src_st) 
+    if (!res) res = _newTimestamp(src_st) 
     return res
 }
 
@@ -375,8 +375,10 @@ function _parseRuleRegExp(tree, rule_def, keyword, info) {
     if ( typeof re_str === 'string' ) {
         let re = new RegExp(re_str) 
         let str_res = _newString(tree)
-        if (str_res && re.exec(str_res)) {
+        let re_res = null
+        if (str_res && (re_res = re.exec(str_res))) {
             str_res.range = tree.range
+            str_res.parts = re_res.groups
             return str_res
         }  else throw SyntaxError(`'${str_res}' does not match '${re_str}' for grammar keyword '${keyword}' ${_locate(info, tree.range)}`) 
     } else throw SyntaxError(`'${str_res}' can not be used as a regular expression ( keyword '${keyword}' ) ${_locate(info, tree.range)}`) 
