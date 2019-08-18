@@ -417,8 +417,6 @@ function parseRule(tree, rule_def, keyword, info) {
 }
 
 function parseDsl(tree, info, keyword) {
-    if (!tree) 
-        console.log("LOG")
     let keyrule = info.dsl_tree[keyword]
     if (keyrule) {
         let yamlObject = parseRule(tree, keyrule, keyword, info)
