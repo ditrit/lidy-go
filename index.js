@@ -208,7 +208,7 @@ function _copyDict(rule_def, info, keyword) {
 
 function _parseRuleMap(tree, rule_def, keyword, info) {
 
-    if (!tree) tree = new YMap()
+    if (!tree || (tree instanceof YScalar && tree.comment)) tree = new YMap()
     if ( ! (tree instanceof YMap) )
     throw SyntaxError(`'Should be a map  ( ${keyword} )  ! ${_locate(info, tree.range)}`)
 
@@ -272,7 +272,7 @@ function _parseRuleMap(tree, rule_def, keyword, info) {
 
 function _parseRuleList(tree, rule_def, keyword, info) { 
 
-    if (!tree) tree = new YSeq()
+    if (!tree || (tree instanceof YScalar && tree.comment)) tree = new YSeq()
     if ( ! (tree instanceof YSeq) )
     throw SyntaxError(`'Should be a list  ( ${keyword} ) ${_locate(info, tree.range)} !`)
 
