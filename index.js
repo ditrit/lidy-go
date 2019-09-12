@@ -1,10 +1,10 @@
 const fs      = require('fs')
 const path    = require('path')
 const yaml    = require('yaml' )
-const YMap    = require('yaml/map' ).default
-const YSeq    = require('yaml/seq').default
-const YPair   = require('yaml/pair').default
-const YScalar = require('yaml/scalar').default
+const YMap    = require('yaml/dist/schema/Map' ).default
+const YSeq    = require('yaml/dist/schema/Seq').default
+const YPair   = require('yaml/dist/schema/Pair').default
+const YScalar = require('yaml/dist/schema/Scalar').default
 const lineCol = require('line-column')
 
 
@@ -208,7 +208,7 @@ function _copyDict(rule_def, info, keyword) {
 
 function _parseRuleMap(tree, rule_def, keyword, info) {
 
-    if (!tree || (tree instanceof YScalar && tree.comment)) tree = new YMap()
+    if (!tree || ((tree instanceof YScalar) && tree.comment)) tree = new YMap()
     if ( ! (tree instanceof YMap) )
     throw SyntaxError(`'Should be a map  ( ${keyword} )  ! ${_locate(info, tree.range)}`)
 
