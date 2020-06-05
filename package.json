@@ -1,20 +1,26 @@
 {
-  "name": "lidy",
-  "version": "1.0.0",
-  "description": "Tosca parser",
-  "main": "index.js",
-  "scripts": {
-    "test": "jasmine"
-  },
-  "author": "treivax",
-  "license": "ISC",
-  "dependencies": {
-    "eslint": "^5.16.0",
-    "jasmine": "^3.4.0",
-    "line-column": "^1.0.2",
-    "yaml": "^1.6.0"
-  },
-  "devDependencies": {
-    "@types/yaml": "^1.0.2"
-  }
+    "name": "lidy",
+    "version": "1.0.0",
+    "description": "Yaml Grammar language to parse Yaml-based langages",
+    "main": "index.js",
+    "scripts": {
+        "test": "jasmine"
+    },
+    "author": "treivax",
+    "contributors": [
+        {
+            "name": "Mathieu CAROFF"
+        }
+    ],
+    "license": "ISC",
+    "dependencies": {
+        "line-column": "^1.0.2",
+        "prettier": "^2.0.5",
+        "yaml": "~1.6.0"
+    },
+    "devDependencies": {
+        "@types/yaml": "^1.9.7",
+        "japa": "^3.1.1",
+        "jasmine": "^3.5.0"
+    }
 }

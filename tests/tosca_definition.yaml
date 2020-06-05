@@ -1,4 +1,4 @@
-@import_classes:  ./tests/ttypes.js
+@import_classes:  ./ttypes.js
 
 str->TString:      terminal
 int->TInteger:     terminal
@@ -715,4 +715,3 @@ service_template->TServiceTemplate:
     group_types: group_types
     policy_types: policy_types
     topology_template: topology_template
- 
