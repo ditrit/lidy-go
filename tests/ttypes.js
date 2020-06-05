@@ -1,278 +1,51 @@
-class TString extends String {
+export class TString extends String {
     constructor(args) {
         super()
         this.range = args.range
     }
 }
 
-class TInteger {
+class _CopyRange {
     constructor(args) {
         this.range = args.range
     }
 }
 
-class TFloat {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TNamespace {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TRange {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TMetadata {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TUrl {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TSize {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TTime {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TFreq {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TBitrate {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TVersion {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TImport {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TConstraint {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TProperty {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TPropertyAssignment {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TAttribute {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TAttributeAssignement {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TInput {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class Toutput {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TRepository {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TArtifactDef {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TArtifactType {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TImplementation {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TOperationDef {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TOperationDefTemplate {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TInterfaceDef {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TInterfaceDefTemplate {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TCapabilityType {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TCapabilityDef {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TCapabilityAssignment {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TPropertyFilter {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TCapabilityFilter {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TNodeFilter {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TRequirementDef {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TRequirementAssignment {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TSubstitutionMappings {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TTopologyTemplate {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-class TServiceTemplate {
-    constructor(args) {
-        this.range = args.range
-    }
-}
-
-const classes = {
-    TString,
-    TInteger,
-    TFloat,
-    TNamespace,
-    TRange,
-    TMetadata,
-    TUrl,
-    TSize,
-    TTime,
-    TFreq,
-    TBitrate,
-    TVersion,
-    TImport,
-    TConstraint,
-    TProperty,
-    TPropertyAssignment,
-    TAttribute,
-    TAttributeAssignement,
-    TInput,
-    Toutput,
-    TRepository,
-    TArtifactDef,
-    TArtifactType,
-    TImplementation,
-    TOperationDef,
-    TOperationDefTemplate,
-    TInterfaceDef,
-    TInterfaceDefTemplate,
-    TCapabilityType,
-    TCapabilityDef,
-    TCapabilityAssignment,
-    TPropertyFilter,
-    TCapabilityFilter,
-    TNodeFilter,
-    TRequirementDef,
-    TRequirementAssignment,
-    TSubstitutionMappings,
-    TTopologyTemplate,
-    TServiceTemplate,
-}
-
-module.exports = classes
+export class TInteger extends _CopyRange {}
+export class TFloat extends _CopyRange {}
+export class TNamespace extends _CopyRange {}
+export class TRange extends _CopyRange {}
+export class TMetadata extends _CopyRange {}
+export class TUrl extends _CopyRange {}
+export class TSize extends _CopyRange {}
+export class TTime extends _CopyRange {}
+export class TFreq extends _CopyRange {}
+export class TBitrate extends _CopyRange {}
+export class TVersion extends _CopyRange {}
+export class TImport extends _CopyRange {}
+export class TConstraint extends _CopyRange {}
+export class TProperty extends _CopyRange {}
+export class TPropertyAssignment extends _CopyRange {}
+export class TAttribute extends _CopyRange {}
+export class TAttributeAssignement extends _CopyRange {}
+export class TInput extends _CopyRange {}
+export class Toutput extends _CopyRange {}
+export class TRepository extends _CopyRange {}
+export class TArtifactDef extends _CopyRange {}
+export class TArtifactType extends _CopyRange {}
+export class TImplementation extends _CopyRange {}
+export class TOperationDef extends _CopyRange {}
+export class TOperationDefTemplate extends _CopyRange {}
+export class TInterfaceDef extends _CopyRange {}
+export class TInterfaceDefTemplate extends _CopyRange {}
+export class TCapabilityType extends _CopyRange {}
+export class TCapabilityDef extends _CopyRange {}
+export class TCapabilityAssignment extends _CopyRange {}
+export class TPropertyFilter extends _CopyRange {}
+export class TCapabilityFilter extends _CopyRange {}
+export class TNodeFilter extends _CopyRange {}
+export class TRequirementDef extends _CopyRange {}
+export class TRequirementAssignment extends _CopyRange {}
+export class TSubstitutionMappings extends _CopyRange {}
+export class TTopologyTemplate extends _CopyRange {}
+export class TServiceTemplate extends _CopyRange {}
