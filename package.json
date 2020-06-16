@@ -2,7 +2,7 @@
     "name": "lidy",
     "version": "1.0.0",
     "description": "Yaml Grammar language to parse Yaml-based langages",
-    "main": "index.js",
+    "main": "lidy.ts",
     "scripts": {
         "test": "jasmine"
     },

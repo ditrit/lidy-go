@@ -95,16 +95,16 @@ typings/
 /*
 
 # Directories
-!/tests
+!/test
 !/spec
 
 # Files
 !/.gitignore
-!/index.js
-!/index.ts
+!/.prettier*
+!/japaFile.js
 !/LICENSE
 !/package.json
 !/README.md
 !/yarn.lock
 
-!.prettier*
+!/lidy.ts

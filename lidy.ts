@@ -619,7 +619,7 @@ function getTextFromFile(file_path) {
     return txt
 }
 
-function parseYaml(src_txt, filename, document = false) {
+export function parseYaml(src_txt, filename, document = false) {
     let src_content = filename ? getTextFromFile(filename) : src_txt
 
     let lcFinder = new LineColumn(src_content + '\n')
@@ -649,7 +649,7 @@ function parseYamlDocument(src_txt, filename) {
 }
 
 // parse DSL definition file
-function parse_dsl_def(info: Info, dsl_def_file) {
+export function parse_dsl_def(info: Info, dsl_def_file) {
     let dsl_dir = path.resolve(path.dirname(dsl_def_file))
     let dsl = parseYaml(null, dsl_def_file)
     info.dsl_tree = {}
@@ -673,7 +673,7 @@ function parse_dsl_def(info: Info, dsl_def_file) {
     return info
 }
 
-function import_classes(info, classes_path) {
+export function import_classes(info, classes_path) {
     try {
         info.classes = require(classes_path)
     } catch (e) {
@@ -684,7 +684,7 @@ function import_classes(info, classes_path) {
 }
 
 // parse source file - step 1 : yaml parsing
-function parse_src_yaml(info: Info, src_file, src_txt = null) {
+export function parse_src_yaml(info: Info, src_file, src_txt = null) {
     let src = parseYamlDocument(src_txt, src_file)
 
     info.filename = src_file
@@ -695,7 +695,7 @@ function parse_src_yaml(info: Info, src_file, src_txt = null) {
 }
 
 // parse source_file - step 2 : dsl parsing
-function parse_src_dsl(info: Info, keyword) {
+export function parse_src_dsl(info: Info, keyword) {
     info.nodes = parseDsl(info.src_tree, info, keyword)
     return info
 }
@@ -713,19 +713,11 @@ function _parse(src_file, src_txt, dsl_def_file, keyword) {
 }
 
 // all in one parsing function giving source file and dsl definition file
-function parse_file(src_file, dsl_def_file, keyword) {
+export function parse_file(src_file, dsl_def_file, keyword) {
     return _parse(src_file, null, dsl_def_file, keyword)
 }
 
 // all in one parsing function giving source string and dsl definition file
-function parse_string(src_txt, dsl_def_file, keyword) {
+export function parse_string(src_txt, dsl_def_file, keyword) {
     return _parse(null, src_txt, dsl_def_file, keyword)
 }
-
-exports.parse_string = parse_string
-exports.parse_file = parse_file
-exports.parse_dsl_def = parse_dsl_def
-exports.parse_src_yaml = parse_src_yaml
-exports.parse_src_dsl = parse_src_dsl
-exports.import_classes = import_classes
-exports.parseYaml = parseYaml

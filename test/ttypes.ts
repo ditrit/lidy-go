@@ -1,4 +1,6 @@
 export class TString extends String {
+    range: [number, number]
+
     constructor(args) {
         super()
         this.range = args.range
@@ -6,6 +8,8 @@ export class TString extends String {
 }
 
 class _CopyRange {
+    range: [number, number]
+
     constructor(args) {
         this.range = args.range
     }
