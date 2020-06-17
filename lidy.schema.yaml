@@ -1,0 +1,120 @@
+# This lidy schema file specifies what a valid lidy schema is
+# As such, this is the generic lidy meta-schema
+
+# main
+#
+# the whole lidy schema as a YAML document
+main: document
+
+document:
+  _dictOf: { identifier: expression }
+  _dictRequired:
+    main: expression
+
+# expression
+#
+# any valid lidy schema expression
+expression:
+  _oneOf:
+    - identifier
+    - dict.checker
+    - list.checker
+    - listOf.checker
+    - in.checker
+    - notin.checker
+    - oneOf.checker
+    - regex.checker
+
+# identifier
+#
+# the name of a lidy rule
+identifier:
+  _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*"
+
+# property
+#
+# a field name inside a dict
+property:
+  _oneOf:
+    - int
+    - str
+
+# scalar
+#
+# a yaml scalar
+scalar:
+  _oneOf:
+    - boolean
+    - float
+    - int
+    - str
+
+###
+# checkers and parameters #
+#
+
+# - `_dict` -> dict.checker
+# - `_dictOf` -> dictOf.checker
+# - ...
+# - `_regex` -> regex.checker
+
+# dict
+dict.checker:
+  _dict:
+    "_dict": dict.parameter
+    "_nb": int
+    "_min": int
+    "_max": int
+    "_dictOf": dictOf.parameter
+
+dict.parameter:
+  _dictOf: { property: expression }
+
+# dictOf
+dictOf.parameter:
+  _max: 1
+  _dictOf: { expression: expression }
+
+# list
+list.checker:
+  _dict:
+    "_list": list.parameter
+
+list.parameter:
+  _listOf: expression
+
+# listOf
+listOf.checker:
+  _dict:
+    "_listOf": listOf.parameter
+    "_nb": int
+    "_min": int
+    "_max": int
+
+listOf.parameter: expression
+
+# in
+in.checker:
+  _dict:
+    "_in": in.parameter
+
+in.parameter:
+  _listOf: scalar
+
+# notin
+notin.checker:
+  _dict:
+    "_notin": in.parameter
+
+# oneOf
+oneOf.checker:
+  _dict:
+    "_oneOf": oneOf.parameter
+
+oneOf.parameter:
+  _listOf: expression
+
+# regex
+regex.checker:
+  _dict:
+    "_regex": str

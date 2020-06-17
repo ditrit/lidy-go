@@ -1,7 +1,7 @@
 import japa from 'japa'
 import { parse, reject } from '../util/lidy_parse'
 
-japa.group('_listOf', () => {
+japa.group('_dictOf', () => {
     const SCHEMA = `_dictOf: { str: int }`
 
     japa('accept the empty dict', () => {

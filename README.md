@@ -63,6 +63,7 @@ This project uses [yarn](https://classic.yarnpkg.com/en/docs/install/), an alter
 - ~~`_list`~~ -> use `_tuple`
 - `_listOf`
 - `_oneOf`
+- `_copy` -- unsure
 
 ### Container checkers
 

@@ -109,3 +109,4 @@ typings/
 !/yarn.lock
 
 !/lidy.ts
+!/lidy.schema.yaml

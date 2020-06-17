@@ -537,12 +537,12 @@ function parseRule(tree, rule_def, keyword, info) {
     }
 }
 
-function parseDsl(tree, info: Info, keyword) {
-    let keyrule = info.dsl_tree[keyword]
-    if (keyrule) {
-        let yamlObject = parseRule(tree, keyrule, keyword, info)
-        return _dslObject(yamlObject, keyword, info)
-    } else throw SyntaxError(`Keyword '${keyword}' not found in language definition`)
+function parseDsl(tree, info: Info, identifier) {
+    let rule = info.dsl_tree[identifier]
+    if (rule) {
+        let yamlObject = parseRule(tree, rule, identifier, info)
+        return _dslObject(yamlObject, identifier, info)
+    } else throw SyntaxError(`Identifier '${identifier}' not found in language definition`)
 }
 
 function getTextFromFile(file_path) {
@@ -556,7 +556,11 @@ function getTextFromFile(file_path) {
     return txt
 }
 
-export function parseYaml(src_txt, filename, document = false, use_src_txt_only = false) {
+function lcs({ col, line }: LineCol) {
+    return `${line}:${col}`
+}
+
+export function parseYaml(src_txt, filename = '', document = false, use_src_txt_only = false) {
     let src_content = use_src_txt_only ? src_txt : filename ? getTextFromFile(filename) : src_txt
 
     let lcFinder = new LineColumn(src_content + '\n')
@@ -571,11 +575,7 @@ export function parseYaml(src_txt, filename, document = false, use_src_txt_only 
     } catch (e) {
         const deb: LineCol = lcFinder.fromIndex(e.source.range.start - 1)
         const fin: LineCol = lcFinder.fromIndex(e.source.range.end - 1)
-        console.log(
-            `${e.name}: ${e.message}\n\t at position ${deb}, ${fin} ${
-                filename ? 'in file ' + filename : ' '
-            }`,
-        )
+        console.log(`${e.name}: ${e.message}\n\t at ${filename}:${lcs(deb)}, ${lcs(fin)}`)
     }
 
     return { tree: tree, index: lcFinder }
@@ -688,4 +688,9 @@ export function parse_file(src_file, dsl_def_file, keyword) {
 // all in one parsing function giving source string and dsl definition file
 export function parse_string(src_txt, dsl_def_file, keyword) {
     return _parse(null, src_txt, dsl_def_file, keyword)
+}
+
+export let __path = {
+    dirname: __dirname,
+    lidySchema: path.join(__dirname, 'lidy.schema.yaml'),
 }
