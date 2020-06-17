@@ -46,15 +46,15 @@ This project uses [yarn](https://classic.yarnpkg.com/en/docs/install/), an alter
 
 ### Data types (YAML+unbounded)
 
-- `timestamp`
-- `str` -- string
 - `boolean`
-- `int` -- Integer
-- `unbounded` -- type representing only the infinity
 - `float`
+- `int` -- Integer
+- `str` -- string
+- `any` -- any yaml structure
 - ~~List~~ use `{ _listOf: any }`
 - ~~Map~~ use `{ _dictOf: any }`
-- `any` -- any yaml structure
+- ~~Timestamp~~ -- define your own using regex
+- ~~Unbounded~~ -- define your own using `_in`
 
 ### Composite checkers
 
