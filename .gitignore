@@ -105,6 +105,7 @@ typings/
 !/LICENSE
 !/package.json
 !/README.md
+!/tsconfig.json
 !/yarn.lock
 
 !/lidy.ts

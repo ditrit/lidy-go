@@ -1,8 +1,10 @@
+import japa from 'japa'
 import * as lidy from '../lidy'
+import { expect } from 'earljs'
 
-describe('Tosca Grammar ->', function () {
-    describe('metadata : ', function () {
-        it('The compiler should accept simple metadata', function () {
+japa.group('Tosca Grammar ->', () => {
+    japa.group('metadata : ', () => {
+        japa('The compiler should accept simple metadata', () => {
             expect(
                 lidy.parse_string(
                     `

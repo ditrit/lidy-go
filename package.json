@@ -4,7 +4,7 @@
     "description": "Yaml Grammar language to parse Yaml-based langages",
     "main": "lidy.ts",
     "scripts": {
-        "test": "jasmine"
+        "test": "node japaFile.js"
     },
     "author": "treivax",
     "contributors": [
@@ -19,9 +19,11 @@
         "yaml": "~1.6.0"
     },
     "devDependencies": {
+        "@types/node": "^14.0.13",
         "@types/yaml": "^1.9.7",
-        "typescript": "^3.9.5",
+        "earljs": "^0.0.12",
         "japa": "^3.1.1",
-        "jasmine": "^3.5.0"
+        "ts-node": "^8.10.2",
+        "typescript": "^3.9.5"
     }
 }

@@ -73,11 +73,11 @@ This project uses [yarn](https://classic.yarnpkg.com/en/docs/install/), an alter
 - `_max` -- the container must have at most the specified number of entries
 - `_min` -- the container must have at least the specified number of entries
 
-### Terminal checkers
+### Scalar checkers
 
-- `_regex` -- applies only to strings
+- `_regexp` -- applies only to strings
 - `_in` -- an exact enumeration of terminal YAML values the value must be part of
 - `_notin` -- an exact enumeration of terminal YAML values the value must NOT be part of
 - \+ `_range` -- applies only to numbers
-  - Examples for floats: `0 <= (float)`, `1 < (float) < 10`, `(float) < 0`
-  - Examples for integers: `0 <= (int) <= 9`
+  - Examples for floats: `(0 <= float)`, `(1 < float < 10)`, `(float < 0)`
+  - Examples for integers: `(0 <= int <= 9)`
