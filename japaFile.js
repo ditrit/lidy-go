@@ -4,7 +4,7 @@ require('ts-node/register')
 
 const { configure } = require('japa')
 
-let files = ['spec/**/*.spec.ts', 'test/**/*.spec.ts']
+let files = ['spec/**/*.spec.ts', 'test/**/*.test.ts']
 
 if (process.argv.length > 2) {
     files = process.argv.slice(2).map((path) => path.replace(/\\/g, '/'))

@@ -48,8 +48,9 @@ This project uses [yarn](https://classic.yarnpkg.com/en/docs/install/), an alter
 
 - `boolean`
 - `float`
-- `int` -- Integer
+- `int` -- integer
 - `str` -- string
+- `null`
 - `any` -- any yaml structure
 - ~~List~~ use `{ _listOf: any }`
 - ~~Map~~ use `{ _dictOf: any }`

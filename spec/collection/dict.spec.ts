@@ -24,8 +24,12 @@ japa.group('_dict 2 entries', () => {
         reject(SCHEMA, 'true')
     })
 
-    japa('reject unknown entries', () => {
+    japa('reject single unknown entries', () => {
         reject(SCHEMA, '{ z: 12 }')
+    })
+
+    japa('reject extraneous unknown entries', () => {
+        reject(SCHEMA, '{ a: va, b: 4, z: 12 }')
     })
 
     japa('reject if an entry does not match', () => {
@@ -47,5 +51,40 @@ japa.group('_dict 0 entry', () => {
 
     japa('reject nodes that are not dictionaries', () => {
         reject(SCHEMA, '[]')
+    })
+})
+
+const SCHEMA = `_dict: { "()": int }`
+const keywordList = ['_dict', '_dictOf', '_list', '_listOf']
+
+keywordList.forEach((keyword) => {
+    let r = (template: string) => template.replace('()', keyword)
+    let schema = r(SCHEMA)
+
+    japa.group(`_dict 1 entry whose property is '${keyword}'`, () => {
+        japa('accept the empty dict', () => {
+            parse(schema, '{}')
+        })
+
+        japa('accept dict with a matching entry', () => {
+            parse(schema, r('{ (): 2 }'))
+        })
+
+        japa('reject dict with a non-matching entry', () => {
+            reject(schema, r('{ (): a }'))
+            reject(schema, r('{ (): 1.1 }'))
+            reject(schema, r('{ (): true }'))
+            reject(schema, r('{ (): null }'))
+            reject(schema, r('{ (): {} }'))
+        })
+
+        japa('reject unknown entries', () => {
+            reject(schema, '{ a: va }')
+            reject(schema, '{ b: 4 }')
+        })
+
+        japa('reject nodes that are not dictionaries', () => {
+            reject(schema, '[]')
+        })
     })
 })
