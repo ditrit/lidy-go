@@ -1,0 +1,117 @@
+{
+  "_dict 0 entry": {
+    expression: _dict: {}
+
+    "accept the empty dict": {
+      "{}": {}
+    }
+
+    "reject any unknown entry": {
+      "{ a: va }": {}
+      "{ b: 4 }": {}
+    }
+
+    "reject nodes that are not dictionaries": {
+      "[]": {}
+    }
+  }
+
+  "_dict 1 entry": {
+    expression: _dict: { aa: float }
+
+    "accept if valid": {
+      "{ aa: 2.2 }": {}
+      "{ aa: 0 }": {}
+    }
+
+    "reject missing entry": {
+      "{}": {}
+    }
+
+    "reject any unknown entry": {
+      "{ a: va }": {}
+      "{ b: 4 }": {}
+    }
+
+    "reject nodes that are not dictionaries": {
+      "[]": {}
+      "null": {}
+      "0.1": {}
+    }
+  }
+
+  "_dict 0 _optional 2 entries": {
+    expression:
+      '''
+      _dict: {}
+      _optional: { a: str b: int }
+      '''
+
+    "accept when all entries are present and valid": {
+      "{ a: va b: 4 }": {}
+    }
+
+    "accept when only some entries are present": {
+      "{ a: va }": {}
+      "{ b: 4 }": {}
+    }
+
+    "accept the empty dict": {
+      "{}": {}
+    }
+
+    "reject nodes that are not dictionaries": {
+      "[]": {}
+      "0": {}
+      "a": {}
+      "true": {}
+    }
+
+    "reject single unknown entries": {
+      "{ z: 12 }": {}
+    }
+
+    "reject extraneous unknown entries": {
+      "{ a: va b: 4 z: 12 }": {}
+    }
+
+    "reject if an entry does not match": {
+      "{ a: 12 }": {}
+    }
+  }
+
+  "_dict 1 entry whose property is '${keyword}'": {
+    expressionTemplate: _dict: { "${keyword}": int }
+    keywordList: ["_dict", "_dictOf", "_list", "_listOf"]
+
+    "reject if the entry is missing": {
+      "{}": {}
+    }
+
+    "accept dict with a matching entry": {
+      "{ ${keyword}: 2 }": {}
+    }
+
+    "reject dict with a non-matching entry": {
+      "{ ${keyword}: a }": {}
+      "{ ${keyword}: 1.1 }": {}
+      "{ ${keyword}: true }": {}
+      "{ ${keyword}: null }": {}
+      "{ ${keyword}: {} }": {}
+    }
+
+    "reject if there are unknown entries": {
+      "{ ${keyword}: 2, a: 4 }": {}
+      "{ ${keyword}: 2, b: va }": {}
+    }
+
+    "reject unrelated maps": {
+      "{ a: 4 }": {}
+      "{ b: va }": {}
+    }
+
+    "reject nodes that are not dictionaries": {
+      "[]": {}
+    }
+  }
+}

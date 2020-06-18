@@ -1,0 +1,81 @@
+{
+   LIST_OF_ANY = ": {}
+  _listOf: any
+  {}": {}
+
+   DICT_OF_ANY = ": {}
+  _dictOf: { any: any }
+  {}": {}
+
+  "_min for list": {
+     MIN_2 = LIST_OF_ANY.replace"{}" "_min: 2": {}
+
+    "accept": {
+      MIN_2 "[a b]": {}
+    }
+
+    "reject": {
+      MIN_2 "[a]": {}
+    }
+  }
+
+  "_max for list": {
+     MAX_2 = LIST_OF_ANY.replace"{}" "_max: 2": {}
+
+    "accept": {
+      MAX_2 "[a b]": {}
+    }
+
+    "reject": {
+      MAX_2 "[a b c]": {}
+    }
+  }
+
+  "_nb for list": {
+     NB_2 = LIST_OF_ANY.replace"{}" "_nb: 2": {}
+
+    "accept": {
+      NB_2 "[a b]": {}
+    }
+
+    "reject": {
+      NB_2 "[a b c]": {}
+    }
+  }
+
+  "_min for dict": {
+     MIN_2 = DICT_OF_ANY.replace"{}" "_min: 2": {}
+
+    "accept": {
+      MIN_2 "{ ka: va kb: vb }": {}
+    }
+
+    "reject": {
+      MIN_2 "{ ka: va }": {}
+    }
+  }
+
+  "_max for dict": {
+     MAX_2 = DICT_OF_ANY.replace"{}" "_max: 2": {}
+
+    "accept": {
+      MAX_2 "{ ka: va kb: vb }": {}
+    }
+
+    "reject": {
+      MAX_2 "{ ka: va kb: vb kc: vc }": {}
+    }
+  }
+
+  "_nb for dict": {
+     NB_2 = DICT_OF_ANY.replace"{}" "_nb: 2": {}
+
+    "accept": {
+      NB_2 "{ ka: va kb: vb }": {}
+    }
+
+    "reject": {
+      NB_2 "{ ka: va }": {}
+    }
+  }
+}

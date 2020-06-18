@@ -1,0 +1,25 @@
+{
+  "distinguish known and unknown identifiers": {
+    "accept if known": [
+      ["timestamp", {}]
+      ["boolean", {}]
+      ["float", {}]
+      ["null", {}]
+      ["any", {}]
+      ["int", {}]
+      ["str", {}]
+    ]
+    "reject if there is no main rule": [
+      [
+        "animal: str"
+        { contain: "main" }
+      ]
+    ]
+    "reject if a reference cannot be resolved": [
+      [
+        "main: animal"
+        { contain: "animal" }
+      ]
+    ]
+  }
+}

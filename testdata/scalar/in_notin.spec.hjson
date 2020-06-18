@@ -1,0 +1,25 @@
+{
+  "_in": {
+    expression: _in: [a present b c]
+
+    "accept": {
+       "present": {}
+    }
+
+    "reject": {
+       "missing": {}
+    }
+  }
+
+  "_notin": {
+    expression: _notin: [a forbidden b c]
+
+    "accept": {
+       "allowed": {}
+    }
+
+    "reject": {
+       "forbidden": {}
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "_listOf": {
+    expression: _listOf: str
+
+    "reject the empty list": {
+       "[]": {}
+    }
+
+    "accept one string": {
+       "[va vb]": {}
+    }
+
+    "accept a lot of strings": {
+       "[va vb vc vd ve vf]": {}
+    }
+
+    "reject non-lists": {
+       "{}": {}
+       "0": {}
+       "a": {}
+       "true": {}
+    }
+
+    "reject lists with non-matching elements": {
+       "[2]": {}
+       "[va 4]": {}
+       "[5 va]": {}
+       "[3 4]": {}
+    }
+  }
+}

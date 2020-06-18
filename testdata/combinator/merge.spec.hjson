@@ -1,0 +1,48 @@
+{
+  "_merge": {
+    expression: _oneOf: [ boolean int ]
+
+    "accept booleans": {
+       "false": {}
+       "true": {}
+    }
+
+    "accept integers": {
+       "0": {}
+       "1": {}
+       "99999": {}
+       "-0": {}
+       "-1": {}
+       "-99999": {}
+    }
+
+    "reject non-booleans non-integers": {
+       "vz": {}
+       "0.1": {}
+       "2020-06-17T10:13:46": {}
+       "[]": {}
+       "{}": {}
+    }
+  }
+
+  "_oneOf dict": {
+    expression: _oneOf: [ { _dictOf: { str: str } } ]
+
+    "accept the empty dict": {
+       "{}": {}
+    }
+
+    "accept dict with matching-matching entries": {
+       "{ ka: va }": {}
+       "{ ka: va kb: vb }": {}
+       "{ 0k: 0v }": {}
+       "{ ka: va kb: vb 0k: 0v }": {}
+    }
+
+    "reject non-dicts": {
+       "vz": {}
+       "0.1": {}
+       "[]": {}
+    }
+  }
+}

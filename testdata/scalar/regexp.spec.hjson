@@ -1,0 +1,61 @@
+{
+  "_regexp empty": {
+    expression: _regexp: "^$": {}
+
+    "accept empty string": {
+       "a": {}
+    }
+
+    "reject letter": {
+       "a": {}
+    }
+
+    "reject space": {
+       "\" \"": {}
+    }
+  }
+
+  "_regexp email": {
+    expression: _regexp: "^[a-zA-Z0-9]+[.][a-zA-Z0-9]+*@[a-zA-Z0-9]+[.][a-zA-Z0-9]++$": {}
+
+    "accept email": {
+       "a@b.c": {}
+       "a.b.c@0.23.z": {}
+    }
+
+    "reject non-email": {
+       "a@b": {}
+       ".a@b.c": {}
+    }
+  }
+
+  "_regex non-empty word": {
+    expression: _regexp: "[a-z]+": {}
+
+    "accept non-empty word": {
+       "a": {}
+       "word": {}
+    }
+
+    "reject the empty string": {
+       "a": {}
+    }
+
+    "reject if not a string": {
+       "1": {}
+       "1.1": {}
+       "true": {}
+       "null": {}
+       "[]": {}
+       "{}": {}
+    }
+
+    "reject if not a string null": {
+       "null": {}
+    }
+
+    "reject if not a string void": {
+       "": {}
+    }
+  }
+}

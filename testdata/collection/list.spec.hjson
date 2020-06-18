@@ -1,0 +1,46 @@
+{
+  "_list with 2 entries": {
+    expression: _list: [str int]
+
+    "accept when all entries are present and valid": {
+       "[va 4]": {}
+    }
+
+    "reject lists with insufficiently many elements": {
+       "[va 4 extra]": {}
+    }
+
+    "reject nodes that are not a list": {
+       "{}": {}
+       "0": {}
+       "a": {}
+       "true": {}
+    }
+
+    "reject lists with too many elements": {
+       "[va 4 extra]": {}
+    }
+
+    "reject if an entry does not match": {
+       "[12 4]": {}
+       "[va vb]": {}
+    }
+  }
+
+  "_list with 0 entry": {
+    expression: _list: []
+
+    "accept the empty tuple": {
+       "[]": {}
+    }
+
+    "reject any non-empty tuple": {
+       "[va]": {}
+       "[4]": {}
+    }
+
+    "reject nodes that are not lists": {
+       "{}": {}
+    }
+  }
+}
