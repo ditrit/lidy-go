@@ -51,26 +51,21 @@ This project uses [yarn](https://classic.yarnpkg.com/en/docs/install/), an alter
 - `int` -- integer
 - `str` -- string
 - `null`
+- `timestamp` -- ISO 8601 datetime
 - `any` -- any yaml structure
-- ~~List~~ use `{ _listOf: any }`
-- ~~Map~~ use `{ _dictOf: any }`
-- ~~Timestamp~~ -- define your own using regex
-- ~~Unbounded~~ -- define your own using `_in`
 
 ### Composite checkers
 
-- `_dict`
-- `_dictOf`
-- ~~`_list`~~ -> use `_tuple`
-- `_listOf`
+- `_map`
+- `_mapOf`
+- `_seqOf`
+- `_tuple`
+- `_optional`
+- `_merge`
 - `_oneOf`
-- `_copy` -- unsure
 
-### Container checkers
+### Container size checkers
 
-- `_dictRequired` extra entries to add to a `_dict`
-- ~~`_required`~~ -> use `_dictRequired`
-- `_optional` -- unsure
 - `_nb` -- the container must exactly have the specified number of entries
 - `_max` -- the container must have at most the specified number of entries
 - `_min` -- the container must have at least the specified number of entries
@@ -79,7 +74,27 @@ This project uses [yarn](https://classic.yarnpkg.com/en/docs/install/), an alter
 
 - `_regexp` -- applies only to strings
 - `_in` -- an exact enumeration of terminal YAML values the value must be part of
-- `_notin` -- an exact enumeration of terminal YAML values the value must NOT be part of
 - \+ `_range` -- applies only to numbers
   - Examples for floats: `(0 <= float)`, `(1 < float < 10)`, `(float < 0)`
   - Examples for integers: `(0 <= int <= 9)`
+- \+ `_balanced` -- check that the provided characters are balanced in the string
+  - Example for the regex dsl: `_balanced: [\\, ()[]{}]`
+  - Note: balanced can't be used to balance multi-characters anchors, like in XML
+- \+ `_dsl` -- provide an LL grammar recogniser
+
+### Parameter-less string checkers
+
+- `pattern.email`
+- `pattern.url`
+- `pattern.uri`
+- `pattern.date`
+- `pattern.time`
+- `lang.regex`
+- `lang.csv`
+- `lang.json`
+- `lang.jsonc`
+- `lang.json4`
+- `lang.hjson`
+- `lang.yaml`
+- `lang.html`
+- `lang.xml`
