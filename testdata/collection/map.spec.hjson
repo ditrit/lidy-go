@@ -1,9 +1,50 @@
 {
-  "_dict 2 entries": {
-    schema:
+  "_map 0 entry": {
+    expression: _map: {}
+
+    "accept the empty dict": {
+      "{}": {}
+    }
+
+    "reject any unknown entry": {
+      "{ a: va }": {}
+      "{ b: 4 }": {}
+    }
+
+    "reject nodes that are not dictionaries": {
+      "[]": {}
+    }
+  }
+
+  "_map 1 entry": {
+    expression: _map: { aa: float }
+
+    "accept if valid": {
+      "{ aa: 2.2 }": {}
+      "{ aa: 0 }": {}
+    }
+
+    "reject missing entry": {
+      "{}": {}
+    }
+
+    "reject any unknown entry": {
+      "{ a: va }": {}
+      "{ b: 4 }": {}
+    }
+
+    "reject nodes that are not dictionaries": {
+      "[]": {}
+      "null": {}
+      "0.1": {}
+    }
+  }
+
+  "_map 0 _optional 2 entries": {
+    expression:
       '''
-      _dict: {}
-      _optional: { a: str, b: int }
+      _map: {}
+      _optional: { a: str b: int }
       '''
 
     "accept when all entries are present and valid": {
@@ -39,34 +80,11 @@
     }
   }
 
-  "_dict 0 entry": {
-    expression: _dict: {}
+  "_map 1 entry whose property is '${keyword}'": {
+    expressionTemplate: _map: { "${keyword}": int }
+    keywordList: ["_map", "_mapOf", "_list", "_listOf"]
 
-    "accept the empty dict": {
-      "{}": {}
-    }
-
-    "reject any unknown entry": {
-      "{ a: va }": {}
-      "{ b: 4 }": {}
-    }
-
-    "reject nodes that are not dictionaries": {
-      "[]": {}
-    }
-  }
-
-
-  "_dict 1 entry whose property is '${keyword}'": {
-    schemaTemplate:
-      '''
-      _dict: {}
-      _optional: { "${keyword}": int }
-      '''
-
-    keywordList: ["_dict", "_dictOf", "_list", "_listOf"]
-
-    "accept the empty dict": {
+    "reject if the entry is missing": {
       "{}": {}
     }
 
@@ -82,9 +100,14 @@
       "{ ${keyword}: {} }": {}
     }
 
-    "reject unknown entries": {
-      "{ a: va }": {}
-      "{ b: 4 }": {}
+    "reject if there are unknown entries": {
+      "{ ${keyword}: 2, a: 4 }": {}
+      "{ ${keyword}: 2, b: va }": {}
+    }
+
+    "reject unrelated maps": {
+      "{ a: 4 }": {}
+      "{ b: va }": {}
     }
 
     "reject nodes that are not dictionaries": {

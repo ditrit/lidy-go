@@ -1,6 +1,6 @@
 {
-  "_dictOf": {
-    expression: _dictOf: { str: int }
+  "_mapOf": {
+    expression: _mapOf: { str: int }
 
     "accept the empty dict": {
        "{}": {}

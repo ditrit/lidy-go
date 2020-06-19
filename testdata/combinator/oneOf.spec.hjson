@@ -45,4 +45,10 @@
        "[]": {}
     }
   }
+
+  "_oneOf empty": {
+    expression: _oneOf: []
+
+    "reject everything": "@any"
+  }
 }

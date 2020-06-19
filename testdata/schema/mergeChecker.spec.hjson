@@ -1,0 +1,103 @@
+{
+  target: document
+  "_merge requires identifiers to refer to mapCheckers": {
+    "accept if merging mapCheckers": [
+      [
+        '''
+        main:
+          _merge: [animal, plant, shroom]
+        animal:
+          _map: { a: str }
+        plant:
+          _mapOf: { str: str }
+        shroom:
+          _map: { a: int }
+          _mapOf: { int: int }
+        '''
+        {}
+      ]
+    ]
+    "accept the empty merge": [
+      [
+        '''
+        main:
+          _merge: []
+        '''
+        {}
+      ]
+    ]
+    "reject if merging non-mapCheckers": [
+      [
+        '''
+        main:
+          _merge:
+            - { _oneOf: [] }
+        '''
+        { contain: "main" }
+      ]
+    ]
+    "reject if not used with a the sequence": [
+      [
+        '''
+        main:
+          _merge: animal
+        animal:
+          _map: {}
+        '''
+        { contain: "main" }
+      ]
+    ]
+  }
+  "detect invalid self-references in documents": {
+    "accept if the self-reference is sufficiently indirect": [
+      [
+        '''
+        main: a
+        aa:
+          _map:
+            ka: bb
+        bb:
+          _map:
+            kb: cc
+        cc:
+          _merge:
+            - aa
+            - bb
+            - { _map: kc: dd }
+        dd:
+          _merge:
+            - aa
+            - bb
+            - cc
+            - { _map: kd: aa }
+        '''
+        {}
+      ]
+    ]
+    "reject if the self-reference is too direct": [
+      [ "main: { _merge: [main] }", { contain: "main" } ]
+      [ "main: animal\nanimal: { _merge: [animal] }", { contain: "animal" } ]
+      [
+        '''
+        main: a
+        a: { _merge: [b] }
+        b: { _merge: [a] }
+        '''
+        {
+          contain: "a"
+        }
+      ]
+      [
+        '''
+        main: a
+        a: { _merge: [b] }
+        b: { _merge: [c] }
+        c: { _merge: [a] }
+        '''
+        {
+          contain: "a"
+        }
+      ]
+    ]
+  }
+}

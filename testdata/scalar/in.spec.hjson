@@ -10,4 +10,8 @@
       "missing": {}
     }
   }
+  "_in empty": {
+    expression: _in: []
+    "reject everything": "@any"
+  }
 }

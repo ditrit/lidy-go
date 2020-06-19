@@ -1,6 +1,6 @@
 {
-  "_list with 2 entries": {
-    expression: _list: [str int]
+  "_tuple with 2 entries": {
+    expression: _tuple: [str int]
 
     "accept when all entries are present and valid": {
        "[va 4]": {}
@@ -27,8 +27,8 @@
     }
   }
 
-  "_list with 0 entry": {
-    expression: _list: []
+  "_tuple with 0 entry": {
+    expression: _tuple: []
 
     "accept the empty tuple": {
        "[]": {}

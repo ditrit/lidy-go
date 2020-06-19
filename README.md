@@ -69,7 +69,7 @@ go ginkgo
 
 ### Scalar checkers
 
-- `_regexp` -- applies only to strings
+- `_regexp` -- applies only to strings. Accepted syntax at https://github.com/google/re2/wiki/Syntax
 - `_in` -- an exact enumeration of terminal YAML values the value must be part of
 - \+ `_range` -- applies only to numbers
   - Examples for floats: `(0 <= float)`, `(1 < float < 10)`, `(float < 0)`

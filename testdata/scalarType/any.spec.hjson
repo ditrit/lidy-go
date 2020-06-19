@@ -1,6 +1,7 @@
 {
   "any": {
     expression: any
+    _provide: "@any"
 
     "accept any terminal": {
       "true": {}

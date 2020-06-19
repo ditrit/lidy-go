@@ -81,6 +81,33 @@
           contain: "plant"
         }
       ]
+      [
+        '''
+        main: weather
+        weather:
+          _merge: [rain, cloud]
+        rain:
+          _merge: [water, cloud]
+        cloud:
+          _merge: [water, rain]
+        water:
+          _map:
+            temperature: float
+        '''
+        {
+          contain: "cloud"
+        }
+      ]
+      [
+        '''
+        main: aa
+        aa: { _merge: [bb] }
+        bb: { _oneOf: [aa, cc] }
+        cc: str
+        '''
+        {
+          contain: "aa"
+        }
+      ]
     ]
-  }
 }

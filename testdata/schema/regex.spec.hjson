@@ -1,0 +1,52 @@
+{
+  // See https://github.com/google/re2/wiki/Syntax
+  target: regex.checker
+  "validate regexes": {
+    "accept regexes": {
+      "a": {}
+      ".?": {}
+      "^$": {}
+      "(a[b])": {}
+    }
+    "accept silenced groups": {
+      "(?:a)": {}
+    }
+    "reject lookaheads and lookbehinds, positive or negative": {
+      "(?=a)": {}
+      "(?<=a)": {}
+      "(?!a)": {}
+      "(?<!a)": {}
+    }
+    "reject backreferences": {
+      "a(b)\\1": {}
+      // "a\\0": {}
+      // "a\\1": {}
+      // "a(b)\\2": {}
+      // "(?:a)\\1": {}
+      // "a(b)(?:c)\\2": {}
+      // "a\\1(a)": {}
+    }
+    "reject empty regex": { "\"\"": {} }
+    "reject misplaced quantifier": {
+      "?": {}
+      "*": {}
+      "+": {}
+      "{2}": {}
+    }
+    "reject empty group": { "()": {} }
+    "reject empty class": { "[]": {} }
+    "reject unbalanced regex": {
+      "(": {}
+      ")": {}
+      "{": {}
+      "}": {}
+      "[": {}
+      "]": {}
+      "(()": {}
+      "())": {}
+      "[[]": {}
+      "[]]": {}
+    }
+    "reject misused quantifier brackets": { "{a}": {} }
+  }
+}
