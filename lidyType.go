@@ -4,20 +4,20 @@ type tDocument struct {
 	ruleMap map[string]tExpression
 }
 
-type tExpression interface{}
-
-type tIdentifier struct {
-	identifierName string
+type tRule struct {
+	expression tExpression
+	isExported bool
 }
 
+type tExpression interface{}
+
 type tMap struct {
-	tMapForm
-	tSized
+	form   tMapForm
+	sizing tSizing
 }
 
 // tMapForm map-related size-agnostic content of a tMap node
 type tMapForm struct {
-	mapFormMode tMapFormMode
 	propertyMap map[string]tExpression
 	mapOf       []tKeyValueExpression
 }
@@ -27,11 +27,10 @@ type tKeyValueExpression struct {
 	value tExpression
 }
 
-type tSized struct {
-	sizeMode tSizeMode
-	min      int
-	max      int
-	nb       int
+type tSizing struct {
+	min int
+	max int
+	nb  int
 }
 
 type tPosition struct {

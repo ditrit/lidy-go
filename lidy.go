@@ -11,10 +11,12 @@ type Validator struct {
 	document tDocument
 }
 
+// ValidateTree accept an interface{} as produced by the go `yaml` module
 func (v Validator) ValidateTree(tree interface{}) error {
 	return nil
 }
 
+// ValidateFileOutline accept a fileoutline.FileOutline
 func (v Validator) ValidateFileOutline(fileoutline fo.FileOutline) error {
 	var node yaml.Node
 	err := yaml.Unmarshal([]byte(fileoutline.Content), &node)
@@ -25,10 +27,12 @@ func (v Validator) ValidateFileOutline(fileoutline fo.FileOutline) error {
 	return nil
 }
 
+// ValidateString accept a yaml string
 func (v Validator) ValidateString(text string) error {
 	return v.ValidateFileOutline(fo.FileOutline{Content: text})
 }
 
+// ValidateFile accept a filename (of a yaml file)
 func (v Validator) ValidateFile(filename string) error {
 	fileoutline, err := fo.ReadFile(filename)
 	if err != nil {
@@ -37,18 +41,46 @@ func (v Validator) ValidateFile(filename string) error {
 	return v.ValidateFileOutline(fileoutline)
 }
 
-func ValidatorFromExpression(expression string) (Validator, error) {
+// ValidatorFromLidyExpression create a validator from a lidy experssion
+// This is motly used for tests.
+func ValidatorFromLidyExpression(expression string) (Validator, error) {
 	return Validator{
 		target:   "main",
 		document: tDocument{},
 	}, nil
 }
 
-func ValidatorFromDocument(expression string) (Validator, error) {
+// ValidatorFromString create a validator from a lidy string
+func ValidatorFromString(text string) (Validator, error) {
 	return Validator{
 		target:   "main",
 		document: tDocument{},
 	}, nil
+}
+
+// ValidatorFromFileOutline create a validator from a fileoutline.FileOutline
+func ValidatorFromFileOutline(fileoutline fo.FileOutline) (Validator, error) {
+	var node yaml.Node
+	err := yaml.Unmarshal([]byte(fileoutline.Content), &node)
+
+	if err != nil {
+		panic(err)
+	}
+	return nil
+}
+
+// ValidateString accept a yaml string
+func (v Validator) ValidateString(text string) error {
+	return v.ValidateFileOutline(fo.FileOutline{Content: text})
+}
+
+// ValidateFile accept a filename (of a yaml file)
+func (v Validator) ValidateFile(filename string) error {
+	fileoutline, err := fo.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	return v.ValidateFileOutline(fileoutline)
 }
 
 // GetTrue return true

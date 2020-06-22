@@ -44,10 +44,10 @@ func (s SchemaData) UnmarshalHumanJSON(input []byte) error {
 	return err
 }
 
-func (schemaData SchemaData) UnmarshalJSON(jsonData []byte) error {
+func (schemaData SchemaData) UnmarshalJSON(compositeJsonData []byte) error {
 	data := make(map[string]interface{})
 
-	err := json.Unmarshal(jsonData, &data)
+	err := json.Unmarshal(compositeJsonData, &data)
 	if err != nil {
 		return err
 	}
@@ -55,14 +55,48 @@ func (schemaData SchemaData) UnmarshalJSON(jsonData []byte) error {
 	schemaData.target = data["target"].(string)
 	delete(data, "target")
 
-	jsonData2, err := json.Marshal(data)
+	pureJsonData, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	json.Unmarshal(jsonData2, &schemaData.groupMap)
+	json.Unmarshal(pureJsonData, &schemaData.groupMap)
 
 	return nil
 }
 
 var _ json.Unmarshaler = (*SchemaData)(nil)
+
+func (lineSlice *TestLineSlice) UnmarshalJSON(jsonData []byte) error {
+	lineMap := make(map[string]ExtraCheck)
+
+	err := json.Unmarshal(jsonData, &lineMap)
+	if err != nil {
+		return err
+	}
+
+	for key, check := range lineMap {
+		*lineSlice = append(*lineSlice, TestLine{text: key, extraCheck: check})
+	}
+
+	var lineArray [][]interface{}
+
+	err = json.Unmarshal(jsonData, &lineArray)
+	if err != nil {
+		return err
+	}
+
+	for _, pair := range lineArray {
+		text := pair[0].(string)
+		checkMap := pair[1].(map[string]string)
+
+		var check ExtraCheck
+		if contain, ok := checkMap["contain"]; ok {
+			check.contain = contain
+		}
+
+		*lineSlice = append(*lineSlice, TestLine{text: text, extraCheck: check})
+	}
+
+	return nil
+}

@@ -1,3 +1,5 @@
+// Package fileoutline -- a file outline is a struct gathering the name (the path) of a file, with its content
+
 package fileoutline
 
 import (
