@@ -26,23 +26,56 @@
         {}
       ]
     ]
-    "reject if merging non-mapCheckers": [
+    "accept merging merges": [
       [
         '''
         main:
           _merge:
-            - { _oneOf: [] }
+            - { _merge: [] }
+        '''
+        {}
+      ]
+    ]
+    "accept merging _oneOf mapCheckers": [
+      [
+        '''
+        main:
+          _merge:
+            - _oneOf:
+              - { _map: {} }
+              - { _mapOf: { str: str } }
+              - { _merge: {} }
         '''
         { contain: "main" }
       ]
     ]
-    "reject if not used with a the sequence": [
+    "reject if not solving only to mapCheckers": [
+      [
+        '''
+        main:
+          _merge:
+            - { _in: [] }
+        '''
+        { contain: "main" }
+      ]
+      [
+        '''
+        main:
+          _merge:
+            - oneOf:
+              - _map: {}
+              - str
+        '''
+        { contain: "main" }
+      ]
+    ]
+    "reject if not used with a sequence": [
       [
         '''
         main:
           _merge: animal
         animal:
-          _map: {}
+          - _map: {}
         '''
         { contain: "main" }
       ]
@@ -76,6 +109,7 @@
     ]
     "reject if the self-reference is too direct": [
       [ "main: { _merge: [main] }", { contain: "main" } ]
+      [ "main: { _merge: [{ _merge: [main] }] }", { contain: "main" } ]
       [ "main: animal\nanimal: { _merge: [animal] }", { contain: "animal" } ]
       [
         '''

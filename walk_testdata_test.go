@@ -1,7 +1,6 @@
 package lidy_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,8 +18,8 @@ func GetTestFileList() (TestFileList, error) {
 	root := "testdata"
 	var testFileList TestFileList
 
-	schemaRoot := fmt.Sprintf("%s/%s", root, "schema")
-	schemaRootAlt := fmt.Sprintf("%s\\%s", root, "schema")
+	schemaRoot := root + "/schema"
+	schemaRootAlt := root + "\\schema"
 
 	err := filepath.Walk(root, func(filename string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(filename, ".spec.hjson") {

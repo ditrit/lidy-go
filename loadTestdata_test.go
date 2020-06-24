@@ -26,10 +26,11 @@ type ContentData struct {
 type ContentGroup struct {
 	target      string
 	schema      string
+	template    string
 	criteriaMap map[string]TestLineSlice
 }
 
-func (s SchemaData) UnmarshalHumanJSON(input []byte) error {
+func (schemaData SchemaData) UnmarshalHumanJSON(input []byte) error {
 	// Convert to JSON
 	var data interface{}
 	hjson.Unmarshal(input, &data)
@@ -44,10 +45,10 @@ func (s SchemaData) UnmarshalHumanJSON(input []byte) error {
 	return err
 }
 
-func (schemaData SchemaData) UnmarshalJSON(compositeJsonData []byte) error {
+func (schemaData SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
 	data := make(map[string]interface{})
 
-	err := json.Unmarshal(compositeJsonData, &data)
+	err := json.Unmarshal(compositeJsonInput, &data)
 	if err != nil {
 		return err
 	}
@@ -97,6 +98,48 @@ func (lineSlice *TestLineSlice) UnmarshalJSON(jsonData []byte) error {
 
 		*lineSlice = append(*lineSlice, TestLine{text: text, extraCheck: check})
 	}
+
+	return nil
+}
+
+func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error {
+	data := make(map[string]interface{})
+
+	err := json.Unmarshal(compositeJsonInput, &data)
+	if err != nil {
+		return err
+	}
+
+	if schema, ok := data["expression"].(string); ok {
+		delete(data, "expression")
+
+		contentGroup.target = "expression"
+		contentGroup.schema = schema
+	} else if schema, ok := data["schema"].(string); ok {
+		delete(data, "schema")
+
+		contentGroup.target = "document"
+		contentGroup.schema = schema
+	} else if template, ok := data["expressionTemplate"].(string); ok {
+		delete(data, "expressionTemplate")
+
+		contentGroup.target = "expression"
+		contentGroup.template = template
+	} else if template, ok := data["schemaTemplate"].(string); ok {
+		delete(data, "schemaTemplate")
+
+		contentGroup.target = "document"
+		contentGroup.template = template
+	} else {
+		panic("Missing schema (`expression: \"\"`) in contentGroup")
+	}
+
+	pureJsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	json.Unmarshal(pureJsonData, &contentGroup.criteriaMap)
 
 	return nil
 }

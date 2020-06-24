@@ -20,6 +20,13 @@ How does lidy differ from JSON schema?
 
 Where you used to write `"a": { "ref": "#/$def/b" }`, you now write `"a": "b"`. Lidy does not support accessing non-root nodes. All nodes that must be referred to must be at the root of the Lidy schema.
 
+## Getting started
+
+```go
+parser, err := lidy.FromString(`
+`)
+```
+
 ## Contributing
 
 Installing:

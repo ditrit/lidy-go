@@ -146,5 +146,5 @@ func HereFilename(skip ...int) string {
 	if err != nil {
 		return filename
 	}
-	return fmt.Sprintf("./%s", relFilename)
+	return "./" + relFilename
 }
