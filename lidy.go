@@ -4,9 +4,13 @@ import (
 	"fmt"
 )
 
+// lidy.go
+//
+// Exported types, methods, functions and other entry points
+
 // Parser -- able to validate and build a yaml content
 type Parser interface {
-	Parse(content Paper) (Result, error)
+	Parse(content Paper) (Result, []error)
 }
 
 // ParserOption cherry-pick some parser behaviour
@@ -61,7 +65,7 @@ func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOp
 	document, err := schemaParser.document(paper.yaml)
 
 	if err != nil {
-		return tParser{builderMap: builderMap}, err
+		return tParser{}, err
 	}
 
 	return tParser{
@@ -100,16 +104,12 @@ func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOp
 // 	}, nil
 // }
 
-func (p tParser) Parse(content Paper) (Result, error) {
+func (p tParser) Parse(content Paper) (Result, []error) {
 	if rule, ok := p.grammar.ruleMap[p.target]; ok {
-		result, err := rule.match(content.yaml)
-
-		return result, err
+		return rule.match(content.yaml, p)
 	}
-	var noResult struct{}
-	var err error = fmt.Errorf("Could not find target rule %s in grammar", p.target)
 
-	return noResult, err
+	return nil, []error{fmt.Errorf("Could not find target rule %s in grammar", p.target)}
 }
 
 // // Validator supporting validation of YAML text

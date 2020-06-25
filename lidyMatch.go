@@ -8,7 +8,8 @@ import (
 )
 
 // lidyMatch.go
-// match() and mergeMatch()
+//
+// Implement match() and mergeMatch() on tExpression and tMergeableExpression
 
 // tRule
 func (rule tRule) match(content yaml.Node, parser tParser) (Result, []error) {
@@ -26,20 +27,15 @@ func (rule tRule) match(content yaml.Node, parser tParser) (Result, []error) {
 	return result, err
 }
 
-// tIdentifierReference
-func (reference tIdentifierReference) match(content yaml.Node, parser tParser) (Result, []error) {
-	return reference.rule.match(content, parser)
-}
-
-func (reference tIdentifierReference) mergeMatch(content yaml.Node, parser tParser) (Result, []error) {
-	result, err := mergeMatchExpression(content, reference.rule.expression, parser)
+func (rule tRule) mergeMatch(content yaml.Node, parser tParser) (Result, []error) {
+	result, err := mergeMatchExpression(content, rule.expression, parser)
 
 	if len(err) > 0 {
 		return nil, err
 	}
 
-	if reference.rule.builder != nil {
-		_, err = reference.rule.builder.build(result)
+	if rule.builder != nil {
+		_, err = rule.builder.build(result)
 	}
 
 	if len(err) > 0 {
@@ -60,7 +56,7 @@ func mergeMatchExpression(content yaml.Node, expression tExpression, parser tPar
 
 	const errorTemplate = "Lidy internal error -- " +
 		"_merge performed on  a non-mergeable in the schema -- " +
-		"it should have been caught at schema parse time, please report it." +
+		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ." +
 		"\n  expression: [%s]" +
 		"\n  content: [%s]" +
 		"\n  parser: [%s]"
@@ -70,6 +66,9 @@ func mergeMatchExpression(content yaml.Node, expression tExpression, parser tPar
 
 // tMap
 func (mapChecker tMap) match(content yaml.Node, parser tParser) (Result, []error) {
+	if content.Tag != "!!map" {
+		return nil, parser.contentError(content, "a YAML map, "+mapChecker.description())
+	}
 	f := mapChecker.form
 	switch {
 	case f.propertyMap != nil && f.mapOf.key != nil:

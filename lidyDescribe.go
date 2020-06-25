@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+// lidyDescribe.go
+//
+// Implement the ability of tExpression concrete types to produce their
+// name and their description.
+
 // Rule
 func (rule tRule) name() string {
 	return "(" + rule.ruleName + ")"
@@ -12,15 +17,6 @@ func (rule tRule) name() string {
 
 func (rule tRule) description() string {
 	return fmt.Sprintf("Rule %s %s", rule.ruleName, rule.expression.name())
-}
-
-// IdentifierReference
-func (reference tIdentifierReference) name() string {
-	return "&" + reference.rule.name()
-}
-
-func (reference tIdentifierReference) description() string {
-	return "& " + reference.rule.description()
 }
 
 // Map

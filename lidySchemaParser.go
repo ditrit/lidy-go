@@ -23,7 +23,7 @@ func (parser tSchemaParser) document(node yaml.Node) (tDocument, error) {
 	}
 
 	for k := 1; k < len(node.Content); k += 2 {
-		rule, err := parser.createRule(node.Content[k-1], node.Content[k])
+		rule, err := parser.createRule(*node.Content[k-1], *node.Content[k])
 		if err != nil {
 			return tDocument{}, err
 		}
@@ -72,12 +72,7 @@ func (parser tSchemaParser) identifierReference(node yaml.Node) (tExpression, er
 	}
 
 	if rule, ok := parser.identifierMap[node.Value]; ok {
-		reference := tIdentifierReference{
-			name: node.Value,
-			rule: rule,
-		}
-
-		return reference, nil
+		return rule, nil
 	}
 
 	return nil, parser.schemaNodeError(node, "the identifier to exist in the document")

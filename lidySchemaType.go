@@ -22,20 +22,13 @@ type tDocument struct {
 }
 
 var _ tExpression = tRule{}
+var _ tMergeableExpression = tRule{}
 
 type tRule struct {
 	ruleName   string
 	expression tExpression
 	builder    Builder
 	_node      yaml.Node
-}
-
-// Identifier
-var _ tExpression = tIdentifierReference{}
-var _ tMergeableExpression = tIdentifierReference{}
-
-type tIdentifierReference struct {
-	rule tRule
 }
 
 // Map
