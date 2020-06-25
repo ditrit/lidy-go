@@ -7,6 +7,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var regexpIdentifier = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$")
+
+var regexpIdentifierDeclaration = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*))?)?$")
+
 // lidySchemaParser.go
 // implement methods tSchemaParser
 
@@ -19,7 +23,7 @@ func (parser tSchemaParser) document(node yaml.Node) (tDocument, error) {
 	}
 
 	for k := 1; k < len(node.Content); k += 2 {
-		rule, err := createRule(node.Content[k-1], node.Content[k])
+		rule, err := parser.createRule(node.Content[k-1], node.Content[k])
 		if err != nil {
 			return tDocument{}, err
 		}
@@ -30,16 +34,24 @@ func (parser tSchemaParser) document(node yaml.Node) (tDocument, error) {
 	case node.Tag == "!!str":
 		return parser.identifierReference(node)
 	case node.Tag != "!!map" || len(node.Content) == 0:
-		return nil, schemaNodeError(node, "an expression")
+		return nil, parser.schemaNodeError(node, "an expression")
 	}
 
 	return document, nil
 }
 
-func createRule(key yaml.Node, value yaml.Node) (tRule, error) {
+func (parser tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, error) {
+	if key.Tag != "!!str" {
+		return tRule{}, parser.schemaNodeError(key, "a YAML string (an identifier declaration)")
+	}
+
+	if !regexpIdentifierDeclaration.MatchString(key.Value) {
+		return tRule{}, parser.schemaNodeError(key, "a valid identifier declaration")
+	}
+
 	return tRule{
 		_node: value,
-	}
+	}, nil
 }
 
 // tSchemaParser.expression parse any lidy schema expression
@@ -48,19 +60,15 @@ func (parser tSchemaParser) expression(node yaml.Node) (tExpression, error) {
 	case node.Tag == "!!str":
 		return parser.identifierReference(node)
 	case node.Tag != "!!map" || len(node.Content) == 0:
-		return nil, schemaNodeError(node, "an expression")
+		return nil, parser.schemaNodeError(node, "an expression")
 	}
 
 	return parser.checkerExpression(node)
 }
 
-var regexIdentifier = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$")
-
-var regexIdentifierDeclaration = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*))?)?$")
-
 func (parser tSchemaParser) identifierReference(node yaml.Node) (tExpression, error) {
-	if !regexIdentifier.MatchString(node.Value) {
-		return nil, parser.schemaNodeError(node, "a valid identifier (a-zA-Z)(a-zA-Z0-9)+")
+	if !regexpIdentifier.MatchString(node.Value) {
+		return nil, parser.schemaNodeError(node, "a valid identifier reference (a-zA-Z)(a-zA-Z0-9)+")
 	}
 
 	if rule, ok := parser.identifierMap[node.Value]; ok {
@@ -72,7 +80,7 @@ func (parser tSchemaParser) identifierReference(node yaml.Node) (tExpression, er
 		return reference, nil
 	}
 
-	return nil, parser.schemaNodeError(node, "the identifier to exist")
+	return nil, parser.schemaNodeError(node, "the identifier to exist in the document")
 }
 
 func (parser tSchemaParser) checkerExpression(node yaml.Node) (tExpression, error) {

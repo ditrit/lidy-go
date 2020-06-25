@@ -47,7 +47,7 @@ func (line *TestLine) asSchemaDocument() error {
 		return err
 	}
 
-	_, err = lidy.NewParser(paper)
+	_, err = lidy.NewParser(paper, nil, lidy.ParserOption{})
 
 	return err
 }

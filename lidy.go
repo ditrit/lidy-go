@@ -6,7 +6,7 @@ import (
 
 // Parser -- able to validate and build a yaml content
 type Parser interface {
-	Parse(content Paper) (interface{}, error)
+	Parse(content Paper) (Result, error)
 }
 
 // ParserOption cherry-pick some parser behaviour
@@ -38,6 +38,14 @@ type Builder interface {
 	build(input interface{}) (Result, []error)
 }
 
+// Position
+type tPosition struct {
+	line      int
+	column    int
+	lineEnd   int
+	columnEnd int
+}
+
 // NewParser create a parser from a lidy paper
 func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOption) (Parser, error) {
 	if builderMap == nil {
@@ -50,23 +58,15 @@ func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOp
 		option:     parserOption,
 	}
 
-	expression, err := schemaParser.document(paper.yaml)
+	document, err := schemaParser.document(paper.yaml)
 
 	if err != nil {
 		return tParser{builderMap: builderMap}, err
 	}
 
-	ruleMap := make(map[string]tRule)
-
-	ruleMap["main"] = tRule{
-		expression: expression,
-	}
-
 	return tParser{
-		target: "main",
-		grammar: tDocument{
-			ruleMap: ruleMap,
-		},
+		target:     "main",
+		grammar:    document,
 		builderMap: builderMap,
 	}, nil
 }
@@ -102,7 +102,7 @@ func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOp
 
 func (p tParser) Parse(content Paper) (Result, error) {
 	if rule, ok := p.grammar.ruleMap[p.target]; ok {
-		result, err := rule.apply(content.yaml)
+		result, err := rule.match(content.yaml)
 
 		return result, err
 	}
