@@ -8,22 +8,26 @@ type tDocument struct {
 
 type tRule struct {
 	expression tExpression
-	isExported bool
+	builder    Builder
+	_node      yaml.Node
 }
 
 type tExpression interface {
-	match(content yaml.Node, document tDocument) error
+	match(content yaml.Node, parser tParser) (Result, []error)
 }
 
 type tMergeableExpression interface {
-	mergeMatch(content yaml.Node, document tDocument) []tMap
+	mergeMatch(content yaml.Node, parser tParser) (Result, []error)
 }
 
 // Identifier
-var _ tExpression = tIdentifier("")
-var _ tMergeableExpression = tIdentifier("")
+var _ tExpression = tIdentifierReference{}
+var _ tMergeableExpression = tIdentifierReference{}
 
-type tIdentifier string
+type tIdentifierReference struct {
+	name string
+	rule tRule
+}
 
 // Map
 var _ tExpression = tMap{}
@@ -37,7 +41,7 @@ type tMap struct {
 // tMapForm map-related size-agnostic content of a tMap node
 type tMapForm struct {
 	propertyMap map[string]tExpression
-	mapOf       []tKeyValueExpression
+	mapOf       tKeyValueExpression
 	mergeList   []tMergeableExpression
 }
 
@@ -61,10 +65,21 @@ type tSeqForm struct {
 }
 
 // Sizing
-type tSizing struct {
+type tSizing interface {
+	check(content yaml.Node, parser tParser) []error
+}
+
+var _ tSizing = tSizingMinMax{}
+
+type tSizingMinMax struct {
 	min int
 	max int
-	nb  int
+}
+
+var _ tSizing = tSizingNb{}
+
+type tSizingNb struct {
+	nb int
 }
 
 // In
