@@ -16,6 +16,10 @@ var regexpIdentifierDeclaration = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\
 
 // tSchemaParser.document parse a lidy schema document
 func (parser tSchemaParser) document(node yaml.Node) (tDocument, error) {
+	// Note: The parsing is done in two steps
+	// - First create tRule{} entities for all rules of the document
+	// - Second, explore each rule value node, to populate the `expression` field of the rule node.
+	// This approach allows to substitute identifiers for rule entities while exploring the schema.
 	var document tDocument
 
 	if node.Tag != "!!map" {
@@ -27,14 +31,7 @@ func (parser tSchemaParser) document(node yaml.Node) (tDocument, error) {
 		if err != nil {
 			return tDocument{}, err
 		}
-		document.ruleMap
-	}
-
-	switch {
-	case node.Tag == "!!str":
-		return parser.identifierReference(node)
-	case node.Tag != "!!map" || len(node.Content) == 0:
-		return nil, parser.schemaNodeError(node, "an expression")
+		document.ruleMap[rule.ruleName] = rule
 	}
 
 	return document, nil

@@ -14,7 +14,7 @@ type tExpression interface {
 
 type tMergeableExpression interface {
 	tExpression
-	mergeMatch(content yaml.Node, parser tParser) (Result, []error)
+	mergeMatch(requiredSet map[string]bool, content yaml.Node, parser tParser) (MapResult, []error)
 }
 
 type tDocument struct {
@@ -55,7 +55,6 @@ type tKeyValueExpression struct {
 
 // tSeq
 var _ tExpression = tSeq{}
-var _ tMergeableExpression = tSeq{}
 
 type tSeq struct {
 	form   tSeqForm

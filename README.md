@@ -23,7 +23,25 @@ Where you used to write `"a": { "ref": "#/$def/b" }`, you now write `"a": "b"`. 
 ## Getting started
 
 ```go
-parser, err := lidy.FromString(`
+import "github.com/ditrit/lidy"
+
+paper, err := lidy.PaperFromString(`
+main:
+  _dict:
+    derived_from: str
+    version: str
+    metadata: metadata
+    description: str
+
+metadata:
+  _dictOf: { str: str }
+`)
+
+result, err = parser.ParseString(`
+derived_from: ditrit
+version: v1.0.1
+metadata: {}
+description: "This shall pass, too"
 `)
 ```
 
@@ -48,7 +66,7 @@ go ginkgo
 
 ## Spec
 
-### Data types (YAML+unbounded)
+### Data types: YAML
 
 - `boolean`
 - `float`
