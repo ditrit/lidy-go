@@ -9,6 +9,8 @@
 !/linenumber/
 !/paper/
 !/testdata/
+!/*.go
+!/lidy.schema.yaml
 
 !/.gitignore
 !/README.md
@@ -16,5 +18,3 @@
 
 !/go.mod
 !/go.sum
-
-!/*.go

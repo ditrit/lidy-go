@@ -1,0 +1,158 @@
+# This lidy schema file specifies what a valid lidy schema is
+# As such, this is the generic lidy meta-schema
+
+# main
+#
+# the whole lidy schema as a YAML document
+main: document
+
+document:
+  _mapOf: { identifier.declaration: expression }
+  _map:
+    main: expression
+
+# expression
+#
+# any valid lidy schema expression
+expression:
+  _oneOf:
+    - identifier
+    - mapChecker
+    - seqChecker
+    - oneOf.checker
+    - in.checker
+    - regex.checker
+
+# identifier
+#
+# the name of a lidy rule
+identifier:
+  _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*"
+
+identifier.declaration:
+  _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*))?)?"
+
+# property
+#
+# a field name inside a map
+property: str
+
+# scalar
+#
+# a yaml scalar
+scalar:
+  _oneOf:
+    - timestamp
+    - boolean
+    - float
+    - int
+    - str
+
+# sizingMixing
+#
+# _min can't be inferior to _max
+sizingMixin::
+  _oneOf:
+  - _map: {}
+    _optional:
+      "_min": int
+      "_max": int
+  - _map: {}
+    _optional:
+      "_nb": int
+
+###
+# checkers and parameters #
+#
+
+# - `_in` -> in.checker
+# - ...
+# - `_regex` -> regex.checker
+
+#
+# map and mapOf
+mapChecker:
+  _merge:
+    - mapForm
+    - optionalableMapMixin
+    - sizingMixin
+
+mapForm:
+  _map: {}
+  _optional:
+    "_map": map.parameter
+    "_mapOf": mapOf.parameter
+    "_merge": merge.parameter
+  _min: 1
+
+optionalableMapMixin:
+  _map: {}
+  _optional:
+    "_optional": map.parameter
+
+# map
+map.parameter:
+  _mapOf: { property: expression }
+
+# mapOf
+mapOf.parameter:
+  _nb: 1
+  _mapOf: { expression: expression }
+
+# merge.parmeter
+# The merge targets must all solve to a list of mapCheckers only. This is checked by the merge.parameter builder.
+merge.parameter::
+  _seqOf:
+    _oneOf:
+      - mapChecker
+      - oneOf.checker
+      - identifier
+
+#
+# tuple and seqOf
+seqChecker:
+  _merge:
+    - seqForm
+    - optionalableTupleMixin
+    - sizingMixin
+
+seqForm:
+  _map: {}
+  _optional:
+    "_tuple": tuple.parameter
+    "_seqOf": seqOf.parameter
+  _min: 1
+
+optionalableTupleMixin:
+  _map: {}
+  _optional:
+    "_optional": tuple.parameter
+
+# tuple
+tuple.parameter:
+  _seqOf: expression
+
+# seqOf
+seqOf.parameter: expression
+
+# in
+in.checker:
+  _map:
+    "_in": in.parameter
+
+in.parameter:
+  _seqOf: scalar
+
+# oneOf
+oneOf.checker:
+  _map:
+    "_oneOf": oneOf.parameter
+
+oneOf.parameter:
+  _seqOf: expression
+
+# regex
+# The string must be a valid regex. This is checked by the merge.parameter builder.
+regex.checker::
+  _map:
+    "_regex": str
