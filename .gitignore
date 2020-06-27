@@ -13,6 +13,7 @@
 !/lidy.schema.yaml
 
 !/.gitignore
+!/DOCUMENTATION.md
 !/README.md
 !/LICENSE
 
