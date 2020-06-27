@@ -25,9 +25,7 @@ func PaperFromFile(filename string) (Paper, error) {
 		return Paper{}, err
 	}
 
-	paper, err := PaperFromFileOutline(fileoutline)
-
-	return paper, err
+	return PaperFromFileOutline(fileoutline)
 }
 
 // PaperFromFileOutline -- create a Paper from a file outline

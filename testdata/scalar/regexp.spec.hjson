@@ -1,6 +1,6 @@
 {
-  "_regexp empty": {
-    expression: _regexp: "^$": {}
+  "_regex empty": {
+    expression: _regex: "^$": {}
 
     "accept empty string": {
        "a": {}
@@ -15,8 +15,8 @@
     }
   }
 
-  "_regexp email": {
-    expression: _regexp: "^[a-zA-Z0-9]+[.][a-zA-Z0-9]+*@[a-zA-Z0-9]+[.][a-zA-Z0-9]++$": {}
+  "_regex email": {
+    expression: _regex: "^[a-zA-Z0-9]+[.][a-zA-Z0-9]+*@[a-zA-Z0-9]+[.][a-zA-Z0-9]++$": {}
 
     "accept email": {
        "a@b.c": {}
@@ -30,7 +30,7 @@
   }
 
   "_regex non-empty word": {
-    expression: _regexp: "[a-z]+": {}
+    expression: _regex: "[a-z]+": {}
 
     "accept non-empty word": {
        "a": {}

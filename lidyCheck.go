@@ -60,8 +60,11 @@ func getSize(content yaml.Node) (int, []error) {
 			"getSize() was called on a non-map non-sequence YAML value -- " +
 			"this should not happen, please report it to " +
 			"https://github.com/ditrit/lidy/issues ." +
-			"\n  content: [%s]"
+			"\n  content: [kind [%s], len %d, value [%s] at position %d:%d]"
 
-		return -1, []error{fmt.Errorf(errorTemplate, content)}
+		return -1, []error{fmt.Errorf(
+			errorTemplate,
+			content.Tag, len(content.Content), content.Value, content.Line, content.Column,
+		)}
 	}
 }

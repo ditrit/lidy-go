@@ -27,8 +27,8 @@ func (rule tRule) match(content yaml.Node, parser tParser) (Result, []error) {
 	return result, err
 }
 
-func (rule tRule) mergeMatch(requiredSet map[string]bool, content yaml.Node, parser tParser) (MapResult, []error) {
-	result, err := mergeMatchExpression(requiredSet, content, rule.expression, parser)
+func (rule tRule) mergeMatch(usefulList []bool, content yaml.Node, parser tParser) (MapResult, []error) {
+	result, err := mergeMatchExpression(usefulList, content, rule.expression, parser)
 
 	if len(err) > 0 {
 		return MapResult{}, err
@@ -42,22 +42,19 @@ func (rule tRule) mergeMatch(requiredSet map[string]bool, content yaml.Node, par
 }
 
 // tExpression
-func mergeMatchExpression(requiredSet map[string]bool, content yaml.Node, expression tExpression, parser tParser) (MapResult, []error) {
+func mergeMatchExpression(usefulList []bool, content yaml.Node, expression tExpression, parser tParser) (MapResult, []error) {
 	switch mergeable := expression.(type) {
 	case tMap:
-		return mergeable.mergeMatch(requiredSet, content, parser)
+		return mergeable.mergeMatch(usefulList, content, parser)
 	case tOneOf:
-		return mergeable.mergeMatch(requiredSet, content, parser)
+		return mergeable.mergeMatch(usefulList, content, parser)
 	}
 
-	const errorTemplate = "Lidy internal error -- " +
-		"_merge performed on  a non-mergeable in the schema -- " +
-		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ." +
-		"\n  expression: [%s]" +
-		"\n  content: [%s]" +
-		"\n  parser: [%s]"
-
-	return MapResult{}, []error{fmt.Errorf(errorTemplate, expression, content, parser)}
+	return MapResult{}, parser.reportSchemaParserInternalError(
+		"_merge performed on  a non-mergeable in the schema -- ",
+		expression,
+		content,
+	)
 }
 
 // Map
@@ -67,26 +64,53 @@ func (mapChecker tMap) match(content yaml.Node, parser tParser) (Result, []error
 		return nil, parser.contentError(content, "a YAML map, "+mapChecker.description())
 	}
 
-	f := mapChecker.form
+	// Extra key (preparation)
+	// list tracking whether a key-value pair was used or not
+	usefulList := make([]bool, len(content.Content)/2)
 
-	// Missing key (preparation)
-	// "toBeFoundRequiredPropertySet"
-	requiredSet := make(map[string]bool)
-	for key := range f.propertyMap {
-		requiredSet[key] = true
-	}
+	mapResult, err := mapChecker.mergeMatch(usefulList, content, parser)
 
-	mapResult, err := mapChecker.mergeMatch(requiredSet, content, parser)
+	mapOf := mapChecker.form.mapOf
 
 	errList := errorlist.List{}
-	errList.MaybeAppendError(err)
+	errList.Push(err)
 
-	// Missing keys (reporting)
-	for key := range requiredSet {
-		errList.MaybeAppendError(
+	for k, v := range usefulList {
+		if v == false { // "used up"
+			continue // skip
+		}
+
+		key := content.Content[2*k]
+		value := content.Content[2*k+1]
+
+		// mapOf
+		// Checking the key
+		keyResult, err := mapOf.key.match(*key, parser)
+		errList.Push(err)
+
+		if len(err) > 0 {
+			continue
+		}
+
+		// (if the key is valid)
+		// Checking the value
+		valueResult, err := mapOf.value.match(*value, parser)
+		errList.Push(err)
+
+		if len(err) > 0 {
+			continue
+		}
+
+		// (if both the key and the value are valid)
+		// Adding the key-value pair
+		mapResult.MapOf = append(mapResult.MapOf, KeyValueResult{
+			key:   keyResult,
+			value: valueResult,
+		})
+
+		errList.Push(
 			parser.contentError(
-				content,
-				fmt.Sprintf("to find a property %s %s", key, f.propertyMap[key].name()),
+				content, fmt.Sprintf("no extra property (%s) `%s`", key.Tag, key.Value),
 			),
 		)
 	}
@@ -95,7 +119,7 @@ func (mapChecker tMap) match(content yaml.Node, parser tParser) (Result, []error
 }
 
 func (mapChecker tMap) mergeMatch(
-	requiredSet map[string]bool,
+	usefulList []bool,
 	content yaml.Node,
 	parser tParser,
 ) (MapResult, []error) {
@@ -104,7 +128,14 @@ func (mapChecker tMap) mergeMatch(
 	errList := errorlist.List{}
 
 	// Bad sizing
-	errList.MaybeAppendError(mapChecker.sizing.check(content, parser))
+	errList.Push(mapChecker.sizing.check(content, parser))
+
+	// Missing key (preparation)
+	// "toBeFoundRequiredPropertySet"
+	requiredSet := make(map[string]bool)
+	for key := range f.propertyMap {
+		requiredSet[key] = true
+	}
 
 	// Going through the fields of the map
 	for k := 1; k < len(content.Content); k += 2 {
@@ -118,6 +149,7 @@ func (mapChecker tMap) mergeMatch(
 			if found {
 				// Missing keys (updating)
 				delete(requiredSet, key.Value)
+				usefulList[(k-1)/2] = false
 			} else {
 				property, found = f.optionalMap[key.Value]
 			}
@@ -126,57 +158,84 @@ func (mapChecker tMap) mergeMatch(
 				// Matching with the matcher specified for that property
 				result, err := property.match(*value, parser)
 
-				errList.MaybeAppendError(err)
+				errList.Push(err)
 
 				mapResult.Property[key.Value] = result
-
-				continue
 			}
 		}
-
-		// Rejecting extra keys
-		if f.mapOf.key == nil {
-			errList.MaybeAppendError(
-				parser.contentError(
-					content, fmt.Sprintf("no property `%s`", key.Value),
-				),
-			)
-		}
-
-		// mapOf
-		// Checking the key
-		keyResult, err := f.mapOf.key.match(*key, parser)
-		errList.MaybeAppendError(err)
-
-		if len(err) > 0 {
-			continue
-		}
-
-		// (if the key is valid)
-		// Checking the value
-		valueResult, err := f.mapOf.value.match(*value, parser)
-		errList.MaybeAppendError(err)
-
-		if len(err) > 0 {
-			continue
-		}
-
-		// (if both the key and the value are valid)
-		// Adding the key-value pair
-		mapResult.MapOf = append(mapResult.MapOf, KeyValueResult{
-			key:   keyResult,
-			value: valueResult,
-		})
 	}
 
+	// Missing keys (reporting)
+	for key := range requiredSet {
+		errList.Push(
+			parser.contentError(
+				content,
+				fmt.Sprintf("to find a property %s %s", key, f.propertyMap[key].name()),
+			),
+		)
+	}
+
+	// Merges
 	for _, mergeable := range f.mergeList {
-		result, err := mergeable.mergeMatch(requiredSet, content, parser)
-		errList.MaybeAppendError(err)
+		result, err := mergeable.mergeMatch(usefulList, content, parser)
+		errList.Push(err)
 
 		mapResult.Merge = append(mapResult.Merge, result)
 	}
 
 	return mapResult, errList.ConcatError()
+}
+
+// Seq
+func (seq tSeq) match(content yaml.Node, parser tParser) (Result, []error) {
+	// Non-maps
+	if content.Tag != "!!seq" {
+		return nil, parser.contentError(content, "a YAML list (seq), "+seq.description())
+	}
+
+	seqResult := SeqResult{}
+	errList := errorlist.List{}
+
+	// Bad sizing
+	errList.Push(seq.sizing.check(content, parser))
+
+	// Going through the fields of the map
+	for k, value := range content.Content {
+		if k < len(seq.form.tuple) {
+			// Tuple (required)
+			result, err := seq.form.tuple[k].match(*value, parser)
+			errList.Push(err)
+			seqResult.Tuple = append(seqResult.Tuple, result)
+		} else if k -= len(seq.form.tuple); k < len(seq.form.optionalTuple) {
+			// Tuple (optional)
+			result, err := seq.form.optionalTuple[k].match(*value, parser)
+			errList.Push(err)
+			seqResult.Tuple = append(seqResult.Tuple, result)
+		} else if seq.form.seqOf != nil {
+			// SeqOf (all the rest)
+			result, err := seq.form.seqOf.match(*value, parser)
+			errList.Push(err)
+			seqResult.Seq = append(seqResult.Seq, result)
+		} else {
+			// Rejecting extra entries (all the rest, if no SeqOf)
+			message := fmt.Sprintf(
+				"no %dth entry (%s) `%s`",
+				k, value.Tag, value.Value,
+			)
+			errList.Push(parser.contentError(*value, message))
+		}
+	}
+
+	// Signaling missing keys
+	for k := len(content.Content); k < len(seq.form.tuple); k++ {
+		message := fmt.Sprintf(
+			"a %dth entry %s",
+			k, seq.form.tuple[k].description(),
+		)
+		errList.Push(parser.contentError(content, message))
+	}
+
+	return seqResult, errList.ConcatError()
 }
 
 // OneOf
@@ -192,7 +251,7 @@ func (oneOf tOneOf) match(content yaml.Node, parser tParser) (Result, []error) {
 }
 
 func (oneOf tOneOf) mergeMatch(
-	requiredSet map[string]bool,
+	usefulList []bool,
 	content yaml.Node,
 	parser tParser,
 ) (MapResult, []error) {
@@ -200,18 +259,21 @@ func (oneOf tOneOf) mergeMatch(
 		"_merge performed on a non-mergeable in _oneOf in the schema -- " +
 		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ." +
 		"\n  expression: [%s]" +
-		"\n  content: [%s]" +
-		"\n  parser: [%s]"
+		"\n  content: [kind [%s], len %d, value [%s] at position %d:%d]"
 
 	for _, option := range oneOf.optionList {
 		if mergeable, ok := option.(tMergeableExpression); ok {
-			mapResult, err := mergeable.mergeMatch(requiredSet, content, parser)
+			mapResult, err := mergeable.mergeMatch(usefulList, content, parser)
 
 			if len(err) == 0 {
 				return mapResult, nil
 			}
 		} else {
-			return MapResult{}, []error{fmt.Errorf(errorTemplate, option, content, parser)}
+			return MapResult{}, []error{fmt.Errorf(
+				errorTemplate,
+				option.description(),
+				content.Tag, len(content.Content), content.Value, content.Line, content.Column,
+			)}
 		}
 	}
 
@@ -231,17 +293,17 @@ func (in tIn) match(content yaml.Node, parser tParser) (Result, []error) {
 	return nil, parser.contentError(content, in.description())
 }
 
-// Regexp
-func (rxp tRegexp) match(content yaml.Node, parser tParser) (Result, []error) {
+// Regex
+func (rxp tRegex) match(content yaml.Node, parser tParser) (Result, []error) {
 	contentError := func() []error {
-		return parser.contentError(content, fmt.Sprintf("a string (matching the regexp [%s])", rxp.regexpString))
+		return parser.contentError(content, fmt.Sprintf("a string (matching the regex [%s])", rxp.regexString))
 	}
 
 	if content.Tag != "!!str" {
 		return nil, contentError()
 	}
 
-	if !rxp.regexp.MatchString(content.Value) {
+	if !rxp.regex.MatchString(content.Value) {
 		return nil, contentError()
 	}
 
@@ -250,7 +312,21 @@ func (rxp tRegexp) match(content yaml.Node, parser tParser) (Result, []error) {
 
 // Error
 func (parser tParser) contentError(content yaml.Node, expected string) []error {
-	position := fmt.Sprintf("$s:%d:%d", parser.filename, content.Line, content.Column)
+	position := fmt.Sprintf("%s:%d:%d", parser.filename, content.Line, content.Column)
 
 	return []error{fmt.Errorf("error with content node of kind [%s], value \"%s\" at position %s, where [%s] was expected", content.Tag, content.Value, position, expected)}
+}
+
+func (parser tParser) reportSchemaParserInternalError(context string, expression tExpression, content yaml.Node) []error {
+	return []error{fmt.Errorf(""+
+		"Lidy internal error -- "+
+		"%s"+
+		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ."+
+		"\n  expression: [%s]"+
+		"\n  content: [kind [%s], len %d, value [%s] at position %s:%d:%d]"+
+		context,
+		expression.description(),
+		content.Tag, len(content.Content), content.Value,
+		parser.filename, content.Line, content.Column,
+	)}
 }

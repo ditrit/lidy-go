@@ -1,7 +1,7 @@
 package lidy
 
 import (
-	"regexp"
+	"regex"
 
 	"gopkg.in/yaml.v3"
 )
@@ -14,7 +14,7 @@ type tExpression interface {
 
 type tMergeableExpression interface {
 	tExpression
-	mergeMatch(requiredSet map[string]bool, content yaml.Node, parser tParser) (MapResult, []error)
+	mergeMatch(usefulList []bool, content yaml.Node, parser tParser) (MapResult, []error)
 }
 
 type tDocument struct {
@@ -103,9 +103,9 @@ type tIn struct {
 }
 
 // Regex
-var _ tExpression = tRegexp{}
+var _ tExpression = tRegex{}
 
-type tRegexp struct {
-	regexpString string
-	regexp       regexp.Regexp
+type tRegex struct {
+	regexString string
+	regex       regex.Regex
 }

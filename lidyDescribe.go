@@ -137,10 +137,10 @@ func (in tIn) description() string {
 }
 
 // Regex
-func (regexp tRegexp) name() string {
-	return "(regexp)"
+func (regex tRegex) name() string {
+	return "(regex)"
 }
 
-func (regexp tRegexp) description() string {
-	return "/" + regexp.regexpString + "/"
+func (regex tRegex) description() string {
+	return "/" + regex.regexString + "/"
 }

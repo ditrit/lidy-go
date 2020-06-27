@@ -5,8 +5,8 @@ type List struct {
 	list [][]error
 }
 
-// MaybeAppendError -- Append error list if non-empty
-func (me List) MaybeAppendError(errorList []error) {
+// Push -- Append error list if non-empty
+func (me List) Push(errorList []error) {
 	if errorList != nil && len(errorList) > 0 {
 		me.list = append(me.list, errorList)
 	}

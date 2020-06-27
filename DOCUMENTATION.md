@@ -58,19 +58,27 @@ Please note that `any` will store YAML map contents in the `mapOf` field of `Map
 
 ### Lidy checker forms
 
-Lidy has 5 checker forms:
+Lidy has 5 checker forms.
+
+The scalar checker forms are:
+
+- the regex checker, matching a string
+- the in checker, matching an exact scalar
+
+The container checker forms are:
 
 - the map checker, matching a YAML map
 - the seq checker, matching a YAML sequence
+
+Finally, there's also one logical checker form:
+
 - the one-of, selecting the first matching lidy expression
-- the in checker, matching an exact scalar
-- the regex checker, matching a string
 
 ### `_regex: ...`, define your own string checker
 
 ##### \_regex
 
-The `_regex` keyword allows you to accept only strings that match the given regex. The regex engine is [re2](https://github.com/google/re2). Non-strings values are rejected.
+The `_regex` keyword allows you to accept only strings that match the given regex. The regex engine is [re2](https://github.com/google/re2); find the accepted syntax [here](https://github.com/google/re2/wiki/Syntax). Non-strings values are rejected.
 
 Example:
 
@@ -186,7 +194,7 @@ import (
 )
 
 func main() {
-    lidy.File{
+    result, errList := lidy.File{
         Text: `
 main:
 

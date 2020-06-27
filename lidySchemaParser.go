@@ -2,14 +2,20 @@ package lidy
 
 import (
 	"fmt"
-	"regexp"
+	"regex"
 
 	"gopkg.in/yaml.v3"
 )
 
-var regexpIdentifier = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$")
+var regexIdentifier = *regex.MustCompile("^" +
+	"[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$",
+)
 
-var regexpIdentifierDeclaration = *regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*))?)?$")
+var regexIdentifierDeclaration = *regex.MustCompile("^" +
+	"[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:" +
+	"[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)" +
+	")?)?$",
+)
 
 // lidySchemaParser.go
 // implement methods tSchemaParser
@@ -42,7 +48,7 @@ func (parser tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, e
 		return tRule{}, parser.schemaNodeError(key, "a YAML string (an identifier declaration)")
 	}
 
-	if !regexpIdentifierDeclaration.MatchString(key.Value) {
+	if !regexIdentifierDeclaration.MatchString(key.Value) {
 		return tRule{}, parser.schemaNodeError(key, "a valid identifier declaration")
 	}
 
@@ -64,7 +70,7 @@ func (parser tSchemaParser) expression(node yaml.Node) (tExpression, error) {
 }
 
 func (parser tSchemaParser) identifierReference(node yaml.Node) (tExpression, error) {
-	if !regexpIdentifier.MatchString(node.Value) {
+	if !regexIdentifier.MatchString(node.Value) {
 		return nil, parser.schemaNodeError(node, "a valid identifier reference (a-zA-Z)(a-zA-Z0-9)+")
 	}
 
@@ -81,7 +87,7 @@ func (parser tSchemaParser) checkerExpression(node yaml.Node) (tExpression, erro
 
 // Error
 func (parser tSchemaParser) schemaNodeError(node yaml.Node, expected string) error {
-	position := fmt.Sprintf("$s:%d:%d", parser.filename, node.Line, node.Column)
+	position := fmt.Sprintf("%s:%d:%d", parser.filename, node.Line, node.Column)
 
 	return fmt.Errorf("error with lidy node of kind [%s], value \"%s\" at position %s, where [%s] was expected", node.Tag, node.Value, position, expected)
 }

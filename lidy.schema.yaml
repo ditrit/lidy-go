@@ -8,8 +8,6 @@ main: document
 
 document:
   _mapOf: { identifier.declaration: expression }
-  _map:
-    main: expression
 
 # expression
 #

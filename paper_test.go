@@ -11,13 +11,12 @@ var _ = Describe("Paper/PaperFromFile", func() {
 		paper, err := lidy.PaperFromFile("lidy.schema.yaml")
 
 		Expect(err).To(BeNil())
-		Expect(string(paper.FileOutline.Content)).To(ContainSubstring("package paper_test"))
+		Expect(string(paper.FileOutline.Content)).To(ContainSubstring("identifier.declaration"))
 	})
 
 	It("Errors on missing files", func() {
-		fileOutline, err := lidy.PaperFromFile("`non-existing`file`")
+		_, err := lidy.PaperFromFile("`non-existing`file`")
 
 		Expect(err).NotTo(BeNil())
-		Expect(fileOutline).To(BeNil())
 	})
 })
