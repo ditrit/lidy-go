@@ -2,16 +2,16 @@ package lidy
 
 import (
 	"fmt"
-	"regex"
+	"regexp"
 
 	"gopkg.in/yaml.v3"
 )
 
-var regexIdentifier = *regex.MustCompile("^" +
+var regexIdentifier = *regexp.MustCompile("^" +
 	"[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$",
 )
 
-var regexIdentifierDeclaration = *regex.MustCompile("^" +
+var regexIdentifierDeclaration = *regexp.MustCompile("^" +
 	"[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:" +
 	"[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)" +
 	")?)?$",

@@ -1,6 +1,8 @@
 package lidy_test
 
 import (
+	"io/ioutil"
+
 	"github.com/ditrit/lidy"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -10,52 +12,97 @@ import (
 
 var _ = Describe("The lidy loaders", func() {
 	Specify("Using a Lidy file loader", func() {
-		var _ = lidy.File{Name: "hello.txt"}
+		filename := "hello.txt"
+		byteContent, _ := ioutil.ReadFile(filename)
+
+		var _ = lidy.NewFile(filename, byteContent)
 	})
 	Specify("Using a Lidy string loader", func() {
-		var _ = lidy.File{Text: "Hello World!"}
+		var _ = lidy.NewFile("", []byte("Hello World!"))
 	})
 	Specify("Using a Lidy string loader, providing an informative filename", func() {
-		var _ = lidy.File{
-			Text: "Hello World!",
-			Name: "hello.txt",
-		}
+		var _ = lidy.NewFile("hello.txt", []byte("Hello World!"))
 	})
 })
 var _ = Describe("The different ways to invoke lidy checking features", func() {
-	Specify("Checking that a file can be loaded", func() {
-		text, err := lidy.File{Name: "testdata/asset/some.txt"}.Load()
-		Expect(text).To(Equal("Text!\n"))
-		Expect(err).To(BeNil())
-	})
 	When("Checking that a file is valid YAML", func() {
 		It("works works with YAML", func() {
-			_, err := lidy.File{Name: "testdata/asset/some.yaml"}.Yaml()
+			err := lidy.NewFile("some.yaml", []byte(`a: b`)).Yaml()
 			Expect(err).To(BeNil())
 		})
 		It("works with JSON, since JSON is YAML", func() {
-			_, err := lidy.File{Name: "testdata/asset/some.json"}.Yaml()
+			err := lidy.NewFile("some.json", []byte(`{ "a": "b" }`)).Yaml()
 			Expect(err).To(BeNil())
 		})
 	})
 	When("Checking that a schema is valid", func() {
 		It("works works with YAML", func() {
-			_, err := lidy.File{Name: "testdata/asset/schema.yaml"}.Schema()
-			Expect(err).To(BeNil())
+			err := lidy.NewParser("schema.yaml", []byte(`main: str`)).Schema()
+			Expect(err).To(BeEmpty())
 		})
 		It("works with JSON, since JSON is YAML", func() {
-			_, err := lidy.File{Name: "testdata/asset/schema.json"}.Schema()
-			Expect(err).To(BeNil())
+			err := lidy.NewParser("schema.json", []byte(`{ "main": "str" }`)).Schema()
+			Expect(err).To(BeEmpty())
 		})
 	})
 	When("Running a schema against YAML file", func() {
 		It("works works with YAML", func() {
-			_, err := lidy.File{Name: "testdata/asset/schema.yaml"}.With()
-			Expect(err).To(BeNil())
+			content := "Hello, I'm a string!"
+
+			parser := lidy.NewParser("schema.yaml", []byte(`main: str`))
+			result, err := parser.Parse(
+				lidy.NewFile("content.yaml", []byte(content)),
+			)
+
+			Expect(err).To(BeEmpty())
+			Expect(result).To(Equal(content))
 		})
 		It("works with JSON, since JSON is YAML", func() {
-			_, err := lidy.File{Name: "testdata/asset/schema.json"}.Schema()
-			Expect(err).To(BeNil())
+			content := "Hello, I'm a string!"
+
+			parser := lidy.NewParser("schema.json", []byte(`{ "main": "str" }`))
+			result, err := parser.Parse(
+				lidy.NewFile("content.yaml", []byte(content)),
+			)
+
+			Expect(err).To(BeEmpty())
+			Expect(result).To(Equal(content))
 		})
+	})
+
+	Specify("the example of the readme should work", func() {
+		result, err := lidy.NewParser(
+			"treeDefinition.yaml",
+			[]byte(`
+main: tree
+
+tree:
+  _map:
+    name: str
+    children:
+      _seqOf: tree
+`),
+		).Parse(lidy.NewFile(
+			"treeContent.yaml",
+			[]byte(`
+name: root
+children:
+	- name: leafA
+	children: []
+	- name: branchB
+	children:
+		- name: leafC
+		children: []
+	- name: leafD
+	children: []
+`),
+		))
+
+		Expect(err).To(BeEmpty())
+		switch v := result.(type) {
+		case lidy.MapResult:
+			Expect(v.MapOf).To(BeEmpty())
+			Expect(v.Property).To(BeEmpty())
+		}
 	})
 })

@@ -31,7 +31,7 @@ Note: Lidy does not yet support remote references.
 ```go
 import "github.com/ditrit/lidy"
 
-paper, _ := lidy.PaperFromString(`
+schema := []byte{`
 main: tree
 
 tree:
@@ -39,9 +39,9 @@ tree:
     name: str
     children:
       _seqOf: tree
-`)
+`}
 
-parser, _ = lidy.NewParser(paper, nil, lidy.ParserOption{})
+parser, _ = lidy.NewParser(schema, nil, lidy.Option{})
 
 result, err = parser.ParseString(`
 name: root

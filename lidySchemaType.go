@@ -1,20 +1,20 @@
 package lidy
 
 import (
-	"regex"
+	"regexp"
 
 	"gopkg.in/yaml.v3"
 )
 
 type tExpression interface {
-	match(content yaml.Node, parser tParser) (Result, []error)
+	match(content yaml.Node, parser tOldParser) (Result, []error)
 	name() string
 	description() string
 }
 
 type tMergeableExpression interface {
 	tExpression
-	mergeMatch(usefulList []bool, content yaml.Node, parser tParser) (MapResult, []error)
+	mergeMatch(usefulList []bool, content yaml.Node, parser tOldParser) (MapResult, []error)
 }
 
 type tDocument struct {
@@ -69,7 +69,7 @@ type tSeqForm struct {
 
 // Sizing
 type tSizing interface {
-	check(content yaml.Node, parser tParser) []error
+	check(content yaml.Node, parser tOldParser) []error
 }
 
 var _ tSizing = tSizingMinMax{}
@@ -107,5 +107,5 @@ var _ tExpression = tRegex{}
 
 type tRegex struct {
 	regexString string
-	regex       regex.Regex
+	regex       regexp.Regexp
 }

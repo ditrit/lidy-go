@@ -47,7 +47,7 @@ type ExtraCheck struct {
 // 		return err
 // 	}
 
-// 	_, err = lidy.NewParser(paper, nil, lidy.ParserOption{})
+// 	_, err = lidy.NewParser(paper, nil, lidy.Option{})
 
 // 	return err
 // }

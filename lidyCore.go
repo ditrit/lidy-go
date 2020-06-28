@@ -8,32 +8,32 @@ import (
 //
 // Exported types, methods, functions and other entry points
 
-// Parser -- able to validate and build a yaml content
-type Parser interface {
-	Parse(content Paper) (Result, []error)
-}
-
-// ParserOption cherry-pick some parser behaviour
-type ParserOption struct {
+// Option cherry-pick some parser behaviour
+// All options are false by default, (this is the default go value)
+type Option struct {
 	// WarnUnimplementedBuilder **DO** warn when there are exported identifiers that don't have an associated builder in the map.
 	WarnUnimplementedBuilder bool
 	// IgnoreExtraBuilder Do not warn when the builderMap contains useless builders
 	IgnoreExtraBuilder bool
+	// StopAtFirstSchemaError Return at most one error while parsing the schema
+	StopAtFirstSchemaError bool
+	// StopAtFirstError Return at most one error while parsing the YAML content
+	StopAtFirstError bool
 }
 
-var _ Parser = tParser{}
+// var _ Parser = tOldParser{}
 
-type tParser struct {
+type tOldParser struct {
 	filename   string
 	target     string
 	grammar    tDocument
-	option     ParserOption
+	option     Option
 	builderMap map[string]Builder
 }
 
 type tSchemaParser struct {
 	filename      string
-	option        ParserOption
+	option        Option
 	builderMap    map[string]Builder
 	identifierMap map[string]tRule
 }
@@ -52,29 +52,29 @@ type tPosition struct {
 }
 
 // NewParser create a parser from a lidy paper
-func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOption) (Parser, error) {
-	if builderMap == nil {
-		builderMap = make(map[string]Builder)
-	}
+// func NewParser(paper Paper, builderMap map[string]Builder, parserOption Option) (Parser, error) {
+// 	if builderMap == nil {
+// 		builderMap = make(map[string]Builder)
+// 	}
 
-	schemaParser := tSchemaParser{
-		filename:   paper.Name,
-		builderMap: builderMap,
-		option:     parserOption,
-	}
+// 	schemaParser := tSchemaParser{
+// 		filename:   paper.Name,
+// 		builderMap: builderMap,
+// 		option:     parserOption,
+// 	}
 
-	document, err := schemaParser.document(paper.yaml)
+// 	document, err := schemaParser.document(paper.yaml)
 
-	if err != nil {
-		return tParser{}, err
-	}
+// 	if err != nil {
+// 		return tOldParser{}, err
+// 	}
 
-	return tParser{
-		target:     "main",
-		grammar:    document,
-		builderMap: builderMap,
-	}, nil
-}
+// 	return tOldParser{
+// 		target:     "main",
+// 		grammar:    document,
+// 		builderMap: builderMap,
+// 	}, nil
+// }
 
 // NewParserFromExpression Create a parser from a Lidy expression
 // It is rarely what you want or need. You should prefer `NewParserFromString`. `NewParserFromExpression` is mostly meant to be used in tests.
@@ -105,7 +105,7 @@ func NewParser(paper Paper, builderMap map[string]Builder, parserOption ParserOp
 // 	}, nil
 // }
 
-func (p tParser) Parse(content Paper) (Result, []error) {
+func (p tOldParser) Parse(content Paper) (Result, []error) {
 	if rule, ok := p.grammar.ruleMap[p.target]; ok {
 		return rule.match(content.yaml, p)
 	}

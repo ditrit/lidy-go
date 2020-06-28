@@ -3,9 +3,6 @@ package lidy
 // Almost all of lidy's entry points
 
 import (
-	"fmt"
-	"io/ioutil"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -13,90 +10,130 @@ import (
 // File
 //
 
-// File -- A way to load the content of a file
-// One of:
-// - the text of a file `File{Text: ""}`
-// - the path to a file `File{Name: ""}`
-// - both the text of a file and an indicative name `File{Text: "", Name: ""}`
-type File struct {
-	Text interface{}
-	Name string
+// File -- the representation of a file
+type File interface {
+	Name() string
+	Content() []byte
+	Yaml() error
+
+	unimplementable()
 }
 
-// Load -- obtain the Text value of the file
-// also populate the Text field using the Name, if Text is missing
-func (f File) Load() (string, error) {
-	if f.Text == nil {
-		byteContent, err := ioutil.ReadFile(f.Name)
+// Parser -- performing validation and deserialisation
+type Parser interface {
+	File
+	// Target -- set what rule of the schema should be used to process the content
+	Target(target string) Parser
+	// With -- set the builderMap
+	With(builderMap map[string]Builder) Parser
+	// Option -- set the parser options
+	Option(option Option) Parser
+	// Schema -- assert that the file content is a valid schema
+	Schema() []error
+	// Parse
+	// validate a yaml content, and deserialise it into a Lidy result
+	Parse(file File) (Result, []error)
+}
 
-		if err != nil {
-			return "", err
-		}
+var _ File = tFile{}
 
-		content := string(byteContent)
-		f.Text = content
-		return content, nil
-	} else if content, ok := f.Text.(string); ok {
-		return content, nil
+type tFile struct {
+	name    string
+	content []byte
+	yaml    yaml.Node
+}
+
+var _ Parser = tParser{}
+
+type tParser struct {
+	tFile
+	builderMap map[string]Builder
+	option     Option
+	schema     tDocument
+	target     string
+}
+
+//
+// File
+//
+
+// NewFile -- create a Lidy representation of a file
+// the filename is only used for error reporting
+func NewFile(filename string, content []byte) File {
+	return tFile{
+		name:    filename,
+		content: content,
 	}
-
-	return "", fmt.Errorf("File.Text containing a value other than nil or a string")
 }
 
-//
-// YAML
-//
-
-// YamlFile -- the representation of a file whose content is YAML
-type YamlFile interface {
-	File
+func (f tFile) Name() string {
+	return f.name
 }
 
-type yamlFile struct {
-	File
-	yaml yaml.Node
+func (f tFile) Content() []byte {
+	return f.content
 }
 
 // Yaml -- assert this file to be Yaml
-func (f File) Yaml() (File, error) {
-	text, err := f.Load()
-	if err != nil {
-		return yamlFile{}, err
+func (f tFile) Yaml() error {
+	if f.yaml.Tag == "" {
+		// TODO
+		// Think of upgrading to using yaml.NewDecoder, and handle any io.Reader
+		return yaml.Unmarshal(f.content, &f.yaml)
 	}
-
-	result := yamlFile{
-		File: f,
-		yaml: yaml.Node{},
-	}
-
-	err = yaml.Unmarshal([]byte(text), &result.yaml)
-
-	return result, err
+	return nil
 }
 
+// File is unimplementable by external libraries
+// This method must exist to validate the interface
+func (tFile) unimplementable() {}
+
 //
-// Schema
+// Parser
 //
 
-// schemaFile -- the representation of a file whose content is a Lidy schema
-type schemaFile struct {
-	yamlFile
-	schema tDocument
+// NewParser -- create a new lidy parser
+func NewParser(filename string, content []byte) Parser {
+	return tParser{
+		tFile: tFile{
+			name:    filename,
+			content: content,
+		},
+		target: "main",
+	}
 }
 
-// Schema -- assert the file to be a Lidy Schema
-func (f File) Schema() (schemaFile, error) {
-	yaml, err := f.Yaml()
+// Target -- set the target. Return this
+func (f tParser) Target(target string) Parser {
+	f.target = target
+	return f
+}
+
+// With -- set the builderMap. Return this
+func (f tParser) With(builderMap map[string]Builder) Parser {
+	f.builderMap = builderMap
+	return f
+}
+
+// Option -- set the parser option instance. Return this
+func (f tParser) Option(option Option) Parser {
+	f.option = option
+	return f
+}
+
+// Schema -- assert the Schema of the parser to be valid. Return this and the list of encountered error, while processing the schema, if any.
+func (f tParser) Schema() []error {
+	err := f.Yaml()
 	if err != nil {
-		return schemaFile{}, err
+		return []error{err}
 	}
+	return parseSchema(f)
+}
 
-	schema, err := parseSchema(yaml)
-
-	result := schemaFile{
-		yamlFile: yaml,
-		schema:   schema,
+func (f tParser) Parse(file File) (Result, []error) {
+	err := f.Schema()
+	if len(err) > 0 {
+		return nil, err
 	}
-
-	return result, err
+	return f.parseContent(file)
 }
