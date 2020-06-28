@@ -7,14 +7,14 @@ import (
 )
 
 type tExpression interface {
-	match(content yaml.Node, parser tOldParser) (Result, []error)
+	match(content yaml.Node, parser tParser) (Result, []error)
 	name() string
 	description() string
 }
 
 type tMergeableExpression interface {
 	tExpression
-	mergeMatch(usefulList []bool, content yaml.Node, parser tOldParser) (MapResult, []error)
+	mergeMatch(mapResult MapResult, usefulList []bool, content yaml.Node, parser tParser) []error
 }
 
 type tDocument struct {
@@ -69,7 +69,7 @@ type tSeqForm struct {
 
 // Sizing
 type tSizing interface {
-	check(content yaml.Node, parser tOldParser) []error
+	check(content yaml.Node, parser tParser) []error
 }
 
 var _ tSizing = tSizingMinMax{}

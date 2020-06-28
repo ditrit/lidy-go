@@ -29,9 +29,14 @@ Note: Lidy does not yet support remote references.
 ## Example
 
 ```go
+package main
+
 import "github.com/ditrit/lidy"
 
-schema := []byte{`
+func main() {
+  result, err := lidy.NewParser(
+    "treeDefinition.yaml",
+    []byte(`
 main: tree
 
 tree:
@@ -39,22 +44,33 @@ tree:
     name: str
     children:
       _seqOf: tree
-`}
-
-parser, _ = lidy.NewParser(schema, nil, lidy.Option{})
-
-result, err = parser.ParseString(`
+`),
+  ).Parse(
+    lidy.NewFile(
+      "treeContent.yaml",
+      []byte(`
 name: root
 children:
   - name: leafA
-    children: []
+  children: []
   - name: branchB
-    children:
-      - name: leafC
-        children: []
-  - name: leafD
+  children:
+    - name: leafC
     children: []
-`)
+  - name: leafD
+  children: []
+`),
+    ),
+  )
+
+  if err != nil {
+    panic(err)
+  }
+
+  mapResult := result.(lidy.MapResult)
+
+  fmt.Println(mapResult)
+}
 ```
 
 ## Documentation

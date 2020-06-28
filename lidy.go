@@ -1,13 +1,15 @@
 package lidy
 
-// Almost all of lidy's entry points
+// lidy.go
+//
+// Exported types, methods, functions and other entry points
 
 import (
 	"gopkg.in/yaml.v3"
 )
 
 //
-// File
+// File interface
 //
 
 // File -- the representation of a file
@@ -18,6 +20,10 @@ type File interface {
 
 	unimplementable()
 }
+
+//
+// Parser interface
+//
 
 // Parser -- performing validation and deserialisation
 type Parser interface {
@@ -34,6 +40,36 @@ type Parser interface {
 	// validate a yaml content, and deserialise it into a Lidy result
 	Parse(file File) (Result, []error)
 }
+
+// Option cherry-pick some parser behaviour
+// All options are false by default, (this is the default go value)
+type Option struct {
+	//
+	// Schema parse time
+	//
+	// WarnUnimplementedBuilder **DO** warn when there are exported identifiers that don't have an associated builder in the map.
+	WarnUnimplementedBuilder bool
+	// IgnoreExtraBuilder Do not warn when the builderMap contains useless builders
+	IgnoreExtraBuilder bool
+	// WarnUnusedRule **DO** warn when some used are declared but never refered to in the schema
+	WarnUnusedRule bool
+	// BypassMissingRule Persist to run the schema even if there are reported references to undeclared rules. The undeclared rules will accept any YAML content
+	BypassMissingRule bool
+	// StopAtFirstSchemaError Return at most one error while parsing the schema
+	StopAtFirstSchemaError bool
+	//
+	// Content parse time
+	//
+	// StopAtFirstError Return at most one error while parsing the YAML content
+	StopAtFirstError bool
+}
+
+// Builder -- user-implemented input-validation and creation of user objects
+type Builder func(input interface{}) (Result, []error)
+
+//
+// Concrete types
+//
 
 var _ File = tFile{}
 
@@ -127,9 +163,10 @@ func (f tParser) Schema() []error {
 	if err != nil {
 		return []error{err}
 	}
-	return parseSchema(f)
+	return f.parseSchema()
 }
 
+// Parse -- use the parser to check the given YAML file, and produce a Lidy Result.
 func (f tParser) Parse(file File) (Result, []error) {
 	err := f.Schema()
 	if len(err) > 0 {

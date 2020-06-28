@@ -12,7 +12,7 @@ import (
 // Implement match() and mergeMatch() on tExpression and tMergeableExpression
 
 // tRule
-func (rule tRule) match(content yaml.Node, parser tOldParser) (Result, []error) {
+func (rule tRule) match(content yaml.Node, parser tParser) (Result, []error) {
 	result, err := rule.expression.match(content, parser)
 
 	if len(err) > 0 {
@@ -20,37 +20,27 @@ func (rule tRule) match(content yaml.Node, parser tOldParser) (Result, []error) 
 	}
 
 	if rule.builder != nil {
-		result, err := rule.builder.build(result)
+		result, err := rule.builder(result)
 		return result, err
 	}
 
 	return result, err
 }
 
-func (rule tRule) mergeMatch(usefulList []bool, content yaml.Node, parser tOldParser) (MapResult, []error) {
-	result, err := mergeMatchExpression(usefulList, content, rule.expression, parser)
-
-	if len(err) > 0 {
-		return MapResult{}, err
-	}
-
-	if rule.builder != nil {
-		_, err = rule.builder.build(result)
-	}
-
-	return result, err
+func (rule tRule) mergeMatch(mapResult MapResult, usefulList []bool, content yaml.Node, parser tParser) []error {
+	return mergeMatchExpression(mapResult, usefulList, content, rule.expression, parser)
 }
 
 // tExpression
-func mergeMatchExpression(usefulList []bool, content yaml.Node, expression tExpression, parser tOldParser) (MapResult, []error) {
+func mergeMatchExpression(mapResult MapResult, usefulList []bool, content yaml.Node, expression tExpression, parser tParser) []error {
 	switch mergeable := expression.(type) {
 	case tMap:
-		return mergeable.mergeMatch(usefulList, content, parser)
+		return mergeable.mergeMatch(mapResult, usefulList, content, parser)
 	case tOneOf:
-		return mergeable.mergeMatch(usefulList, content, parser)
+		return mergeable.mergeMatch(mapResult, usefulList, content, parser)
 	}
 
-	return MapResult{}, parser.reportSchemaParserInternalError(
+	return parser.reportSchemaParserInternalError(
 		"_merge performed on  a non-mergeable in the schema -- ",
 		expression,
 		content,
@@ -58,7 +48,7 @@ func mergeMatchExpression(usefulList []bool, content yaml.Node, expression tExpr
 }
 
 // Map
-func (mapChecker tMap) match(content yaml.Node, parser tOldParser) (Result, []error) {
+func (mapChecker tMap) match(content yaml.Node, parser tParser) (Result, []error) {
 	// Non-maps
 	if content.Tag != "!!map" {
 		return nil, parser.contentError(content, "a YAML map, "+mapChecker.description())
@@ -68,12 +58,15 @@ func (mapChecker tMap) match(content yaml.Node, parser tOldParser) (Result, []er
 	// list tracking whether a key-value pair was used or not
 	usefulList := make([]bool, len(content.Content)/2)
 
-	mapResult, err := mapChecker.mergeMatch(usefulList, content, parser)
+	mapResult := MapResult{}
+	// mapResult.Map = make(map[string]Result)
+
+	erl := mapChecker.mergeMatch(mapResult, usefulList, content, parser)
 
 	mapOf := mapChecker.form.mapOf
 
 	errList := errorlist.List{}
-	errList.Push(err)
+	errList.Push(erl)
 
 	for k, v := range usefulList {
 		if v == false { // "used up"
@@ -85,27 +78,27 @@ func (mapChecker tMap) match(content yaml.Node, parser tOldParser) (Result, []er
 
 		// mapOf
 		// Checking the key
-		keyResult, err := mapOf.key.match(*key, parser)
-		errList.Push(err)
+		keyResult, erl := mapOf.key.match(*key, parser)
+		errList.Push(erl)
 
-		if len(err) > 0 {
+		if len(erl) > 0 {
 			continue
 		}
 
 		// (if the key is valid)
 		// Checking the value
-		valueResult, err := mapOf.value.match(*value, parser)
-		errList.Push(err)
+		valueResult, erl := mapOf.value.match(*value, parser)
+		errList.Push(erl)
 
-		if len(err) > 0 {
+		if len(erl) > 0 {
 			continue
 		}
 
 		// (if both the key and the value are valid)
 		// Adding the key-value pair
 		mapResult.MapOf = append(mapResult.MapOf, KeyValueResult{
-			key:   keyResult,
-			value: valueResult,
+			Key:   keyResult,
+			Value: valueResult,
 		})
 
 		errList.Push(
@@ -119,12 +112,12 @@ func (mapChecker tMap) match(content yaml.Node, parser tOldParser) (Result, []er
 }
 
 func (mapChecker tMap) mergeMatch(
+	mapResult MapResult,
 	usefulList []bool,
 	content yaml.Node,
-	parser tOldParser,
-) (MapResult, []error) {
+	parser tParser,
+) []error {
 	f := mapChecker.form
-	mapResult := MapResult{}
 	errList := errorlist.List{}
 
 	// Bad sizing
@@ -144,23 +137,27 @@ func (mapChecker tMap) mergeMatch(
 
 		// propertyMap
 		if f.propertyMap != nil && key.Tag == "!!str" {
-			property, found := f.propertyMap[key.Value]
+			property, propertyFound := f.propertyMap[key.Value]
 
-			if found {
+			if propertyFound {
 				// Missing keys (updating)
 				delete(requiredSet, key.Value)
-				usefulList[(k-1)/2] = false
+				usefulList[(k-1)/2] = true
 			} else {
-				property, found = f.optionalMap[key.Value]
+				property, propertyFound = f.optionalMap[key.Value]
 			}
 
-			if found {
+			_, alreadyAssigned := mapResult.Map[key.Value]
+
+			if propertyFound && !alreadyAssigned {
 				// Matching with the matcher specified for that property
-				result, err := property.match(*value, parser)
+				result, erl := property.match(*value, parser)
 
-				errList.Push(err)
+				errList.Push(erl)
 
-				mapResult.Property[key.Value] = result
+				// Assigning without checking the error
+				// so that it is now seen as "alreadyAssigned"
+				mapResult.Map[key.Value] = result
 			}
 		}
 	}
@@ -177,17 +174,15 @@ func (mapChecker tMap) mergeMatch(
 
 	// Merges
 	for _, mergeable := range f.mergeList {
-		result, err := mergeable.mergeMatch(usefulList, content, parser)
-		errList.Push(err)
-
-		mapResult.Merge = append(mapResult.Merge, result)
+		erl := mergeable.mergeMatch(mapResult, usefulList, content, parser)
+		errList.Push(erl)
 	}
 
-	return mapResult, errList.ConcatError()
+	return errList.ConcatError()
 }
 
 // Seq
-func (seq tSeq) match(content yaml.Node, parser tOldParser) (Result, []error) {
+func (seq tSeq) match(content yaml.Node, parser tParser) (Result, []error) {
 	// Non-maps
 	if content.Tag != "!!seq" {
 		return nil, parser.contentError(content, "a YAML list (seq), "+seq.description())
@@ -203,18 +198,18 @@ func (seq tSeq) match(content yaml.Node, parser tOldParser) (Result, []error) {
 	for k, value := range content.Content {
 		if k < len(seq.form.tuple) {
 			// Tuple (required)
-			result, err := seq.form.tuple[k].match(*value, parser)
-			errList.Push(err)
+			result, erl := seq.form.tuple[k].match(*value, parser)
+			errList.Push(erl)
 			seqResult.Tuple = append(seqResult.Tuple, result)
 		} else if k -= len(seq.form.tuple); k < len(seq.form.optionalTuple) {
 			// Tuple (optional)
-			result, err := seq.form.optionalTuple[k].match(*value, parser)
-			errList.Push(err)
+			result, erl := seq.form.optionalTuple[k].match(*value, parser)
+			errList.Push(erl)
 			seqResult.Tuple = append(seqResult.Tuple, result)
 		} else if seq.form.seqOf != nil {
 			// SeqOf (all the rest)
-			result, err := seq.form.seqOf.match(*value, parser)
-			errList.Push(err)
+			result, erl := seq.form.seqOf.match(*value, parser)
+			errList.Push(erl)
 			seqResult.Seq = append(seqResult.Seq, result)
 		} else {
 			// Rejecting extra entries (all the rest, if no SeqOf)
@@ -239,7 +234,7 @@ func (seq tSeq) match(content yaml.Node, parser tOldParser) (Result, []error) {
 }
 
 // OneOf
-func (oneOf tOneOf) match(content yaml.Node, parser tOldParser) (Result, []error) {
+func (oneOf tOneOf) match(content yaml.Node, parser tParser) (Result, []error) {
 	for _, option := range oneOf.optionList {
 		result, err := option.match(content, parser)
 		if len(err) == 0 {
@@ -251,10 +246,11 @@ func (oneOf tOneOf) match(content yaml.Node, parser tOldParser) (Result, []error
 }
 
 func (oneOf tOneOf) mergeMatch(
+	mapResult MapResult,
 	usefulList []bool,
 	content yaml.Node,
-	parser tOldParser,
-) (MapResult, []error) {
+	parser tParser,
+) []error {
 	const errorTemplate = "Lidy internal error -- " +
 		"_merge performed on a non-mergeable in _oneOf in the schema -- " +
 		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ." +
@@ -263,13 +259,13 @@ func (oneOf tOneOf) mergeMatch(
 
 	for _, option := range oneOf.optionList {
 		if mergeable, ok := option.(tMergeableExpression); ok {
-			mapResult, err := mergeable.mergeMatch(usefulList, content, parser)
+			err := mergeable.mergeMatch(mapResult, usefulList, content, parser)
 
 			if len(err) == 0 {
-				return mapResult, nil
+				return nil
 			}
 		} else {
-			return MapResult{}, []error{fmt.Errorf(
+			return []error{fmt.Errorf(
 				errorTemplate,
 				option.description(),
 				content.Tag, len(content.Content), content.Value, content.Line, content.Column,
@@ -277,11 +273,11 @@ func (oneOf tOneOf) mergeMatch(
 		}
 	}
 
-	return MapResult{}, parser.contentError(content, oneOf.description())
+	return parser.contentError(content, oneOf.description())
 }
 
 // In
-func (in tIn) match(content yaml.Node, parser tOldParser) (Result, []error) {
+func (in tIn) match(content yaml.Node, parser tParser) (Result, []error) {
 	if acceptList, found := in.valueMap[content.Tag]; found {
 		for _, accept := range acceptList {
 			if content.Value == accept {
@@ -294,7 +290,7 @@ func (in tIn) match(content yaml.Node, parser tOldParser) (Result, []error) {
 }
 
 // Regex
-func (rxp tRegex) match(content yaml.Node, parser tOldParser) (Result, []error) {
+func (rxp tRegex) match(content yaml.Node, parser tParser) (Result, []error) {
 	contentError := func() []error {
 		return parser.contentError(content, fmt.Sprintf("a string (matching the regex [%s])", rxp.regexString))
 	}
@@ -311,13 +307,13 @@ func (rxp tRegex) match(content yaml.Node, parser tOldParser) (Result, []error) 
 }
 
 // Error
-func (parser tOldParser) contentError(content yaml.Node, expected string) []error {
-	position := fmt.Sprintf("%s:%d:%d", parser.filename, content.Line, content.Column)
+func (parser tParser) contentError(content yaml.Node, expected string) []error {
+	position := fmt.Sprintf("%s:%d:%d", parser.name, content.Line, content.Column)
 
 	return []error{fmt.Errorf("error with content node of kind [%s], value \"%s\" at position %s, where [%s] was expected", content.Tag, content.Value, position, expected)}
 }
 
-func (parser tOldParser) reportSchemaParserInternalError(context string, expression tExpression, content yaml.Node) []error {
+func (parser tParser) reportSchemaParserInternalError(context string, expression tExpression, content yaml.Node) []error {
 	return []error{fmt.Errorf(""+
 		"Lidy internal error -- "+
 		"%s"+
@@ -327,6 +323,6 @@ func (parser tOldParser) reportSchemaParserInternalError(context string, express
 		context,
 		expression.description(),
 		content.Tag, len(content.Content), content.Value,
-		parser.filename, content.Line, content.Column,
+		parser.name, content.Line, content.Column,
 	)}
 }

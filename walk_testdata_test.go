@@ -1,16 +1,17 @@
 package lidy_test
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	fo "github.com/ditrit/lidy/fileoutline"
+	"github.com/ditrit/lidy"
 )
 
 type TestFileList struct {
-	schema  []fo.FileOutline
-	content []fo.FileOutline
+	schema  []lidy.File
+	content []lidy.File
 }
 
 // GetTestFileList walks "testdata/" and load files into two lists
@@ -23,16 +24,17 @@ func GetTestFileList() (TestFileList, error) {
 
 	err := filepath.Walk(root, func(filename string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(filename, ".spec.hjson") {
-			fileoutline, err := fo.ReadFile(filename)
+			content, err := ioutil.ReadFile(filename)
+			file := lidy.NewFile(filename, content)
 
 			if err != nil {
 				return err
 			}
 
 			if strings.HasPrefix(filename, schemaRoot) || strings.HasPrefix(filename, schemaRootAlt) {
-				testFileList.schema = append(testFileList.schema, fileoutline)
+				testFileList.schema = append(testFileList.schema, file)
 			} else {
-				testFileList.content = append(testFileList.content, fileoutline)
+				testFileList.content = append(testFileList.content, file)
 			}
 		}
 

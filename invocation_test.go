@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("The lidy loaders", func() {
 	Specify("Using a Lidy file loader", func() {
-		filename := "hello.txt"
+		filename := ".gitignore"
 		byteContent, _ := ioutil.ReadFile(filename)
 
 		var _ = lidy.NewFile(filename, byteContent)
@@ -24,6 +24,7 @@ var _ = Describe("The lidy loaders", func() {
 		var _ = lidy.NewFile("hello.txt", []byte("Hello World!"))
 	})
 })
+
 var _ = Describe("The different ways to invoke lidy checking features", func() {
 	When("Checking that a file is valid YAML", func() {
 		It("works works with YAML", func() {
@@ -70,7 +71,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		})
 	})
 
-	Specify("the example of the readme should work", func() {
+	Specify("the example of the README should work", func() {
 		result, err := lidy.NewParser(
 			"treeDefinition.yaml",
 			[]byte(`
@@ -99,10 +100,11 @@ children:
 		))
 
 		Expect(err).To(BeEmpty())
+
 		switch v := result.(type) {
 		case lidy.MapResult:
 			Expect(v.MapOf).To(BeEmpty())
-			Expect(v.Property).To(BeEmpty())
+			Expect(v.Map).To(BeEmpty())
 		}
 	})
 })
