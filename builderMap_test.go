@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("How to use the builderMap", func() {
+var _ = PDescribe("How to use the builderMap", func() {
 	It("Runs the builder", func() {
 		result, err := lidy.NewParser(
 			"jungleDefinition.yaml",

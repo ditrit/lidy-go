@@ -5,7 +5,7 @@ package lidy
 // Exported types, methods, functions and other entry points
 
 import (
-	"log"
+	"fmt"
 
 	"gopkg.in/yaml.v3"
 )
@@ -117,19 +117,14 @@ func (f *tFile) Yaml() error {
 	if f.yaml.Kind == yaml.Kind(0) {
 		// TODO
 		// Think of upgrading to using yaml.NewDecoder, and handle any io.Reader
-		log.Printf("CONTENT %s", f.content)
-		var node yaml.Node
-		err := yaml.Unmarshal(f.content, &node)
+		err := yaml.Unmarshal(f.content, &f.yaml)
 
 		if err != nil {
 			return err
 		}
-		log.Printf("No error with %s", f.content)
-
-		f.yaml = node
 
 		if f.yaml.Kind == 0 {
-			log.Printf("Kind is still 0 for %s", f.content)
+			return fmt.Errorf("INTERNAL yaml.Unmarshal failed silently. %s", pleaseReport)
 		}
 	}
 	return nil

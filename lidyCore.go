@@ -15,8 +15,8 @@ const pleaseReport = "please report it to https://github.com/ditrit/lidy/issues 
 type tSchemaParser tParser
 
 // NewParser create a parser from a lidy paper
-func (p tParser) parseSchema() []error {
-	schemaParser := tSchemaParser(p)
+func (p *tParser) parseSchema() []error {
+	schemaParser := (*tSchemaParser)(p)
 
 	schema, err := schemaParser.hollowSchema(p.yaml)
 
@@ -37,7 +37,7 @@ func (p tParser) parseSchema() []error {
 	return err
 }
 
-func (p tParser) parseContent(content File) (Result, []error) {
+func (p *tParser) parseContent(content File) (Result, []error) {
 	file := content.(*tFile)
 
 	defer func() {

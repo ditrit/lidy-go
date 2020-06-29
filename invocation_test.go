@@ -46,7 +46,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 			Expect(err).To(BeEmpty())
 		})
 	})
-	When("Running a schema against YAML file", func() {
+	FWhen("Running a schema against YAML file", func() {
 		It("works with YAML", func() {
 			content := "Hello, I'm a string!"
 
@@ -71,7 +71,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		})
 	})
 
-	Specify("the example of the README should work", func() {
+	PSpecify("the example of the README should work", func() {
 		result, err := lidy.NewParser(
 			"treeDefinition.yaml",
 			[]byte(`

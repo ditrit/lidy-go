@@ -11,7 +11,7 @@ import (
 // Implement check() i.e. matchers that do not produce a result
 
 // Sizing check()
-func (sizing tSizingMinMax) check(content yaml.Node, parser tParser) []error {
+func (sizing tSizingMinMax) check(content yaml.Node, parser *tParser) []error {
 	size, err := getSize(content)
 
 	if len(err) > 0 {
@@ -35,7 +35,7 @@ func (sizing tSizingMinMax) check(content yaml.Node, parser tParser) []error {
 	return err
 }
 
-func (sizing tSizingNb) check(content yaml.Node, parser tParser) []error {
+func (sizing tSizingNb) check(content yaml.Node, parser *tParser) []error {
 	size, err := getSize(content)
 
 	if len(err) > 0 {
