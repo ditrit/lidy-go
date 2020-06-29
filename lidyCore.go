@@ -10,6 +10,8 @@ import (
 //
 // Supporting the entry points of lidy.go
 
+const pleaseReport = "please report it to https://github.com/ditrit/lidy/issues ."
+
 type tSchemaParser tParser
 
 // NewParser create a parser from a lidy paper
@@ -36,7 +38,7 @@ func (p tParser) parseSchema() []error {
 }
 
 func (p tParser) parseContent(content File) (Result, []error) {
-	file := content.(tFile)
+	file := content.(*tFile)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -48,5 +50,5 @@ func (p tParser) parseContent(content File) (Result, []error) {
 		return rule.match(file.yaml, p)
 	}
 
-	return nil, []error{fmt.Errorf("Could not find target rule %s in grammar", p.target)}
+	return nil, []error{fmt.Errorf("Could not find target rule '%s' in grammar", p.target)}
 }

@@ -27,7 +27,7 @@ var _ = Describe("The lidy loaders", func() {
 
 var _ = Describe("The different ways to invoke lidy checking features", func() {
 	When("Checking that a file is valid YAML", func() {
-		It("works works with YAML", func() {
+		It("works with YAML", func() {
 			err := lidy.NewFile("some.yaml", []byte(`a: b`)).Yaml()
 			Expect(err).To(BeNil())
 		})
@@ -37,7 +37,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		})
 	})
 	When("Checking that a schema is valid", func() {
-		It("works works with YAML", func() {
+		It("works with YAML", func() {
 			err := lidy.NewParser("schema.yaml", []byte(`main: str`)).Schema()
 			Expect(err).To(BeEmpty())
 		})
@@ -47,7 +47,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		})
 	})
 	When("Running a schema against YAML file", func() {
-		It("works works with YAML", func() {
+		It("works with YAML", func() {
 			content := "Hello, I'm a string!"
 
 			parser := lidy.NewParser("schema.yaml", []byte(`main: str`))
@@ -105,6 +105,8 @@ children:
 		case lidy.MapResult:
 			Expect(v.MapOf).To(BeEmpty())
 			Expect(v.Map).To(BeEmpty())
+		default:
+			Fail("Expected result of type MapResult")
 		}
 	})
 })

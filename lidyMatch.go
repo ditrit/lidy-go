@@ -310,14 +310,14 @@ func (rxp tRegex) match(content yaml.Node, parser tParser) (Result, []error) {
 func (parser tParser) contentError(content yaml.Node, expected string) []error {
 	position := fmt.Sprintf("%s:%d:%d", parser.name, content.Line, content.Column)
 
-	return []error{fmt.Errorf("error with content node of kind [%s], value \"%s\" at position %s, where [%s] was expected", content.Tag, content.Value, position, expected)}
+	return []error{fmt.Errorf("error with content node of kind [%s], value '%s' at position %s, where [%s] was expected", content.Tag, content.Value, position, expected)}
 }
 
 func (parser tParser) reportSchemaParserInternalError(context string, expression tExpression, content yaml.Node) []error {
 	return []error{fmt.Errorf(""+
 		"Lidy internal error -- "+
 		"%s"+
-		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ."+
+		"it should have been caught at schema parse time, "+pleaseReport+
 		"\n  expression: [%s]"+
 		"\n  content: [kind [%s], len %d, value [%s] at position %s:%d:%d]"+
 		context,

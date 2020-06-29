@@ -131,7 +131,7 @@ func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error
 		contentGroup.target = "document"
 		contentGroup.template = template
 	} else {
-		panic("Missing schema (`expression: \"\"`) in contentGroup")
+		panic("Missing schema (`expression: ''`) in contentGroup")
 	}
 
 	pureJsonData, err := json.Marshal(data)

@@ -5,6 +5,8 @@ package lidy
 // Exported types, methods, functions and other entry points
 
 import (
+	"log"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -71,7 +73,7 @@ type Builder func(input interface{}) (Result, []error)
 // Concrete types
 //
 
-var _ File = tFile{}
+var _ File = &tFile{}
 
 type tFile struct {
 	name    string
@@ -79,7 +81,7 @@ type tFile struct {
 	yaml    yaml.Node
 }
 
-var _ Parser = tParser{}
+var _ Parser = &tParser{}
 
 type tParser struct {
 	tFile
@@ -96,33 +98,46 @@ type tParser struct {
 // NewFile -- create a Lidy representation of a file
 // the filename is only used for error reporting
 func NewFile(filename string, content []byte) File {
-	return tFile{
+	return &tFile{
 		name:    filename,
 		content: content,
 	}
 }
 
-func (f tFile) Name() string {
+func (f *tFile) Name() string {
 	return f.name
 }
 
-func (f tFile) Content() []byte {
+func (f *tFile) Content() []byte {
 	return f.content
 }
 
 // Yaml -- assert this file to be Yaml
-func (f tFile) Yaml() error {
-	if f.yaml.Tag == "" {
+func (f *tFile) Yaml() error {
+	if f.yaml.Kind == yaml.Kind(0) {
 		// TODO
 		// Think of upgrading to using yaml.NewDecoder, and handle any io.Reader
-		return yaml.Unmarshal(f.content, &f.yaml)
+		log.Printf("CONTENT %s", f.content)
+		var node yaml.Node
+		err := yaml.Unmarshal(f.content, &node)
+
+		if err != nil {
+			return err
+		}
+		log.Printf("No error with %s", f.content)
+
+		f.yaml = node
+
+		if f.yaml.Kind == 0 {
+			log.Printf("Kind is still 0 for %s", f.content)
+		}
 	}
 	return nil
 }
 
 // File is unimplementable by external libraries
 // This method must exist to validate the interface
-func (tFile) unimplementable() {}
+func (*tFile) unimplementable() {}
 
 //
 // Parser
@@ -130,7 +145,7 @@ func (tFile) unimplementable() {}
 
 // NewParser -- create a new lidy parser
 func NewParser(filename string, content []byte) Parser {
-	return tParser{
+	return &tParser{
 		tFile: tFile{
 			name:    filename,
 			content: content,
@@ -140,34 +155,37 @@ func NewParser(filename string, content []byte) Parser {
 }
 
 // Target -- set the target. Return this
-func (f tParser) Target(target string) Parser {
+func (f *tParser) Target(target string) Parser {
 	f.target = target
 	return f
 }
 
 // With -- set the builderMap. Return this
-func (f tParser) With(builderMap map[string]Builder) Parser {
+func (f *tParser) With(builderMap map[string]Builder) Parser {
 	f.builderMap = builderMap
 	return f
 }
 
 // Option -- set the parser option instance. Return this
-func (f tParser) Option(option Option) Parser {
+func (f *tParser) Option(option Option) Parser {
 	f.option = option
 	return f
 }
 
 // Schema -- assert the Schema of the parser to be valid. Return this and the list of encountered error, while processing the schema, if any.
-func (f tParser) Schema() []error {
+func (f *tParser) Schema() []error {
 	err := f.Yaml()
 	if err != nil {
 		return []error{err}
+	}
+	if f.yaml.Kind == 0 {
+		panic("yaml.Kind still 0 in " + f.name)
 	}
 	return f.parseSchema()
 }
 
 // Parse -- use the parser to check the given YAML file, and produce a Lidy Result.
-func (f tParser) Parse(file File) (Result, []error) {
+func (f *tParser) Parse(file File) (Result, []error) {
 	err := f.Schema()
 	if len(err) > 0 {
 		return nil, err
