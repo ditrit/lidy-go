@@ -27,13 +27,9 @@ var regexIdentifierDeclaration = *regexp.MustCompile("^" +
 // it fills the `ruleMap` with `tRule` instances whose expression is uncomputed. It errors if the yaml node isn't a map.
 func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 	// Note: The parsing is done in two steps
-	// - First create tRule{} entities for all rules of the document
+	// - First create tRule{} entities for all rules of the document (THIS STEP)
 	// - Second, explore each rule value node, to populate the `expression` field of the rule node.
 	// This approach allows to substitute identifiers for rule entities while exploring the schema.
-	document := tDocument{
-		ruleMap: make(map[string]tRule),
-	}
-
 	if root.Kind != yaml.DocumentNode {
 		return tDocument{}, []error{fmt.Errorf(
 			"Internal: Kind of root node is not document (e%d, g%d). %s",
@@ -54,10 +50,31 @@ func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 		return tDocument{}, sp.schemaNodeError(node, "a lidy schema document (kind map)")
 	}
 
+	document := tDocument{
+		ruleMap: make(map[string]tRule),
+	}
+
+	errList := errorlist.List{}
+
+	// lidy default rules
+	for key, rule := range sp.lidyDefaultRuleMap {
+		document.ruleMap[key] = rule
+	}
+
+	// user rules
 	for k := 1; k < len(node.Content); k += 2 {
 		rule, err := sp.createRule(*node.Content[k-1], *node.Content[k])
 		if err != nil {
 			return tDocument{}, err
+		}
+		if _, present := document.ruleMap[rule.ruleName]; present {
+			message := "no repeted rule declaration"
+
+			if _, isDefaultRule := sp.lidyDefaultRuleMap[rule.ruleName]; isDefaultRule {
+				message = "no redeclaration of lidy default rule"
+			}
+
+			errList.Push(sp.schemaNodeError(*node.Content[k-1], message))
 		}
 		document.ruleMap[rule.ruleName] = rule
 	}
@@ -135,7 +152,7 @@ func (sp tSchemaParser) identifierReference(node yaml.Node) (tExpression, []erro
 // match any checker form
 func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 	form := ""
-	var checker tChecker
+	checker := missingChecker
 
 	keyword := ""
 	mustBeMapOrSequence := false
@@ -217,6 +234,11 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 	errList.Push(erl)
 
 	return result, errList.ConcatError()
+}
+
+// missingChecker (formRecognizer didn't detect a form)
+func missingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error) {
+	return nil, sp.schemaNodeError(node, "a recognisable lidy form")
 }
 
 // Error

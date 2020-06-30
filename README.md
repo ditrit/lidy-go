@@ -6,7 +6,7 @@ Lidy is:
 
 - The Lidy schema language, a YAML language to specify how to check YAML files
 - An engine to run the Lidy schema on YAML files
-- A rich deserialisation tool
+- A rich deserialisation tool (if you want to)
 
 ## JSON schema
 
@@ -93,6 +93,14 @@ Running the tests:
 # Tests
 go ginkgo
 ```
+
+## Similar tools
+
+- Kwalify, [website](http://www.kuwata-lab.com/kwalify/) [source (mirror?)]() (Ruby and Java, v0.7.2, 2010-07-18)
+- [pykwalify](https://github.com/Grokzen/pykwalify), [documentation](https://pykwalify.readthedocs.io/en/master) (Python, v1.7.0, 2018-08-03)
+- [Rx](https://github.com/rjbs/Rx), [website](http://rx.codesimply.com/) (Js, Perl, PHP, Python, Ruby, v0.200006, 2014-05-21)
+
+Also see the [dedicated page on JSON Schema Everywhere](https://json-schema-everywhere.github.io/yaml).
 
 ## Spec
 

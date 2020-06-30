@@ -25,10 +25,26 @@ var _ tExpression = tRule{}
 var _ tMergeableExpression = tRule{}
 
 type tRule struct {
-	ruleName   string
+	ruleName string
+	//
+	// On lidy default rules //
+	// lidyMatcher
+	// present iif the rule is a lidy default rule
+	lidyMatcher tLidyMatcher
+	//
+	// On user rules //
+	// builder
+	// - present on exported types if the user has provided one
+	builder Builder
+	// _node
+	// - missing from rules with a lidyMatcher-s
+	// - temporary value, used to keep the readily node available between the rule
+	//   creation (0th pass), and the expression parsing (1th pass).
+	_node yaml.Node
+	// expression
+	// - missing from rules with a lidyMatcher-s
+	// - missing at the 0th pass, added during the 1th.
 	expression tExpression
-	builder    Builder
-	_node      yaml.Node
 }
 
 // Map
@@ -84,6 +100,10 @@ var _ tSizing = tSizingNb{}
 type tSizingNb struct {
 	nb int
 }
+
+var _ tSizing = tSizingNone{}
+
+type tSizingNone struct{}
 
 // OneOf
 var _ tExpression = tOneOf{}

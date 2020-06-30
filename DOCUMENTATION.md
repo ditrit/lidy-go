@@ -92,7 +92,7 @@ There's only one: `any`. It matches any YAML content. It can be defined in Lidy 
 any:
   _oneOf:
     - str
-    - bool
+    - boolean
     - int
     - float
     - null

@@ -49,6 +49,10 @@ func (sizing tSizingNb) check(content yaml.Node, parser *tParser) []error {
 	return err
 }
 
+func (tSizingNone) check(content yaml.Node, parser *tParser) []error {
+	return nil
+}
+
 func getSize(content yaml.Node) (int, []error) {
 	switch content.Tag {
 	case "!!seq":

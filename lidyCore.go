@@ -37,6 +37,7 @@ func (p *tParser) parseSchema() []error {
 	return err
 }
 
+// parseContent apply the schema to the content
 func (p *tParser) parseContent(content File) (Result, []error) {
 	file := content.(*tFile)
 

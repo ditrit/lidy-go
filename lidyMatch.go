@@ -13,6 +13,10 @@ import (
 
 // tRule
 func (rule tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
+	if rule.lidyMatcher != nil {
+		return rule.lidyMatcher(content, parser)
+	}
+
 	result, err := rule.expression.match(content, parser)
 
 	if len(err) > 0 {

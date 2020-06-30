@@ -41,7 +41,9 @@ property: str
 scalar:
   _oneOf:
     - timestamp
+    - nullType
     - boolean
+    - binary
     - float
     - int
     - str

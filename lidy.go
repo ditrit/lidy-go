@@ -69,6 +69,9 @@ type Option struct {
 // Builder -- user-implemented input-validation and creation of user objects
 type Builder func(input interface{}) (Result, []error)
 
+// tLidyBuilder -- builders for lidy's internal types
+type tLidyMatcher func(content yaml.Node, p *tParser) (Result, []error)
+
 //
 // Concrete types
 //
@@ -85,10 +88,11 @@ var _ Parser = &tParser{}
 
 type tParser struct {
 	tFile
-	builderMap map[string]Builder
-	option     Option
-	schema     tDocument
-	target     string
+	builderMap         map[string]Builder
+	lidyDefaultRuleMap map[string]tRule
+	option             Option
+	schema             tDocument
+	target             string
 }
 
 //
@@ -150,40 +154,81 @@ func NewParser(filename string, content []byte) Parser {
 }
 
 // Target -- set the target. Return this
-func (f *tParser) Target(target string) Parser {
-	f.target = target
-	return f
+func (p *tParser) Target(target string) Parser {
+	p.target = target
+	return p
 }
 
 // With -- set the builderMap. Return this
-func (f *tParser) With(builderMap map[string]Builder) Parser {
-	f.builderMap = builderMap
-	return f
+func (p *tParser) With(builderMap map[string]Builder) Parser {
+	p.builderMap = builderMap
+	return p
 }
 
 // Option -- set the parser option instance. Return this
-func (f *tParser) Option(option Option) Parser {
-	f.option = option
-	return f
+func (p *tParser) Option(option Option) Parser {
+	p.option = option
+	return p
 }
 
 // Schema -- assert the Schema of the parser to be valid. Return this and the list of encountered error, while processing the schema, if any.
-func (f *tParser) Schema() []error {
-	err := f.Yaml()
+func (p *tParser) Schema() []error {
+	err := p.Yaml()
 	if err != nil {
 		return []error{err}
 	}
-	if f.yaml.Kind == 0 {
-		panic("yaml.Kind still 0 in " + f.name)
+	if p.yaml.Kind == 0 {
+		panic("yaml.Kind still 0 in " + p.name)
 	}
-	return f.parseSchema()
+	return p.parseSchema()
 }
 
 // Parse -- use the parser to check the given YAML file, and produce a Lidy Result.
-func (f *tParser) Parse(file File) (Result, []error) {
-	err := f.Schema()
+func (p *tParser) Parse(file File) (Result, []error) {
+	err := p.Schema()
 	if len(err) > 0 {
 		return nil, err
 	}
-	return f.parseContent(file)
+
+	p.lidyDefaultRuleMap = make(map[string]tRule)
+
+	for key, matcher := range lidyDefaultRuleMatcherMap {
+		p.lidyDefaultRuleMap[key] = tRule{
+			ruleName:    key,
+			lidyMatcher: matcher,
+		}
+	}
+
+	ruleAny := tRule{
+		ruleName: "any",
+	}
+
+	ruleAny.expression = tOneOf{
+		optionList: []tExpression{
+			p.lidyDefaultRuleMap["str"],
+			p.lidyDefaultRuleMap["boolean"],
+			p.lidyDefaultRuleMap["int"],
+			p.lidyDefaultRuleMap["float"],
+			p.lidyDefaultRuleMap["null"],
+			tMap{
+				tMapForm{
+					mapOf: tKeyValueExpression{
+						key:   ruleAny,
+						value: ruleAny,
+					},
+				},
+				tSizingNone{},
+			},
+			tSeq{
+				tSeqForm{
+					seqOf: ruleAny,
+				},
+				tSizingNone{},
+			},
+		},
+	}
+
+	p.lidyDefaultRuleMap["any"] = ruleAny
+
+	return p.parseContent(file)
 }
