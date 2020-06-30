@@ -107,5 +107,5 @@ var _ tExpression = tRegex{}
 
 type tRegex struct {
 	regexString string
-	regex       regexp.Regexp
+	regex       *regexp.Regexp
 }

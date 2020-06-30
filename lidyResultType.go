@@ -38,5 +38,5 @@ type KeyValueResult struct {
 // SeqResult -- A lidy yaml sequence result
 type SeqResult struct {
 	Tuple []Result
-	Seq   []Result
+	SeqOf []Result
 }

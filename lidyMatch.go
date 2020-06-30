@@ -210,7 +210,7 @@ func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
 			// SeqOf (all the rest)
 			result, erl := seq.form.seqOf.match(*value, parser)
 			errList.Push(erl)
-			seqResult.Seq = append(seqResult.Seq, result)
+			seqResult.SeqOf = append(seqResult.SeqOf, result)
 		} else {
 			// Rejecting extra entries (all the rest, if no SeqOf)
 			message := fmt.Sprintf(

@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/ditrit/lidy/errorlist"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,18 +30,20 @@ func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 	// - First create tRule{} entities for all rules of the document
 	// - Second, explore each rule value node, to populate the `expression` field of the rule node.
 	// This approach allows to substitute identifiers for rule entities while exploring the schema.
-	document := tDocument{make(map[string]tRule)}
+	document := tDocument{
+		ruleMap: make(map[string]tRule),
+	}
 
 	if root.Kind != yaml.DocumentNode {
 		return tDocument{}, []error{fmt.Errorf(
-			"Kind of root node is not document (e%d, g%d). %s",
+			"Internal: Kind of root node is not document (e%d, g%d). %s",
 			yaml.DocumentNode, root.Kind, pleaseReport,
 		)}
 	}
 
 	if len(root.Content) != 1 {
 		return tDocument{}, []error{fmt.Errorf(
-			"Content lenght of root node is not 1, but %d. %s",
+			"Internal: Content lenght of root node is not 1, but %d. %s",
 			len(root.Content), pleaseReport,
 		)}
 	}
@@ -71,21 +74,21 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, []err
 		return tRule{}, sp.schemaNodeError(key, "a valid identifier declaration")
 	}
 
+	nameSlice := strings.SplitN(key.Value, ":", 3)
+
+	localName := nameSlice[0]
 	var builder Builder = nil
-	var localName string
 	if strings.Contains(key.Value, ":") {
 		var exportName string
 
-		slice := strings.SplitN(key.Value, ":", 3)
-		localName = slice[0]
-		exportName = slice[0]
+		exportName = nameSlice[0]
 
-		if slice[1] != "" {
+		if nameSlice[1] != "" {
 			log.Fatalf("Internal error with rule name parsing of `%s`, %s", key.Value, pleaseReport)
 		}
 
 		if strings.Contains(key.Value, "::") {
-			exportName = slice[3]
+			exportName = nameSlice[3]
 		}
 
 		builder, _ = sp.builderMap[exportName]
@@ -104,11 +107,11 @@ func (sp tSchemaParser) expression(node yaml.Node) (tExpression, []error) {
 	switch {
 	case node.Tag == "!!str":
 		return sp.identifierReference(node)
-	case node.Tag != "!!map" || len(node.Content) == 0:
-		return nil, sp.schemaNodeError(node, "an expression")
+	case node.Kind != yaml.MappingNode || len(node.Content) == 0:
+		return nil, sp.schemaNodeError(node, "an expression (a rule identifier or a YAML map)")
 	}
 
-	return sp.checkerExpression(node)
+	return sp.formRecognizer(node)
 }
 
 func (sp tSchemaParser) identifierReference(node yaml.Node) (tExpression, []error) {
@@ -128,9 +131,92 @@ func (sp tSchemaParser) identifierReference(node yaml.Node) (tExpression, []erro
 	return nil, sp.schemaNodeError(node, "the identifier to exist in the document")
 }
 
-func (sp tSchemaParser) checkerExpression(node yaml.Node) (tExpression, []error) {
-	return nil, nil
-	// return sp.checkerExpression(node)
+// formRecognizer
+// match any checker form
+func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
+	form := ""
+	var checker tChecker
+
+	keyword := ""
+	mustBeMapOrSequence := false
+	conflictingForm := ""
+
+	formMap := make(map[string]yaml.Node)
+	errList := errorlist.List{}
+
+	setForm := func(newForm string, key string, newChecker tChecker) {
+		if form != "" && form != newForm {
+			conflictingForm = newForm
+		} else if mustBeMapOrSequence && newForm != "map" && newForm != "sequence" {
+			conflictingForm = newForm
+		} else {
+			form = newForm
+			checker = newChecker
+
+			if keyword == "" {
+				keyword = key
+			}
+		}
+	}
+
+	for k := 0; k+1 < len(node.Content); k += 2 {
+		keyNode := node.Content[k]
+		value := node.Content[k+1]
+
+		// reject non-string "keywords"
+		if keyNode.Tag != "!!str" {
+			errList.Push(sp.schemaNodeError(*keyNode, "only string keys"))
+			continue
+		}
+
+		// update formMap with the content values
+		key := keyNode.Value
+		formMap[key] = *value
+
+		// identifying the form
+		switch key {
+		case "_map", "_mapOf", "_merge":
+			setForm("map", key, mapChecker)
+		case "_seq", "_tuple":
+			setForm("sequence", key, seqChecker)
+		case "_oneOf":
+			setForm("oneOf", key, oneOfChecker)
+		case "_in":
+			setForm("in", key, inChecker)
+		case "_regex":
+			setForm("regex", key, regexChecker)
+		case "_optional", "_min", "_max", "_nb":
+			if form != "" && form != "map" && form != "sequence" {
+				errList.Push(sp.schemaNodeError(*keyNode, fmt.Sprintf(
+					"only keywords compatible with form '%s' (resulting from keyword '%s')",
+					form, keyword,
+				)))
+			} else {
+				mustBeMapOrSequence = true
+			}
+			if keyword != "" {
+				keyword = key
+			}
+		default:
+			errList.Push(sp.schemaNodeError(*keyNode, "a valid lidy keyword"))
+		}
+
+		// process conflicts
+		if conflictingForm != "" {
+			errList.Push(sp.schemaNodeError(*keyNode, fmt.Sprintf(
+				"no keyword whose form %s conflicts with keyword %s of form %s",
+				conflictingForm, keyword, form,
+			)))
+
+			conflictingForm = ""
+		}
+	}
+
+	result, erl := checker(sp, node, formMap)
+
+	errList.Push(erl)
+
+	return result, errList.ConcatError()
 }
 
 // Error
