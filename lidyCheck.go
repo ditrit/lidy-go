@@ -3,6 +3,7 @@ package lidy
 import (
 	"fmt"
 
+	"github.com/ditrit/lidy/errorlist"
 	"gopkg.in/yaml.v3"
 )
 
@@ -12,6 +13,15 @@ import (
 
 // Sizing check()
 func (sizing tSizingMinMax) check(content yaml.Node, parser *tParser) []error {
+	errList := errorlist.List{}
+
+	errList.Push(sizing.tSizingMin.check(content, parser))
+	errList.Push(sizing.tSizingMax.check(content, parser))
+
+	return errList.ConcatError()
+}
+
+func (sizing tSizingMin) check(content yaml.Node, parser *tParser) []error {
 	size, err := getSize(content)
 
 	if len(err) > 0 {
@@ -19,20 +29,22 @@ func (sizing tSizingMinMax) check(content yaml.Node, parser *tParser) []error {
 	}
 
 	if size < sizing.min {
-		err = append(
-			err,
-			parser.contentError(content, "have at least "+string(sizing.min)+" entries")...,
-		)
+		return parser.contentError(content, "have at least "+string(sizing.min)+" entries")
+	}
+	return nil
+}
+
+func (sizing tSizingMax) check(content yaml.Node, parser *tParser) []error {
+	size, err := getSize(content)
+
+	if len(err) > 0 {
+		return err
 	}
 
-	if size > sizing.max {
-		err = append(
-			err,
-			parser.contentError(content, "have at most "+string(sizing.max)+" entries")...,
-		)
+	if size < sizing.max {
+		return parser.contentError(content, "have at most "+string(sizing.max)+" entries")
 	}
-
-	return err
+	return nil
 }
 
 func (sizing tSizingNb) check(content yaml.Node, parser *tParser) []error {
@@ -45,8 +57,7 @@ func (sizing tSizingNb) check(content yaml.Node, parser *tParser) []error {
 	if size != sizing.nb {
 		return parser.contentError(content, "have exactly "+string(sizing.nb)+" entries")
 	}
-
-	return err
+	return nil
 }
 
 func (tSizingNone) check(content yaml.Node, parser *tParser) []error {

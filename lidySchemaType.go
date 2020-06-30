@@ -91,7 +91,15 @@ type tSizing interface {
 var _ tSizing = tSizingMinMax{}
 
 type tSizingMinMax struct {
+	tSizingMin
+	tSizingMax
+}
+
+type tSizingMin struct {
 	min int
+}
+
+type tSizingMax struct {
 	max int
 }
 

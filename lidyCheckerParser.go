@@ -10,7 +10,7 @@ import (
 
 // lidyCheckerParser.go
 //
-// Perform schema parsing of all lidy checker forms.
+// Schema parsing for lidy checkers and checkerForms.
 
 type tChecker func(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error)
 
@@ -18,12 +18,79 @@ type tFormMap map[string]yaml.Node
 
 func mapChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error) {
 	errList := errorlist.List{}
-	return tMap{}, errList.ConcatError()
+
+	form, err := mapForm(sp, node, formMap)
+	errList.Push(err)
+
+	sizing, err := sizingChecker(sp, node, formMap)
+	errList.Push(err)
+
+	return tMap{
+		form,
+		sizing,
+	}, errList.ConcatError()
 }
 
 func seqChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error) {
 	errList := errorlist.List{}
-	return tSeq{}, errList.ConcatError()
+
+	form, err := seqForm(sp, node, formMap)
+	errList.Push(err)
+
+	sizing, err := sizingChecker(sp, node, formMap)
+	errList.Push(err)
+
+	return tSeq{
+		form,
+		sizing,
+	}, errList.ConcatError()
+}
+
+func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []error) {
+	return tMapForm{}, nil
+}
+
+func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []error) {
+	return tSeqForm{}, nil
+}
+
+func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing, []error) {
+	errList := errorlist.List{}
+
+	minNode, _min := formMap["min"]
+	maxNode, _max := formMap["max"]
+	nbNode, _nb := formMap["nb"]
+
+	var sizing tSizing = nil
+
+	tryDecodeInteger := func(theNode yaml.Node) int {
+		var theInt int
+		err := node.Decode(&theInt)
+		errList.Push(sp.schemaNodeError(theNode, "an integer, but error happened: "+err.Error()))
+		return theInt
+	}
+
+	switch {
+	case _nb && (_min || _max):
+		errList.Push(sp.schemaNodeError(node, "no use of _nb, _min and _max together"))
+	case !_min && !_max && !_nb:
+		sizing = tSizingNone{}
+	case _nb:
+		sizing = tSizingNb{nb: tryDecodeInteger(nbNode)}
+	case _min && !_max:
+		sizing = tSizingMin{min: tryDecodeInteger(minNode)}
+	case _max && !_min:
+		sizing = tSizingMax{max: tryDecodeInteger(maxNode)}
+	case _min && _max:
+		sizing = tSizingMinMax{
+			tSizingMin{min: tryDecodeInteger(minNode)},
+			tSizingMax{max: tryDecodeInteger(maxNode)},
+		}
+	default:
+		errList.Push(sp.schemaNodeError(node, "no unexpected combination of _nb, _min and _max (Internal error? "+pleaseReport+")"))
+	}
+
+	return sizing, errList.ConcatError()
 }
 
 func oneOfChecker(sp tSchemaParser, _ yaml.Node, formMap tFormMap) (tExpression, []error) {
