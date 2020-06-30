@@ -46,18 +46,18 @@ scalar:
     - int
     - str
 
-# sizingMixing
+# sizingMixin
 #
 # _min can't be inferior to _max
 sizingMixin::
   _oneOf:
-  - _map: {}
-    _optional:
-      "_min": int
-      "_max": int
-  - _map: {}
-    _optional:
-      "_nb": int
+  - _map:
+      _optional:
+        "_min": int
+        "_max": int
+  - _map:
+      _optional:
+        "_nb": int
 
 ###
 # checkers and parameters #
@@ -70,23 +70,23 @@ sizingMixin::
 #
 # map and mapOf
 mapChecker:
+  _map:
+    _required:
+      "_map": mapGroup
+
+mapGroup:
   _merge:
-    - mapForm
-    - optionalableMapMixin
+    - mapGroup
     - sizingMixin
 
 mapForm:
-  _map: {}
-  _optional:
-    "_map": map.parameter
-    "_mapOf": mapOf.parameter
-    "_merge": merge.parameter
-  _min: 1
-
-optionalableMapMixin:
-  _map: {}
-  _optional:
-    "_optional": map.parameter
+  _map:
+    _optional:
+      "_required": map.parameter
+      "_optional": map.parameter
+      "_anyOf": mapOf.parameter
+      "_merge": merge.parameter
+    _min: 1
 
 # map
 map.parameter:
@@ -107,27 +107,27 @@ merge.parameter::
       - identifier
 
 #
-# tuple and seqOf
+# seq and seqOf
 seqChecker:
+  _map:
+    _required:
+      "_seq": seqGroup
+
+seqGroup:
   _merge:
     - seqForm
-    - optionalableTupleMixin
     - sizingMixin
 
 seqForm:
-  _map: {}
-  _optional:
-    "_tuple": tuple.parameter
-    "_seqOf": seqOf.parameter
-  _min: 1
+  _map:
+    _optional:
+      "_required": seq.parameter
+      "_optional": seq.parameter
+      "_anyOf": seqOf.parameter
+    _min: 1
 
-optionalableTupleMixin:
-  _map: {}
-  _optional:
-    "_optional": tuple.parameter
-
-# tuple
-tuple.parameter:
+# seq
+seq.parameter:
   _seqOf: expression
 
 # seqOf
@@ -136,7 +136,8 @@ seqOf.parameter: expression
 # in
 in.checker:
   _map:
-    "_in": in.parameter
+    _required:
+      "_in": in.parameter
 
 in.parameter:
   _seqOf: scalar
@@ -144,7 +145,8 @@ in.parameter:
 # oneOf
 oneOf.checker:
   _map:
-    "_oneOf": oneOf.parameter
+    _required:
+      "_oneOf": oneOf.parameter
 
 oneOf.parameter:
   _seqOf: expression
@@ -153,4 +155,5 @@ oneOf.parameter:
 # The string must be a valid regex. This is checked by the merge.parameter builder.
 regex.checker::
   _map:
-    "_regex": str
+    _required:
+      "_regex": str
