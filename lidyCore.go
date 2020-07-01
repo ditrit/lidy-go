@@ -2,6 +2,7 @@ package lidy
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ditrit/lidy/errorlist"
 )
@@ -18,6 +19,8 @@ type tSchemaParser tParser
 func (p *tParser) parseSchema() []error {
 	schemaParser := (*tSchemaParser)(p)
 
+	schemaParser.precomputeLidyDefaultRules()
+
 	schema, err := schemaParser.hollowSchema(p.yaml)
 
 	if err != nil {
@@ -28,13 +31,20 @@ func (p *tParser) parseSchema() []error {
 
 	errList := errorlist.List{}
 
-	for _, rule := range schema.ruleMap {
+	for ruleName, rule := range schema.ruleMap {
+		if _, present := p.lidyDefaultRuleMap[ruleName]; present {
+			continue
+		}
+		if ruleName == "main" {
+			fmt.Println("rule main")
+		}
+
 		expression, erl := schemaParser.expression(rule._node)
 		errList.Push(erl)
 		rule.expression = expression
 	}
 
-	return err
+	return errList.ConcatError()
 }
 
 // parseContent apply the schema to the content
@@ -43,6 +53,9 @@ func (p *tParser) parseContent(content File) (Result, []error) {
 
 	defer func() {
 		if r := recover(); r != nil {
+			if !strings.Contains(fmt.Sprintf("%s", r), "one error found, exiting") {
+				panic(r)
+			}
 			fmt.Println("Recovered in `parseContent`, from", r)
 		}
 	}()

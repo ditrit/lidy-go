@@ -91,3 +91,58 @@ var lidyDefaultRuleMatcherMap map[string]tLidyMatcher = map[string]tLidyMatcher{
 		return content.Value, nil
 	},
 }
+
+func (sp *tSchemaParser) precomputeLidyDefaultRules() {
+	if _, present := sp.schema.ruleMap["any"]; present {
+		return
+	}
+
+	for name, rule := range sp.schema.ruleMap {
+		if rule.ruleName != name {
+			panic("non-matching rulename rule " + name + "/" + rule.ruleName)
+		}
+		if rule.expression == nil {
+			panic("nil rule expression for rule " + name)
+		}
+	}
+
+	sp.lidyDefaultRuleMap = make(map[string]tRule)
+
+	for key, matcher := range lidyDefaultRuleMatcherMap {
+		sp.lidyDefaultRuleMap[key] = tRule{
+			ruleName:    key,
+			lidyMatcher: matcher,
+		}
+	}
+
+	ruleAny := tRule{
+		ruleName: "any",
+	}
+
+	ruleAny.expression = tOneOf{
+		optionList: []tExpression{
+			sp.lidyDefaultRuleMap["str"],
+			sp.lidyDefaultRuleMap["boolean"],
+			sp.lidyDefaultRuleMap["int"],
+			sp.lidyDefaultRuleMap["float"],
+			sp.lidyDefaultRuleMap["null"],
+			tMap{
+				tMapForm{
+					mapOf: tKeyValueExpression{
+						key:   ruleAny,
+						value: ruleAny,
+					},
+				},
+				tSizingNone{},
+			},
+			tSeq{
+				tSeqForm{
+					seqOf: ruleAny,
+				},
+				tSizingNone{},
+			},
+		},
+	}
+
+	sp.lidyDefaultRuleMap["any"] = ruleAny
+}

@@ -180,6 +180,7 @@ func (p *tParser) Schema() []error {
 	if p.yaml.Kind == 0 {
 		panic("yaml.Kind still 0 in " + p.name)
 	}
+
 	return p.parseSchema()
 }
 
@@ -189,46 +190,6 @@ func (p *tParser) Parse(file File) (Result, []error) {
 	if len(err) > 0 {
 		return nil, err
 	}
-
-	p.lidyDefaultRuleMap = make(map[string]tRule)
-
-	for key, matcher := range lidyDefaultRuleMatcherMap {
-		p.lidyDefaultRuleMap[key] = tRule{
-			ruleName:    key,
-			lidyMatcher: matcher,
-		}
-	}
-
-	ruleAny := tRule{
-		ruleName: "any",
-	}
-
-	ruleAny.expression = tOneOf{
-		optionList: []tExpression{
-			p.lidyDefaultRuleMap["str"],
-			p.lidyDefaultRuleMap["boolean"],
-			p.lidyDefaultRuleMap["int"],
-			p.lidyDefaultRuleMap["float"],
-			p.lidyDefaultRuleMap["null"],
-			tMap{
-				tMapForm{
-					mapOf: tKeyValueExpression{
-						key:   ruleAny,
-						value: ruleAny,
-					},
-				},
-				tSizingNone{},
-			},
-			tSeq{
-				tSeqForm{
-					seqOf: ruleAny,
-				},
-				tSizingNone{},
-			},
-		},
-	}
-
-	p.lidyDefaultRuleMap["any"] = ruleAny
 
 	return p.parseContent(file)
 }

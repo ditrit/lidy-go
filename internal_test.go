@@ -31,7 +31,7 @@ var _ = Describe("file.Yaml", func() {
 		node := internalFile.yaml
 
 		Expect(node.Kind).To(Equal(yaml.DocumentNode), "document node kind")
-		Expect(len(node.Content)).To(Equal(1), "content length")
+		Expect(node.Content).To(HaveLen(1), "content length")
 		Expect(node.Content[0].Kind).To(Equal(yaml.MappingNode), "root kind")
 		// Expect(node.Content[0].Tag).To(Equal("!!str"))
 	})

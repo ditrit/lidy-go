@@ -46,7 +46,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 			Expect(err).To(BeEmpty())
 		})
 	})
-	FWhen("Running a schema against YAML file", func() {
+	When("Running a schema against YAML file", func() {
 		It("works with YAML", func() {
 			content := "Hello, I'm a string!"
 

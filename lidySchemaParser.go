@@ -57,8 +57,8 @@ func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 	errList := errorlist.List{}
 
 	// lidy default rules
-	for key, rule := range sp.lidyDefaultRuleMap {
-		document.ruleMap[key] = rule
+	for ruleName, rule := range sp.lidyDefaultRuleMap {
+		document.ruleMap[ruleName] = rule
 	}
 
 	// user rules

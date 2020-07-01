@@ -26,7 +26,7 @@ b:
 		}
 
 		Expect(node.Kind).To(Equal(yaml.DocumentNode))
-		Expect(len(node.Content)).To(Equal(1))
+		Expect(node.Content).To(HaveLen(1))
 		Expect(node.Content[0].Kind).To(Equal(yaml.MappingNode))
 	})
 })

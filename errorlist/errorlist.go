@@ -6,14 +6,14 @@ type List struct {
 }
 
 // Push -- Append error list if non-empty
-func (me List) Push(errorList []error) {
+func (me *List) Push(errorList []error) {
 	if errorList != nil && len(errorList) > 0 {
 		me.list = append(me.list, errorList)
 	}
 }
 
 // ConcatError -- Obtain a single list of all errors
-func (me List) ConcatError() []error {
+func (me *List) ConcatError() []error {
 	var totalLength int
 	for _, s := range me.list {
 		totalLength += len(s)
