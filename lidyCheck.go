@@ -41,7 +41,7 @@ func (sizing tSizingMax) check(content yaml.Node, parser *tParser) []error {
 		return err
 	}
 
-	if size < sizing.max {
+	if size > sizing.max {
 		return parser.contentError(content, "have at most "+string(sizing.max)+" entries")
 	}
 	return nil

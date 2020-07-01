@@ -295,16 +295,8 @@ func (in tIn) match(content yaml.Node, parser *tParser) (Result, []error) {
 
 // Regex
 func (rxp tRegex) match(content yaml.Node, parser *tParser) (Result, []error) {
-	contentError := func() []error {
-		return parser.contentError(content, fmt.Sprintf("a string (matching the regex [%s])", rxp.regexString))
-	}
-
-	if content.Tag != "!!str" {
-		return nil, contentError()
-	}
-
-	if !rxp.regex.MatchString(content.Value) {
-		return nil, contentError()
+	if content.Tag != "!!str" || !rxp.regex.MatchString(content.Value) {
+		return nil, parser.contentError(content, fmt.Sprintf("a string (matching the regex [%s])", rxp.regexString))
 	}
 
 	return content.Value, nil

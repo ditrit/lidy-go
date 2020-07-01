@@ -47,7 +47,7 @@ func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 	node := *root.Content[0]
 
 	if node.Kind != yaml.MappingNode {
-		return tDocument{}, sp.schemaNodeError(node, "a lidy schema document (kind map)")
+		return tDocument{}, sp.schemaError(node, "a lidy schema document (kind map)")
 	}
 
 	document := tDocument{
@@ -74,7 +74,7 @@ func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 				message = "no redeclaration of lidy default rule"
 			}
 
-			errList.Push(sp.schemaNodeError(*node.Content[k-1], message))
+			errList.Push(sp.schemaError(*node.Content[k-1], message))
 		}
 		document.ruleMap[rule.ruleName] = rule
 	}
@@ -84,11 +84,11 @@ func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
 
 func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, []error) {
 	if key.Tag != "!!str" {
-		return tRule{}, sp.schemaNodeError(key, "a YAML string (an identifier declaration)")
+		return tRule{}, sp.schemaError(key, "a YAML string (an identifier declaration)")
 	}
 
 	if !regexIdentifierDeclaration.MatchString(key.Value) {
-		return tRule{}, sp.schemaNodeError(key, "a valid identifier declaration")
+		return tRule{}, sp.schemaError(key, "a valid identifier declaration")
 	}
 
 	nameSlice := strings.SplitN(key.Value, ":", 3)
@@ -125,7 +125,7 @@ func (sp tSchemaParser) expression(node yaml.Node) (tExpression, []error) {
 	case node.Tag == "!!str":
 		return sp.identifierReference(node)
 	case node.Kind != yaml.MappingNode || len(node.Content) == 0:
-		return nil, sp.schemaNodeError(node, "an expression (a rule identifier or a YAML map)")
+		return nil, sp.schemaError(node, "an expression (a rule identifier or a YAML map)")
 	}
 
 	return sp.formRecognizer(node)
@@ -133,7 +133,7 @@ func (sp tSchemaParser) expression(node yaml.Node) (tExpression, []error) {
 
 func (sp tSchemaParser) identifierReference(node yaml.Node) (tExpression, []error) {
 	if !regexIdentifier.MatchString(node.Value) {
-		return nil, sp.schemaNodeError(node, "a valid identifier reference (a-zA-Z)(a-zA-Z0-9_)+")
+		return nil, sp.schemaError(node, "a valid identifier reference (a-zA-Z)(a-zA-Z0-9_)+")
 	}
 
 	if rule, ok := sp.schema.ruleMap[node.Value]; ok {
@@ -145,7 +145,7 @@ func (sp tSchemaParser) identifierReference(node yaml.Node) (tExpression, []erro
 		return sp.schema.ruleMap["any"], nil
 	}
 
-	return nil, sp.schemaNodeError(node, "the identifier to exist in the document")
+	return nil, sp.schemaError(node, "the identifier to exist in the document")
 }
 
 // formRecognizer
@@ -182,7 +182,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 
 		// reject non-string "keywords"
 		if keyNode.Tag != "!!str" {
-			errList.Push(sp.schemaNodeError(*keyNode, "only string keys"))
+			errList.Push(sp.schemaError(*keyNode, "only string keys"))
 			continue
 		}
 
@@ -204,7 +204,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 			setForm("regex", key, regexChecker)
 		case "_optional", "_min", "_max", "_nb":
 			if form != "" && form != "map" && form != "sequence" {
-				errList.Push(sp.schemaNodeError(*keyNode, fmt.Sprintf(
+				errList.Push(sp.schemaError(*keyNode, fmt.Sprintf(
 					"only keywords compatible with form '%s' (resulting from keyword '%s')",
 					form, keyword,
 				)))
@@ -215,12 +215,12 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 				keyword = key
 			}
 		default:
-			errList.Push(sp.schemaNodeError(*keyNode, "a valid lidy keyword"))
+			errList.Push(sp.schemaError(*keyNode, "a valid lidy keyword"))
 		}
 
 		// process conflicts
 		if conflictingForm != "" {
-			errList.Push(sp.schemaNodeError(*keyNode, fmt.Sprintf(
+			errList.Push(sp.schemaError(*keyNode, fmt.Sprintf(
 				"no keyword whose form %s conflicts with keyword %s of form %s",
 				conflictingForm, keyword, form,
 			)))
@@ -238,11 +238,11 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 
 // missingChecker (formRecognizer didn't detect a form)
 func missingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error) {
-	return nil, sp.schemaNodeError(node, "a recognisable lidy form")
+	return nil, sp.schemaError(node, "a recognisable lidy form")
 }
 
 // Error
-func (sp tSchemaParser) schemaNodeError(node yaml.Node, expected string) []error {
+func (sp tSchemaParser) schemaError(node yaml.Node, expected string) []error {
 	position := fmt.Sprintf("%s:%d:%d", sp.name, node.Line, node.Column)
 
 	return []error{fmt.Errorf("error in schema with yaml node of kind [%s], value '%s' at position %s, where [%s] was expected", node.ShortTag(), node.Value, position, expected)}
