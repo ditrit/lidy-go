@@ -2,7 +2,6 @@ package lidy
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ditrit/lidy/errorlist"
 )
@@ -17,14 +16,27 @@ type tSchemaParser tParser
 
 // NewParser create a parser from a lidy paper
 func (p *tParser) parseSchema() []error {
+	if p.schema.ruleMap != nil {
+		return nil
+	}
+
+	// Make sure the schema's Yaml document is loaded
+	err := p.Yaml()
+	if err != nil {
+		return []error{err}
+	}
+	if p.yaml.Kind == 0 {
+		panic("yaml didn't load (" + p.name + "). " + pleaseReport)
+	}
+
 	schemaParser := (*tSchemaParser)(p)
 
 	schemaParser.precomputeLidyDefaultRules()
 
-	schema, err := schemaParser.hollowSchema(p.yaml)
+	schema, erl := schemaParser.hollowSchema(p.yaml)
 
-	if err != nil {
-		return err
+	if erl != nil {
+		return erl
 	}
 
 	schemaParser.schema = schema
@@ -35,34 +47,73 @@ func (p *tParser) parseSchema() []error {
 		if _, present := p.lidyDefaultRuleMap[ruleName]; present {
 			continue
 		}
-		if ruleName == "main" {
-			fmt.Println("rule main")
-		}
 
 		expression, erl := schemaParser.expression(rule._node)
+		if len(erl) == 0 && expression == nil {
+			errList.Push(schemaParser.schemaError(rule._node, "unknown resolution error. This should not happen, "+pleaseReport))
+		}
+
 		errList.Push(erl)
 		rule.expression = expression
+		schema.ruleMap[ruleName] = rule
 	}
 
 	return errList.ConcatError()
 }
 
 // parseContent apply the schema to the content
-func (p *tParser) parseContent(content File) (Result, []error) {
-	file := content.(*tFile)
-
-	defer func() {
-		if r := recover(); r != nil {
-			if !strings.Contains(fmt.Sprintf("%s", r), "one error found, exiting") {
-				panic(r)
-			}
-			fmt.Println("Recovered in `parseContent`, from", r)
-		}
-	}()
-
-	if rule, ok := p.schema.ruleMap[p.target]; ok {
-		return rule.match(file.yaml, p)
+func (p *tParser) parseContent(file File) (Result, []error) {
+	// make sure the schema is loaded
+	erl := p.Schema()
+	if len(erl) > 0 {
+		return nil, erl
 	}
 
-	return nil, []error{fmt.Errorf("Could not find target rule '%s' in grammar", p.target)}
+	// assert that the schema is valid; that the schema parser works
+	// as intended
+	for name, rule := range p.schema.ruleMap {
+		if rule.ruleName != name {
+			panic("non-matching rulename rule " + name + "/" + rule.ruleName)
+		}
+		if _, present := p.lidyDefaultRuleMap[name]; present {
+			continue
+		}
+		if rule.expression == nil {
+			panic("nil rule expression for rule " + name)
+		}
+	}
+
+	// Checking that the target rule is present
+	targetRule, ruleFound := p.schema.ruleMap[p.target]
+	if !ruleFound {
+		return nil, []error{fmt.Errorf("Could not find target rule '%s' in grammar", p.target)}
+	}
+
+	// Parsing the content
+	err := file.Yaml()
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	contentFile := file.(*tFile)
+
+	p.contentFile = *contentFile
+
+	contentRoot, erl := getRoot(contentFile.yaml)
+
+	if len(erl) > 0 {
+		return nil, erl
+	}
+
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		if !strings.Contains(fmt.Sprintf("%s", r), "one error found, exiting") {
+	// 			panic(r)
+	// 		}
+	// 		fmt.Println("Recovered in `parseContent`, from", r)
+	// 	}
+	// }()
+
+	return targetRule.match(*contentRoot, p)
+
 }

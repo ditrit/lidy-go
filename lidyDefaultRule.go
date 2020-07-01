@@ -97,25 +97,16 @@ func (sp *tSchemaParser) precomputeLidyDefaultRules() {
 		return
 	}
 
-	for name, rule := range sp.schema.ruleMap {
-		if rule.ruleName != name {
-			panic("non-matching rulename rule " + name + "/" + rule.ruleName)
-		}
-		if rule.expression == nil {
-			panic("nil rule expression for rule " + name)
-		}
-	}
-
-	sp.lidyDefaultRuleMap = make(map[string]tRule)
+	sp.lidyDefaultRuleMap = make(map[string]*tRule)
 
 	for key, matcher := range lidyDefaultRuleMatcherMap {
-		sp.lidyDefaultRuleMap[key] = tRule{
+		sp.lidyDefaultRuleMap[key] = &tRule{
 			ruleName:    key,
 			lidyMatcher: matcher,
 		}
 	}
 
-	ruleAny := tRule{
+	ruleAny := &tRule{
 		ruleName: "any",
 	}
 

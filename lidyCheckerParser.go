@@ -89,7 +89,7 @@ func checkMergeable(sp tSchemaParser, node yaml.Node, expression tExpression) (t
 		return oneOf, errList.ConcatError()
 	}
 
-	if rule, ok := expression.(tRule); ok {
+	if rule, ok := expression.(*tRule); ok {
 		return checkMergeable(sp, node, rule.expression)
 	}
 

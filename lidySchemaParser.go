@@ -25,70 +25,62 @@ var regexIdentifierDeclaration = *regexp.MustCompile("^" +
 
 // tSchemaParser.hollowSchema parse the outline of a lidy schema document
 // it fills the `ruleMap` with `tRule` instances whose expression is uncomputed. It errors if the yaml node isn't a map.
-func (sp tSchemaParser) hollowSchema(root yaml.Node) (tDocument, []error) {
+func (sp tSchemaParser) hollowSchema(documentNode yaml.Node) (tSchema, []error) {
 	// Note: The parsing is done in two steps
 	// - First create tRule{} entities for all rules of the document (THIS STEP)
 	// - Second, explore each rule value node, to populate the `expression` field of the rule node.
 	// This approach allows to substitute identifiers for rule entities while exploring the schema.
-	if root.Kind != yaml.DocumentNode {
-		return tDocument{}, []error{fmt.Errorf(
-			"Internal: Kind of root node is not document (e%d, g%d). %s",
-			yaml.DocumentNode, root.Kind, pleaseReport,
-		)}
+	root, erl := getRoot(documentNode)
+
+	if len(erl) > 0 {
+		return tSchema{}, erl
 	}
 
-	if len(root.Content) != 1 {
-		return tDocument{}, []error{fmt.Errorf(
-			"Internal: Content lenght of root node is not 1, but %d. %s",
-			len(root.Content), pleaseReport,
-		)}
+	if root.Kind != yaml.MappingNode {
+		return tSchema{}, sp.schemaError(*root, "a lidy schema document (kind map)")
 	}
 
-	node := *root.Content[0]
-
-	if node.Kind != yaml.MappingNode {
-		return tDocument{}, sp.schemaError(node, "a lidy schema document (kind map)")
-	}
-
-	document := tDocument{
-		ruleMap: make(map[string]tRule),
+	schema := tSchema{
+		ruleMap: make(map[string]*tRule),
 	}
 
 	errList := errorlist.List{}
 
 	// lidy default rules
 	for ruleName, rule := range sp.lidyDefaultRuleMap {
-		document.ruleMap[ruleName] = rule
+		schema.ruleMap[ruleName] = rule
 	}
 
 	// user rules
-	for k := 1; k < len(node.Content); k += 2 {
-		rule, err := sp.createRule(*node.Content[k-1], *node.Content[k])
+	for k := 1; k < len(root.Content); k += 2 {
+		rule, err := sp.createRule(*root.Content[k-1], *root.Content[k])
 		if err != nil {
-			return tDocument{}, err
+			return tSchema{}, err
 		}
-		if _, present := document.ruleMap[rule.ruleName]; present {
+		if _, present := schema.ruleMap[rule.ruleName]; present {
 			message := "no repeted rule declaration"
 
 			if _, isDefaultRule := sp.lidyDefaultRuleMap[rule.ruleName]; isDefaultRule {
 				message = "no redeclaration of lidy default rule"
 			}
 
-			errList.Push(sp.schemaError(*node.Content[k-1], message))
+			errList.Push(sp.schemaError(*root.Content[k-1], message))
 		}
-		document.ruleMap[rule.ruleName] = rule
+		schema.ruleMap[rule.ruleName] = rule
 	}
 
-	return document, nil
+	return schema, nil
 }
 
-func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, []error) {
+// Create an unparsed rule.
+// This function parses the name of the rule to establish the local name and exported name, if the rule is exported
+func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (*tRule, []error) {
 	if key.Tag != "!!str" {
-		return tRule{}, sp.schemaError(key, "a YAML string (an identifier declaration)")
+		return nil, sp.schemaError(key, "a YAML string (an identifier declaration)")
 	}
 
 	if !regexIdentifierDeclaration.MatchString(key.Value) {
-		return tRule{}, sp.schemaError(key, "a valid identifier declaration")
+		return nil, sp.schemaError(key, "a valid identifier declaration")
 	}
 
 	nameSlice := strings.SplitN(key.Value, ":", 3)
@@ -111,7 +103,7 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, []err
 		builder, _ = sp.builderMap[exportName]
 	}
 
-	return tRule{
+	return &tRule{
 		_node:      value,
 		builder:    builder,
 		ruleName:   localName,
@@ -123,7 +115,7 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (tRule, []err
 func (sp tSchemaParser) expression(node yaml.Node) (tExpression, []error) {
 	switch {
 	case node.Tag == "!!str":
-		return sp.identifierReference(node)
+		return sp.ruleReference(node)
 	case node.Kind != yaml.MappingNode || len(node.Content) == 0:
 		return nil, sp.schemaError(node, "an expression (a rule identifier or a YAML map)")
 	}
@@ -131,7 +123,7 @@ func (sp tSchemaParser) expression(node yaml.Node) (tExpression, []error) {
 	return sp.formRecognizer(node)
 }
 
-func (sp tSchemaParser) identifierReference(node yaml.Node) (tExpression, []error) {
+func (sp tSchemaParser) ruleReference(node yaml.Node) (tExpression, []error) {
 	if !regexIdentifier.MatchString(node.Value) {
 		return nil, sp.schemaError(node, "a valid identifier reference (a-zA-Z)(a-zA-Z0-9_)+")
 	}
@@ -243,7 +235,9 @@ func missingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpres
 
 // Error
 func (sp tSchemaParser) schemaError(node yaml.Node, expected string) []error {
-	position := fmt.Sprintf("%s:%d:%d", sp.name, node.Line, node.Column)
+	if node.Kind == yaml.Kind(0) {
+		return []error{fmt.Errorf("Tried to use uninitialised yaml node [node, expected: %s]; %s", expected, pleaseReport)}
+	}
 
-	return []error{fmt.Errorf("error in schema with yaml node of kind [%s], value '%s' at position %s, where [%s] was expected", node.ShortTag(), node.Value, position, expected)}
+	return []error{fmt.Errorf("error in schema with yaml node, kind #%d,, tag '%s', value '%s' at position %s:%s, where [%s] was expected", node.Kind, node.ShortTag(), node.Value, sp.name, getPosition(node), expected)}
 }

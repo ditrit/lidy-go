@@ -71,7 +71,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		})
 	})
 
-	PSpecify("the example of the README should work", func() {
+	FSpecify("the example of the README should work", func() {
 		result, err := lidy.NewParser(
 			"treeDefinition.yaml",
 			[]byte(`
@@ -88,14 +88,14 @@ tree:
 			[]byte(`
 name: root
 children:
-	- name: leafA
-	children: []
-	- name: branchB
-	children:
-		- name: leafC
-		children: []
-	- name: leafD
-	children: []
+  - name: leafA
+    children: []
+  - name: branchB
+    children:
+    - name: leafC
+      children: []
+  - name: leafD
+    children: []
 `),
 		))
 

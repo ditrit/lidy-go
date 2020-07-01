@@ -7,27 +7,29 @@
 main: document
 
 document:
-  _mapOf: { identifier.declaration: expression }
+  _mapOf: { rule.cover: rule.parameter }
 
 # expression
 #
 # any valid lidy schema expression
 expression:
   _oneOf:
-    - identifier
+    - rule.name
     - mapChecker
     - seqChecker
     - oneOf.checker
     - in.checker
     - regex.checker
 
-# identifier
+# rule
 #
+# - name: The name of a lidy rule, used to refer to it locally
+# - cover: The text in the key of the rule statement, composed of the local name, possibly an export indication, and possibly the export name
 # the name of a lidy rule
-identifier:
+rule.name:
   _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*"
 
-identifier.declaration:
+rule.cover:
   _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*))?)?"
 
 # property
@@ -106,7 +108,7 @@ merge.parameter::
     _oneOf:
       - mapChecker
       - oneOf.checker
-      - identifier
+      - rule.name
 
 #
 # tuple and seqOf

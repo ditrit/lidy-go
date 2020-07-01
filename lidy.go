@@ -89,10 +89,11 @@ var _ Parser = &tParser{}
 type tParser struct {
 	tFile
 	builderMap         map[string]Builder
-	lidyDefaultRuleMap map[string]tRule
+	lidyDefaultRuleMap map[string]*tRule
 	option             Option
-	schema             tDocument
+	schema             tSchema
 	target             string
+	contentFile        tFile
 }
 
 //
@@ -173,23 +174,10 @@ func (p *tParser) Option(option Option) Parser {
 
 // Schema -- assert the Schema of the parser to be valid. Return this and the list of encountered error, while processing the schema, if any.
 func (p *tParser) Schema() []error {
-	err := p.Yaml()
-	if err != nil {
-		return []error{err}
-	}
-	if p.yaml.Kind == 0 {
-		panic("yaml.Kind still 0 in " + p.name)
-	}
-
 	return p.parseSchema()
 }
 
 // Parse -- use the parser to check the given YAML file, and produce a Lidy Result.
 func (p *tParser) Parse(file File) (Result, []error) {
-	err := p.Schema()
-	if len(err) > 0 {
-		return nil, err
-	}
-
 	return p.parseContent(file)
 }

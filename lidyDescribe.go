@@ -11,11 +11,11 @@ import (
 // name and their description.
 
 // Rule
-func (rule tRule) name() string {
+func (rule *tRule) name() string {
 	return "(" + rule.ruleName + ")"
 }
 
-func (rule tRule) description() string {
+func (rule *tRule) description() string {
 	return fmt.Sprintf("Rule %s %s", rule.ruleName, rule.expression.name())
 }
 

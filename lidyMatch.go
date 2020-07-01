@@ -12,9 +12,13 @@ import (
 // Implement match() and mergeMatch() on tExpression and tMergeableExpression
 
 // tRule
-func (rule tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (rule *tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
 	if rule.lidyMatcher != nil {
 		return rule.lidyMatcher(content, parser)
+	}
+
+	if rule.expression == nil {
+		panic("nil expression in rule " + rule.ruleName + "; " + pleaseReport)
 	}
 
 	result, err := rule.expression.match(content, parser)
@@ -302,11 +306,28 @@ func (rxp tRegex) match(content yaml.Node, parser *tParser) (Result, []error) {
 	return content.Value, nil
 }
 
-// Error
-func (parser *tParser) contentError(content yaml.Node, expected string) []error {
-	position := fmt.Sprintf("%s:%d:%d", parser.name, content.Line, content.Column)
+// Yaml document root
+func getRoot(documentNode yaml.Node) (*yaml.Node, []error) {
+	if documentNode.Kind != yaml.DocumentNode {
+		return nil, []error{fmt.Errorf(
+			"Internal: Kind of root node is not document (e%d, g%d). %s",
+			yaml.DocumentNode, documentNode.Kind, pleaseReport,
+		)}
+	}
 
-	return []error{fmt.Errorf("error with content node of kind [%s], value '%s' at position %s, where [%s] was expected", content.Tag, content.Value, position, expected)}
+	if len(documentNode.Content) != 1 {
+		return nil, []error{fmt.Errorf(
+			"Internal: Content lenght of root node is not 1, but %d. %s",
+			len(documentNode.Content), pleaseReport,
+		)}
+	}
+
+	return documentNode.Content[0], nil
+}
+
+// Error
+func getPosition(content yaml.Node) string {
+	return fmt.Sprintf("%d:%d", content.Line, content.Column)
 }
 
 func (parser *tParser) reportSchemaParserInternalError(context string, expression tExpression, content yaml.Node) []error {
@@ -321,4 +342,12 @@ func (parser *tParser) reportSchemaParserInternalError(context string, expressio
 		content.Tag, len(content.Content), content.Value,
 		parser.name, content.Line, content.Column,
 	)}
+}
+
+func (parser *tParser) contentError(content yaml.Node, expected string) []error {
+	if content.Kind == yaml.Kind(0) {
+		return []error{fmt.Errorf("Tried to use uninitialised yaml node [node, expected: %s]; %s", expected, pleaseReport)}
+	}
+
+	return []error{fmt.Errorf("error with content node, kind #%d, tag '%s', value '%s' at position %s:%s, where [%s] was expected", content.Kind, content.Tag, content.Value, parser.contentFile.name, getPosition(content), expected)}
 }

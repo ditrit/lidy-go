@@ -17,12 +17,12 @@ type tMergeableExpression interface {
 	mergeMatch(mapResult MapResult, usefulList []bool, content yaml.Node, parser *tParser) []error
 }
 
-type tDocument struct {
-	ruleMap map[string]tRule
+type tSchema struct {
+	ruleMap map[string]*tRule
 }
 
-var _ tExpression = tRule{}
-var _ tMergeableExpression = tRule{}
+var _ tExpression = &tRule{}
+var _ tMergeableExpression = &tRule{}
 
 type tRule struct {
 	ruleName string
