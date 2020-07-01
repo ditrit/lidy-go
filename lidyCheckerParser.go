@@ -98,6 +98,10 @@ func checkMergeable(sp tSchemaParser, node yaml.Node, expression tExpression) (t
 	// the value of `node` is imprecise. The exact link to the node, or at least to it's position
 	// should be kept in all the checker types.
 	// the returned errors should be wrapped too.
+
+	// TODO
+	// checkMergeable relies on rule.expression being available. This may not be
+	// the case.
 }
 
 func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []error) {

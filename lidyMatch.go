@@ -66,12 +66,13 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 	// list tracking whether a key-value pair was used or not
 	usefulList := make([]bool, len(content.Content)/2)
 
-	mapResult := MapResult{}
+	mapResult := MapResult{
+		Map:   make(map[string]Result),
+		MapOf: nil,
+	}
 	// mapResult.Map = make(map[string]Result)
 
 	erl := mapChecker.mergeMatch(mapResult, usefulList, content, parser)
-
-	mapOf := mapChecker.form.mapOf
 
 	errList := errorlist.List{}
 	errList.Push(erl)
@@ -84,9 +85,21 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 		key := content.Content[2*k]
 		value := content.Content[2*k+1]
 
+		if mapChecker.form.mapOf.key == nil {
+			keyValue := yaml.Node{
+				Kind:   yaml.ScalarNode,
+				Tag:    "!!lidyKvPair",
+				Value:  "[" + key.Value + ": " + value.Value + "]",
+				Line:   key.Line,
+				Column: key.Column,
+			}
+			errList.Push(parser.contentError(keyValue, "no extra entry"))
+			continue
+		}
+
 		// mapOf
 		// Checking the key
-		keyResult, erl := mapOf.key.match(*key, parser)
+		keyResult, erl := mapChecker.form.mapOf.key.match(*key, parser)
 		errList.Push(erl)
 
 		if len(erl) > 0 {
@@ -95,7 +108,7 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 
 		// (if the key is valid)
 		// Checking the value
-		valueResult, erl := mapOf.value.match(*value, parser)
+		valueResult, erl := mapChecker.form.mapOf.value.match(*value, parser)
 		errList.Push(erl)
 
 		if len(erl) > 0 {
