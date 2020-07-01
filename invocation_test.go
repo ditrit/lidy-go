@@ -71,7 +71,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		})
 	})
 
-	FSpecify("the example of the README should work", func() {
+	Specify("the example of the README should work", func() {
 		result, err := lidy.NewParser(
 			"treeDefinition.yaml",
 			[]byte(`
@@ -104,7 +104,7 @@ children:
 		switch v := result.(type) {
 		case lidy.MapResult:
 			Expect(v.MapOf).To(BeEmpty())
-			Expect(v.Map).To(BeEmpty())
+			Expect(v.Map).To(HaveLen(2))
 		default:
 			Fail("Expected result of type MapResult")
 		}

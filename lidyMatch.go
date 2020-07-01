@@ -78,7 +78,7 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 	errList.Push(erl)
 
 	for k, v := range usefulList {
-		if v == false { // "used up"
+		if v == true { // "used up"
 			continue // skip
 		}
 
@@ -152,9 +152,9 @@ func (mapChecker tMap) mergeMatch(
 	}
 
 	// Going through the fields of the map
-	for k := 1; k < len(content.Content); k += 2 {
-		key := content.Content[k-1]
-		value := content.Content[k]
+	for k := 0; k+1 < len(content.Content); k += 2 {
+		key := content.Content[k]
+		value := content.Content[k+1]
 
 		// propertyMap
 		if f.propertyMap != nil && key.Tag == "!!str" {
@@ -163,7 +163,7 @@ func (mapChecker tMap) mergeMatch(
 			if propertyFound {
 				// Missing keys (updating)
 				delete(requiredSet, key.Value)
-				usefulList[(k-1)/2] = true
+				usefulList[k/2] = true
 			} else {
 				property, propertyFound = f.optionalMap[key.Value]
 			}

@@ -19,11 +19,11 @@ type tFormMap map[string]yaml.Node
 func mapChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error) {
 	errList := errorlist.List{}
 
-	form, err := mapForm(sp, node, formMap)
-	errList.Push(err)
+	form, erl := mapForm(sp, node, formMap)
+	errList.Push(erl)
 
-	sizing, err := sizingChecker(sp, node, formMap)
-	errList.Push(err)
+	sizing, erl := sizingChecker(sp, node, formMap)
+	errList.Push(erl)
 
 	return tMap{
 		form,
@@ -169,7 +169,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 		optionalMap: optionalMap,
 		mapOf:       mapOf,
 		mergeList:   mergeList,
-	}, nil
+	}, errList.ConcatError()
 }
 
 func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []error) {
@@ -213,7 +213,7 @@ func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []er
 		tuple:         tupleList,
 		optionalTuple: optionalList,
 		seqOf:         seqOfExpression,
-	}, nil
+	}, errList.ConcatError()
 }
 
 func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing, []error) {

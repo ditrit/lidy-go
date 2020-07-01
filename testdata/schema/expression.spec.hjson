@@ -56,11 +56,11 @@
       ["_seqOf: int", {}]
     ]
     "reject if is a invalid form:": [
-      ["_seq: []", {}]
-      ["seq: {}", {}]
+      ["_seqOf: []", {}]
+      ["tuple: str", {}]
     ]
     "reject if is a invalid form:": [
-      ["_seq: word", {}]
+      ["_tuple: word", {}]
       ["_map: str", {}]
       ["_map: 1", {}]
       ["_map: 1.1", {}]

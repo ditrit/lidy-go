@@ -115,5 +115,4 @@ func (p *tParser) parseContent(file File) (Result, []error) {
 	// }()
 
 	return targetRule.match(*contentRoot, p)
-
 }

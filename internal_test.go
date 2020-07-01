@@ -52,3 +52,23 @@ var _ = Describe("Internal behaviours of current implementation", func() {
 		})
 	})
 })
+
+var _ = Describe("_map schema parsing", func() {
+	It("parses all _map keys", func() {
+		parser := NewParser("schema.yaml", []byte(`
+main:
+  _map:
+    ka: str
+    kb: str
+`)).(*tParser)
+		erl := parser.Schema()
+		Expect(erl).To(HaveLen(0))
+
+		mainRule := parser.schema.ruleMap["main"]
+		Expect(mainRule).NotTo(BeNil())
+
+		mapChecker, isTMap := mainRule.expression.(tMap)
+		Expect(isTMap).To(BeTrue())
+		Expect(mapChecker.form.propertyMap).To(HaveLen(2))
+	})
+})
