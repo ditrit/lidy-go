@@ -31,12 +31,16 @@ Note: Lidy does not yet support remote references.
 ```go
 package main
 
-import "github.com/ditrit/lidy"
+import (
+	"fmt"
+
+	"github.com/ditrit/lidy"
+)
 
 func main() {
-  result, err := lidy.NewParser(
-    "treeDefinition.yaml",
-    []byte(`
+	result, errorList := lidy.NewParser(
+		"treeDefinition.yaml",
+		[]byte(`
 main: tree
 
 tree:
@@ -45,31 +49,31 @@ tree:
     children:
       _seqOf: tree
 `),
-  ).Parse(
-    lidy.NewFile(
-      "treeContent.yaml",
-      []byte(`
+	).Parse(
+		lidy.NewFile(
+			"treeContent.yaml",
+			[]byte(`
 name: root
 children:
   - name: leafA
-  children: []
-  - name: branchB
-  children:
-    - name: leafC
     children: []
+  - name: branchB
+    children:
+    - name: leafC
+      children: []
   - name: leafD
-  children: []
+    children: []
 `),
-    ),
-  )
+		),
+	)
 
-  if err != nil {
-    panic(err)
-  }
+	if len(errorList) > 0 {
+		panic(errorList[0])
+	}
 
-  mapResult := result.(lidy.MapResult)
+	mapResult := result.(lidy.MapResult)
 
-  fmt.Println(mapResult)
+	fmt.Println(mapResult)
 }
 ```
 
