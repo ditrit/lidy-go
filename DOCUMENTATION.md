@@ -7,10 +7,11 @@
   - [Lidy schema syntax](#lidy-schema-syntax)
     - [Lidy identifier](#lidy-identifier)
     - [Lidy expression](#lidy-expression)
-    - [Default Lidy rules](#default-lidy-rules)
-    - [Scalars](#scalars)
-    - [Predefined string checkers](#predefined-string-checkers)
+    - [Predefined Lidy rules](#predefined-lidy-rules)
+    - [Scalar rules](#scalar-rules)
+    - [Predefined string checker rules](#predefined-string-checker-rules)
     - [Special checkers](#special-checkers)
+          - [any](#any)
     - [Lidy checker forms](#lidy-checker-forms)
     - [`_regex: ...`, define your own string checker](#_regex--define-your-own-string-checker)
         - [\_regex](#_regex)
@@ -19,11 +20,24 @@
           - [\_map](#_map)
       - [`_mapOf`, the associative container](#_mapof-the-associative-container)
           - [\_mapOf](#_mapof)
+          - [\_merge](#_merge)
       - [Using `_map` and `_mapOf` together: Specify a fallback rule](#using-_map-and-_mapof-together-specify-a-fallback-rule)
           - [\_map and \_mapOf together](#_map-and-_mapof-together)
       - [`MapResult`, the common output type for map-related checkers](#mapresult-the-common-output-type-for-map-related-checkers)
           - [MapResult](#mapresult)
-    - [Array, List, Slice, !!seq, **Sequence-related checkers**](#array-list-slice-seq-sequence-related-checkers)
+    - [Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**](#array-list-slice-tuple-seq-sequence-related-checkers)
+          - [\_tuple](#_tuple)
+          - [\_seqOf](#_seqof)
+          - [\_tupleOptional](#_tupleoptional)
+    - [OneOf, choose, select, alternaives, options, pick, OR](#oneof-choose-select-alternaives-options-pick-or)
+          - [\_oneOf](#_oneof)
+    - [In, exact scalar match in a list of scalars](#in-exact-scalar-match-in-a-list-of-scalars)
+          - [\_in](#_in)
+    - [`_nb`, `_min`, `_max`, specify the number of entries in a container](#_nb-_min-_max-specify-the-number-of-entries-in-a-container)
+          - [container sizing](#container-sizing)
+          - [\_nb](#_nb)
+          - [\_min](#_min)
+          - [\_max](#_max)
   - [Go API](#go-api)
     - [Invocation in Go, simple use case](#invocation-in-go-simple-use-case)
       - [Create a parser](#create-a-parser)
@@ -61,11 +75,11 @@ A Lidy expression can be a string or a YAML map.
 - If it is a string, it must be a valid Lidy identifier. The identifier shall either be one of the [default-lidy-rules](#default-lidy-rules).
 - If it is a map, it must be of one of the available [checker forms](#lidy-checker-forms).
 
-### Default Lidy rules
+### Predefined Lidy rules
 
-The default lidy rules are [the scalars](#scalars), [the predefined string checkers](#predefined-string-checkers) and [the special checkers](#special-checkers).
+The predefined lidy rules are [the scalars](#scalars), [the predefined string checkers](#predefined-string-checkers) and [the special checkers](#special-checkers).
 
-### Scalars
+### Scalar rules
 
 Scalars, as defined in the [YAML specification](https://yaml.org/type/#id838503)
 
@@ -75,7 +89,7 @@ Scalars, as defined in the [YAML specification](https://yaml.org/type/#id838503)
 - `float`, a YAML floating-point value
 - `null`, the YAML null value
 
-### Predefined string checkers
+### Predefined string checker rules
 
 These Lidy checkers match `string` values, and perform extra checks
 
@@ -85,6 +99,8 @@ These Lidy checkers match `string` values, and perform extra checks
 Also see the [`_regex`](#_regex) keyword.
 
 ### Special checkers
+
+###### any
 
 There's only one: `any`. It matches any YAML content. It can be defined in Lidy schema as follow:
 
@@ -110,6 +126,8 @@ The scalar checker forms are:
 
 - the regex checker, matching a string
 - the in checker, matching an exact scalar
+
+/!\ Scalar checker forms are not to be confused with [lidy expression](DOCUMENTATION.md#lidy-expression).
 
 The container checker forms are:
 
@@ -206,6 +224,8 @@ sparseArray:
   _min: 1
 ```
 
+###### \_merge
+
 #### Using `_map` and `_mapOf` together: Specify a fallback rule
 
 ###### \_map and \_mapOf together
@@ -238,9 +258,74 @@ func (MapResult) Hashed() (map[string]Result, error)
 
 Assuming all keys are strings, `Hashed()` converts the KeyValueResult list into a map of `string`-s to `Result`-s. It errors if any key is not a string.
 
-### Array, List, Slice, !!seq, **Sequence-related checkers**
+### Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**
 
-The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML map. See [container sizing](#container-sizing).
+The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML sequence. See [container sizing](#container-sizing).
+
+###### \_tuple
+
+###### \_seqOf
+
+###### \_tupleOptional
+
+### OneOf, choose, select, alternaives, options, pick, OR
+
+###### \_oneOf
+
+### In, exact scalar match in a list of scalars
+
+###### \_in
+
+### `_nb`, `_min`, `_max`, specify the number of entries in a container
+
+###### container sizing
+
+###### \_nb
+
+The `_nb` keyword allows to specify the exact number of entries that the container must have.
+
+Example (with `_mapOf`):
+
+```yaml
+main:
+  _mapOf: { str: str }
+  _nb: 1
+```
+
+In the above example, the yaml map matched by `main` must have a single entry.
+
+###### \_min
+
+Example (with `_map` and `_optional`):
+
+```yaml
+main: person
+
+person:
+  _map:
+    name: str
+  _optional:
+    age: int
+    birthYear: int
+    wealth: float
+  _min: 2
+```
+
+In the above example, in the yaml map matched by `person`, at least **one** of the three optional entries must be provided.
+
+###### \_max
+
+The `_max` keyword allows to specify the maximum number of entries that the container must have.
+
+Example (with `_seq`):
+
+```yaml
+main:
+  _seq: str
+  _max: 1
+```
+
+In the above example, the yaml seq matched by `main` must have 0 or 1 entry.
 
 ## Go API
 

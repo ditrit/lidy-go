@@ -6,6 +6,10 @@ import (
 	"github.com/hjson/hjson-go"
 )
 
+// readTestdata_test.go
+//
+// Types and methods to deserialize the .hjson files in testdata/
+
 // SchemaData
 type SchemaData struct {
 	target   string
@@ -30,22 +34,28 @@ type ContentGroup struct {
 	criteriaMap map[string]TestLineSlice
 }
 
-func (schemaData SchemaData) UnmarshalHumanJSON(input []byte) error {
+// UnmarshalHumanJSON -- Hooks onto JSON's rich deserialisation interface
+func (schemaData *SchemaData) UnmarshalHumanJSON(input []byte) error {
 	// Convert to JSON
 	var data interface{}
-	hjson.Unmarshal(input, &data)
+
+	err := hjson.Unmarshal(input, &data)
+	if err != nil {
+		return err
+	}
+
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
 	// Unmarshal JSON
-	err = json.Unmarshal(jsonData, &jsonData)
+	err = json.Unmarshal(jsonData, schemaData)
 
 	return err
 }
 
-func (schemaData SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
+func (schemaData *SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
 	data := make(map[string]interface{})
 
 	err := json.Unmarshal(compositeJsonInput, &data)
@@ -61,7 +71,12 @@ func (schemaData SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
 		return err
 	}
 
-	json.Unmarshal(pureJsonData, &schemaData.groupMap)
+	schemaData.groupMap = make(map[string]SchemaGroup)
+
+	err = json.Unmarshal(pureJsonData, &schemaData.groupMap)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

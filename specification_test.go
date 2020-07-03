@@ -1,12 +1,12 @@
 package lidy_test
 
-// import (
-// 	"fmt"
-// 	"strings"
+import (
+	"fmt"
+	"strings"
 
-// 	"github.com/ditrit/lidy"
-// 	. "github.com/onsi/ginkgo"
-// )
+	"github.com/ditrit/lidy"
+	. "github.com/onsi/ginkgo"
+)
 
 type TestLine struct {
 	text       string
@@ -17,87 +17,95 @@ type ExtraCheck struct {
 	contain string
 }
 
-// // // withValidator
-// // // Interpret the testline as data, to be used with the given validator.
-// // func (line *TestLine) withValidator(validator lidy.Validator) error {
-// // 	validationError := validator.ValidateString(line.text)
-// // 	errorText := fmt.Sprintf("%s", validationError)
+// withValidator
+// Interpret the testline as data, to be used with the given validator.
+func (line *TestLine) againstSchema(parser lidy.Parser) []error {
+	_, erl := parser.Parse(lidy.NewFile(
+		"~testContent.yaml~",
+		[]byte(line.text),
+	))
+	return erl
+}
 
-// // 	if validationError != nil && !strings.Contains(errorText, line.extraCheck.contain) {
-// // 		panic(fmt.Sprintf("error \"%s\" does not contain \"%s\"", validationError, line.extraCheck.contain))
-// // 	}
+// asSchemaExpression
+// interpret the testline itself as a schema expression
+func (line *TestLine) asSchemaExpression() []error {
+	parser := lidy.NewParser(
+		"~testSchemaExpressoin.yaml~",
+		[]byte("main:"+strings.ReplaceAll("\n"+line.text, "\n", "\n  ")),
+	)
+	erl := parser.Schema()
+	return erl
+}
 
-// // 	return validationError
-// // }
+// asSchemaDocument
+// interpret the testline itself as a schema document
+func (line *TestLine) asSchemaDocument() []error {
+	parser := lidy.NewParser("~testSchemaDocument.yaml~", []byte(line.text))
+	erl := parser.Schema()
+	return erl
+}
 
-// // asSchemaExpression
-// // interpret the testline itself as a schema expression
-// func (line *TestLine) asSchemaExpression() error {
-// 	// _, err := lidy.NewParserFromExpression(line.text)
+var _ = Describe("schema tests", func() {
+	testFileList, err := GetTestFileList()
 
-// 	return nil
-// }
+	Specify("the testFileList contains files", func() {
+		if len(testFileList.content) == 0 {
+			Fail("empty .content")
+		}
+		if len(testFileList.schema) == 0 {
+			Fail("empty .schema")
+		}
+	})
 
-// // asSchemaDocument
-// // interpret the testline itself as a schema document
-// func (line *TestLine) asSchemaDocument() error {
-// 	paper, err := lidy.PaperFromString(line.text)
+	for _, file := range testFileList.schema {
+		schemaData := SchemaData{}
 
-// 	if err != nil {
-// 		return err
-// 	}
+		fmt.Printf("Name: %s\n", file.Name())
 
-// 	_, err = lidy.NewParser(paper, nil, lidy.Option{})
+		err := schemaData.UnmarshalHumanJSON([]byte(file.Content()))
+		if err != nil {
+			panic(err)
+		}
 
-// 	return err
-// }
+		for description, group := range schemaData.groupMap {
+			Describe(description, func() {
+				for criterionName, lineList := range group.criteriaMap {
+					expectingError := strings.HasPrefix(criterionName, "reject")
 
-// var _ = Describe("", func() {
-// 	testFileList, err := GetTestFileList()
+					if !expectingError && !strings.HasPrefix(criterionName, "accept") {
+						It(criterionName, func() {
+							Fail("SPEC ERROR: criterion name should begin with \"accept\" or \"reject\". The associated test list was skipped.")
+						})
+						continue
+					}
 
-// 	for _, file := range testFileList.schema {
-// 		schemaData := SchemaData{}
+					for k, testLine := range lineList {
+						It(fmt.Sprintf("%s(%d)", criterionName, k), func() {
+							var erl []error
 
-// 		schemaData.UnmarshalHumanJSON([]byte(file.Content))
+							if schemaData.target == "document" {
+								erl = testLine.asSchemaDocument()
+							} else {
+								erl = testLine.asSchemaExpression()
+							}
 
-// 		for description, group := range schemaData.groupMap {
-// 			Describe(description, func() {
-// 				for criterionName, lineList := range group.criteriaMap {
-// 					expectingError := strings.HasPrefix(criterionName, "reject")
+							if expectingError && erl == nil {
+								Fail("Expected an error")
+							} else if !expectingError && erl != nil {
+								Fail("Got error: " + erl[0].Error() + " (1/" + string(len(erl)) + ")")
+							}
+						})
+					}
+				}
+			})
+			// if content, ok := v.(map[string]interface{}); ok {
+			// }
+			// fmt.Printf("key[%s] value[%s]\n", k, v)
+		}
+	}
 
-// 					if !expectingError && !strings.HasPrefix(criterionName, "accept") {
-// 						It(criterionName, func() {
-// 							Fail("SPEC ERROR: criterion name should begin with \"accept\" or \"reject\". The associated test list was skipped.")
-// 						})
-// 						continue
-// 					}
-
-// 					for k, testLine := range lineList {
-// 						It(fmt.Sprintf("%s(%d)", criterionName, k), func() {
-// 							var err error
-
-// 							if schemaData.target == "document" {
-// 								err = testLine.asSchemaDocument()
-// 							} else {
-// 								err = testLine.asSchemaExpression()
-// 							}
-
-// 							if expectingError && err == nil {
-// 								Fail("Expected an error")
-// 							} else if !expectingError && err != nil {
-// 								Fail("Got error: " + err.Error())
-// 							}
-// 						})
-// 					}
-// 				}
-// 			})
-// 			// if content, ok := v.(map[string]interface{}); ok {
-// 			// }
-// 			// fmt.Printf("key[%s] value[%s]\n", k, v)
-// 		}
-// 	}
-
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// })
+	if err != nil {
+		panic(err)
+	}
+})
