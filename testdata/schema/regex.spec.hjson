@@ -26,15 +26,15 @@
       // "a(b)(?:c)\\2": {}
       // "a\\1(a)": {}
     }
-    "reject empty regex": { "\"\"": {} }
+    "PENDING reject empty regex": { "\"\"": {} }
     "reject misplaced quantifier": {
       "?": {}
       "*": {}
       "+": {}
       "{2}": {}
     }
-    "reject empty group": { "()": {} }
-    "reject empty class": { "[]": {} }
+    "PENDING reject empty group": { "()": {} }
+    "PENDING reject empty class": { "[]": {} }
     "reject unbalanced regex": {
       "(": {}
       ")": {}

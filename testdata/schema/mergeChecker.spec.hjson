@@ -49,7 +49,7 @@
         { contain: "main" }
       ]
     ]
-    "reject if not solving only to mapCheckers": [
+    "PENDING reject if not solving only to mapCheckers": [
       [
         '''
         main:
@@ -69,7 +69,7 @@
         { contain: "main" }
       ]
     ]
-    "reject if not used with a sequence": [
+    "PENDING reject if not used with a sequence": [
       [
         '''
         main:
@@ -81,7 +81,7 @@
       ]
     ]
   }
-  "detect invalid self-references in documents": {
+  "detect invalid self-references in _merge expressions": {
     "accept if the self-reference is sufficiently indirect": [
       [
         '''
@@ -107,7 +107,7 @@
         {}
       ]
     ]
-    "reject if the self-reference is too direct": [
+    "PENDING reject if the self-reference is too direct": [
       [ "main: { _merge: [main] }", { contain: "main" } ]
       [ "main: { _merge: [{ _merge: [main] }] }", { contain: "main" } ]
       [ "main: animal\nanimal: { _merge: [animal] }", { contain: "animal" } ]

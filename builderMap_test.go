@@ -23,7 +23,7 @@ animal:: str
 				if len(animal) == 0 {
 					return nil, []error{fmt.Errorf("animal can't be the empty string")}
 				}
-				letter := []byte(animal)[0]
+				letter := string([]rune(animal)[0])
 				return letter, nil
 			},
 		}).Parse(lidy.NewFile(
@@ -34,9 +34,10 @@ animal:: str
 		Expect(err).To(BeEmpty())
 
 		switch v := result.(type) {
-		case lidy.MapResult:
-			Expect(v.MapOf).To(BeEmpty())
-			Expect(v.Map).To(BeEmpty())
+		case string:
+			Expect(v).To(Equal("J"))
+		default:
+			Fail(fmt.Sprintf("wrong result type for [%s]", v))
 		}
 	})
 })

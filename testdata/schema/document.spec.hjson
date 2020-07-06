@@ -10,13 +10,13 @@
         {}
       ]
     ]
-    "reject if there is no main rule": [
+    "PENDING reject if the target rule (main) is missing": [
       [
         "animal: str"
         { contain: "main" }
       ]
     ]
-    "reject if a reference cannot be resolved": [
+    "PENDING reject if a reference cannot be resolved": [
       [
         "main: animal"
         { contain: "animal" }
@@ -61,7 +61,7 @@
       [ "main:\n  _mapOf: { main: main }", {} ]
       [ "main:\n  _map: { content: main }", {} ]
     ]
-    "reject if the self-reference is too direct": [
+    "PENDING reject if the self-reference is too direct": [
       [ "main: main", { contain: "main" } ]
       [ "main: animal\nanimal: animal", { contain: "animal" } ]
       [

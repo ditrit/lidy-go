@@ -174,10 +174,18 @@ func (p *tParser) Option(option Option) Parser {
 
 // Schema -- assert the Schema of the parser to be valid. Return this and the list of encountered error, while processing the schema, if any.
 func (p *tParser) Schema() []error {
-	return p.parseSchema()
+	erl := p.parseSchema()
+	if len(erl) > 0 {
+		return nil
+	}
+	return erl
 }
 
 // Parse -- use the parser to check the given YAML file, and produce a Lidy Result.
 func (p *tParser) Parse(file File) (Result, []error) {
-	return p.parseContent(file)
+	result, erl := p.parseContent(file)
+	if len(erl) > 0 {
+		return nil, erl
+	}
+	return result, nil
 }

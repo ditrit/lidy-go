@@ -17,8 +17,21 @@ type SchemaData struct {
 }
 
 type SchemaGroup struct {
-	criteriaMap map[string]TestLineSlice
+	target      string
+	description string
+	criteriaMap CriteriaMap
 }
+
+type CriteriaMap map[string]TestLineSlice
+
+// PreCriteria*
+// Used to load the schema before populating the criteria map
+// MPreCriteria* -- to be used with "test line maps"
+// SPreCriteria* -- to be used with "test line slices"
+type MPreCriteriaMap map[string]MPreCriteria
+type MPreCriteria map[string]TestLine
+type SPreCriteriaMap map[string]SPreCriteria
+type SPreCriteria [][]interface{}
 
 type TestLineSlice []TestLine
 
@@ -31,6 +44,7 @@ type ContentGroup struct {
 	target      string
 	schema      string
 	template    string
+	description string
 	criteriaMap map[string]TestLineSlice
 }
 
@@ -55,6 +69,8 @@ func (schemaData *SchemaData) UnmarshalHumanJSON(input []byte) error {
 	return err
 }
 
+var _ json.Unmarshaler = (*SchemaData)(nil)
+
 func (schemaData *SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
 	data := make(map[string]interface{})
 
@@ -71,51 +87,89 @@ func (schemaData *SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
 		return err
 	}
 
-	schemaData.groupMap = make(map[string]SchemaGroup)
-
 	err = json.Unmarshal(pureJsonData, &schemaData.groupMap)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
-var _ json.Unmarshaler = (*SchemaData)(nil)
+var _ json.Unmarshaler = &SchemaGroup{}
 
-func (lineSlice *TestLineSlice) UnmarshalJSON(jsonData []byte) error {
-	lineMap := make(map[string]ExtraCheck)
+func (schemaGroup *SchemaGroup) UnmarshalJSON(jsonInput []byte) error {
+	return json.Unmarshal(jsonInput, &schemaGroup.criteriaMap)
+}
 
-	err := json.Unmarshal(jsonData, &lineMap)
+var _ json.Unmarshaler = &CriteriaMap{}
+
+func (criteriaMap *CriteriaMap) UnmarshalJSON(jsonInput []byte) error {
+	var data interface{}
+	if *criteriaMap == nil {
+		*criteriaMap = make(CriteriaMap)
+	}
+
+	err := json.Unmarshal(jsonInput, &data)
 	if err != nil {
 		return err
 	}
+	mdata := data.(map[string]interface{})
 
-	for key, check := range lineMap {
-		*lineSlice = append(*lineSlice, TestLine{text: key, extraCheck: check})
+	var piece interface{}
+	for _, v := range mdata {
+		piece = v
+		break
 	}
 
-	var lineArray [][]interface{}
+	switch piece.(type) {
+	case map[string]interface{}:
+		preCriteriaMap := make(MPreCriteriaMap)
 
-	err = json.Unmarshal(jsonData, &lineArray)
-	if err != nil {
-		return err
-	}
-
-	for _, pair := range lineArray {
-		text := pair[0].(string)
-		checkMap := pair[1].(map[string]string)
-
-		var check ExtraCheck
-		if contain, ok := checkMap["contain"]; ok {
-			check.contain = contain
+		err = json.Unmarshal(jsonInput, &preCriteriaMap)
+		if err != nil {
+			return err
 		}
 
-		*lineSlice = append(*lineSlice, TestLine{text: text, extraCheck: check})
+		for name, preCriteria := range preCriteriaMap {
+			testLineSlice := TestLineSlice{}
+
+			for text, testLine := range preCriteria {
+				testLine.text = text
+				testLineSlice = append(testLineSlice, testLine)
+			}
+
+			(*criteriaMap)[name] = testLineSlice
+		}
+	case []interface{}:
+		preCriteriaMap := make(SPreCriteriaMap)
+
+		err = json.Unmarshal(jsonInput, &preCriteriaMap)
+		if err != nil {
+			return err
+		}
+
+		for name, preCriteria := range preCriteriaMap {
+			testLineSlice := TestLineSlice{}
+
+			for _, testLineInfo := range preCriteria {
+				testLine := TestLine{
+					text: testLineInfo[0].(string),
+				}
+				if len(testLineInfo) >= 2 {
+					extra := testLineInfo[1].(map[string]interface{})
+
+					if contain, ok := extra["contain"]; ok {
+						testLine.extraCheck.contain = contain.(string)
+					}
+				}
+				testLineSlice = append(testLineSlice, testLine)
+			}
+
+			(*criteriaMap)[name] = testLineSlice
+		}
 	}
 
 	return nil
 }
+
+var _ json.Unmarshaler = &ContentGroup{}
 
 func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error {
 	data := make(map[string]interface{})
@@ -154,7 +208,41 @@ func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error
 		return err
 	}
 
-	json.Unmarshal(pureJsonData, &contentGroup.criteriaMap)
+	err = json.Unmarshal(pureJsonData, &contentGroup.criteriaMap)
+
+	return err
+}
+
+func (lineSlice *TestLineSlice) UnmarshalJSON(jsonData []byte) error {
+	lineMap := make(map[string]ExtraCheck)
+
+	err := json.Unmarshal(jsonData, &lineMap)
+	if err != nil {
+		return err
+	}
+
+	for key, check := range lineMap {
+		*lineSlice = append(*lineSlice, TestLine{text: key, extraCheck: check})
+	}
+
+	var lineArray [][]interface{}
+
+	err = json.Unmarshal(jsonData, &lineArray)
+	if err != nil {
+		return err
+	}
+
+	for _, pair := range lineArray {
+		text := pair[0].(string)
+		checkMap := pair[1].(map[string]string)
+
+		var check ExtraCheck
+		if contain, ok := checkMap["contain"]; ok {
+			check.contain = contain
+		}
+
+		*lineSlice = append(*lineSlice, TestLine{text: text, extraCheck: check})
+	}
 
 	return nil
 }

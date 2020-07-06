@@ -61,47 +61,15 @@ var _ = Describe("schema tests", func() {
 	for _, file := range testFileList.schema {
 		schemaData := SchemaData{}
 
-		fmt.Printf("Name: %s\n", file.Name())
-
 		err := schemaData.UnmarshalHumanJSON([]byte(file.Content()))
 		if err != nil {
 			panic(err)
 		}
 
 		for description, group := range schemaData.groupMap {
-			Describe(description, func() {
-				for criterionName, lineList := range group.criteriaMap {
-					expectingError := strings.HasPrefix(criterionName, "reject")
-
-					if !expectingError && !strings.HasPrefix(criterionName, "accept") {
-						It(criterionName, func() {
-							Fail("SPEC ERROR: criterion name should begin with \"accept\" or \"reject\". The associated test list was skipped.")
-						})
-						continue
-					}
-
-					for k, testLine := range lineList {
-						It(fmt.Sprintf("%s(%d)", criterionName, k), func() {
-							var erl []error
-
-							if schemaData.target == "document" {
-								erl = testLine.asSchemaDocument()
-							} else {
-								erl = testLine.asSchemaExpression()
-							}
-
-							if expectingError && erl == nil {
-								Fail("Expected an error")
-							} else if !expectingError && erl != nil {
-								Fail("Got error: " + erl[0].Error() + " (1/" + string(len(erl)) + ")")
-							}
-						})
-					}
-				}
-			})
-			// if content, ok := v.(map[string]interface{}); ok {
-			// }
-			// fmt.Printf("key[%s] value[%s]\n", k, v)
+			group.target = schemaData.target
+			group.description = description
+			group.runTest()
 		}
 	}
 
@@ -109,3 +77,55 @@ var _ = Describe("schema tests", func() {
 		panic(err)
 	}
 })
+
+func (group *SchemaGroup) runTest() {
+	if len(group.criteriaMap) == 0 {
+		Specify(group.description, func() {
+			Fail("SPEC ERROR: group should contain at least one criterion")
+		})
+	}
+
+	Describe(group.description, func() {
+		for criterionName, lineList := range group.criteriaMap {
+			if len(lineList) == 0 {
+				Specify(criterionName, func() {
+					Fail("SPEC ERROR: criterion should contain at least one test")
+				})
+			}
+			if shouldBeSkipped(criterionName) {
+				return
+			}
+
+			expectingError := strings.HasPrefix(criterionName, "reject")
+
+			if !expectingError && !strings.HasPrefix(criterionName, "accept") {
+				Specify(criterionName, func() {
+					Fail("SPEC ERROR: criterion name should begin with \"accept\" or \"reject\". The associated test list was skipped.")
+				})
+				continue
+			}
+
+			for k, testLine := range lineList {
+				It(fmt.Sprintf("%s (#%d)", criterionName, k), func() {
+					var erl []error
+
+					if group.target == "document" {
+						erl = testLine.asSchemaDocument()
+					} else {
+						erl = testLine.asSchemaExpression()
+					}
+
+					if expectingError && len(erl) == 0 {
+						Fail("Expected an error")
+					} else if !expectingError && len(erl) > 0 {
+						Fail("Got error: " + erl[0].Error() + " (1/" + string(len(erl)) + ")")
+					}
+				})
+			}
+		}
+	})
+}
+
+func shouldBeSkipped(name string) bool {
+	return strings.HasPrefix(name, "SKIP") || strings.HasPrefix(name, "PENDING")
+}

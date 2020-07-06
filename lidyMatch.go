@@ -35,17 +35,17 @@ func (rule *tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
 	return result, err
 }
 
-func (rule tRule) mergeMatch(mapResult MapResult, usefulList []bool, content yaml.Node, parser *tParser) []error {
-	return mergeMatchExpression(mapResult, usefulList, content, rule.expression, parser)
+func (rule tRule) mergeMatch(mapResult MapResult, utilizationTrackingList []bool, content yaml.Node, parser *tParser) []error {
+	return mergeMatchExpression(mapResult, utilizationTrackingList, content, rule.expression, parser)
 }
 
 // tExpression
-func mergeMatchExpression(mapResult MapResult, usefulList []bool, content yaml.Node, expression tExpression, parser *tParser) []error {
+func mergeMatchExpression(mapResult MapResult, utilizationTrackingList []bool, content yaml.Node, expression tExpression, parser *tParser) []error {
 	switch mergeable := expression.(type) {
 	case tMap:
-		return mergeable.mergeMatch(mapResult, usefulList, content, parser)
+		return mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
 	case tOneOf:
-		return mergeable.mergeMatch(mapResult, usefulList, content, parser)
+		return mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
 	}
 
 	return parser.reportSchemaParserInternalError(
@@ -64,7 +64,7 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 
 	// Extra key (preparation)
 	// list tracking whether a key-value pair was used or not
-	usefulList := make([]bool, len(content.Content)/2)
+	utilizationTrackingList := make([]bool, len(content.Content)/2)
 
 	mapResult := MapResult{
 		Map:   make(map[string]Result),
@@ -72,12 +72,12 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 	}
 	// mapResult.Map = make(map[string]Result)
 
-	erl := mapChecker.mergeMatch(mapResult, usefulList, content, parser)
+	erl := mapChecker.mergeMatch(mapResult, utilizationTrackingList, content, parser)
 
 	errList := errorlist.List{}
 	errList.Push(erl)
 
-	for k, v := range usefulList {
+	for k, v := range utilizationTrackingList {
 		if v == true { // "used up"
 			continue // skip
 		}
@@ -134,7 +134,7 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 
 func (mapChecker tMap) mergeMatch(
 	mapResult MapResult,
-	usefulList []bool,
+	utilizationTrackingList []bool,
 	content yaml.Node,
 	parser *tParser,
 ) []error {
@@ -163,7 +163,7 @@ func (mapChecker tMap) mergeMatch(
 			if propertyFound {
 				// Missing keys (updating)
 				delete(requiredSet, key.Value)
-				usefulList[k/2] = true
+				utilizationTrackingList[k/2] = true
 			} else {
 				property, propertyFound = f.optionalMap[key.Value]
 			}
@@ -195,7 +195,7 @@ func (mapChecker tMap) mergeMatch(
 
 	// Merges
 	for _, mergeable := range f.mergeList {
-		erl := mergeable.mergeMatch(mapResult, usefulList, content, parser)
+		erl := mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
 		errList.Push(erl)
 	}
 
@@ -268,7 +268,7 @@ func (oneOf tOneOf) match(content yaml.Node, parser *tParser) (Result, []error) 
 
 func (oneOf tOneOf) mergeMatch(
 	mapResult MapResult,
-	usefulList []bool,
+	utilizationTrackingList []bool,
 	content yaml.Node,
 	parser *tParser,
 ) []error {
@@ -280,7 +280,7 @@ func (oneOf tOneOf) mergeMatch(
 
 	for _, option := range oneOf.optionList {
 		if mergeable, ok := option.(tMergeableExpression); ok {
-			err := mergeable.mergeMatch(mapResult, usefulList, content, parser)
+			err := mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
 
 			if len(err) == 0 {
 				return nil
