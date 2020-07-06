@@ -1,13 +1,13 @@
-package lidy_test
+package lidy
 
-// import (
-// 	"testing"
+import (
+	"testing"
 
-// 	. "github.com/onsi/ginkgo"
-// 	. "github.com/onsi/gomega"
-// )
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
 
-// func TestGoLi(t *testing.T) {
-// 	RegisterFailHandler(Fail)
-// 	RunSpecs(t, "Lidy Suite")
-// }
+func TestGoLi(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Lidy Suite")
+}

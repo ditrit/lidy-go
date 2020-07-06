@@ -1,17 +1,10 @@
 package lidy
 
 import (
-	"testing"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
 )
-
-func TestGoLi(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Lidy Suite")
-}
 
 var _ = Describe("file.Yaml", func() {
 	Specify("it unmarshals the yaml to the .yaml field", func() {

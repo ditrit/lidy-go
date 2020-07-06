@@ -15,9 +15,9 @@ Lidy is:
   - [JSON schema](#json-schema)
     - [About lidy's refs](#about-lidys-refs)
   - [Example](#example)
-  - [Documentation](#documentation)
-  - [Contributing](#contributing)
   - [Similar tools](#similar-tools)
+  - [Using Regex](#using-regex)
+  - [Documentation](#documentation)
   - [Short reference](#short-reference)
     - [Lidy expression](#lidy-expression)
     - [Predefined lidy rules](#predefined-lidy-rules)
@@ -34,6 +34,7 @@ Lidy is:
     - [Functional types (aka type parameter aka template types)](#functional-types-aka-type-parameter-aka-template-types)
     - [Range](#range)
     - [Parameter-less string checkers](#parameter-less-string-checkers)
+  - [Contributing](#contributing)
 -
 
 ## JSON schema
@@ -105,27 +106,6 @@ children:
 }
 ```
 
-## Documentation
-
-See [DOCUMENTATION.md](./DOCUMENTATION.md)
-
-## Contributing
-
-Installing:
-
-```sh
-# git clone ...
-# cd lidy
-go get -t
-```
-
-Running the tests:
-
-```sh
-# Tests
-go ginkgo
-```
-
 ## Similar tools
 
 - Kwalify, [[website]](http://www.kuwata-lab.com/kwalify/) [[source (mirror?)]]() (Ruby and Java, v0.7.2, 2010-07-18)
@@ -137,6 +117,14 @@ Also see the [dedicated page on JSON Schema Everywhere](https://json-schema-ever
 A few more project(s):
 
 - [Azuki](https://github.com/guoyk93/azuki), just a Map evaluation tool (Java)
+
+## Using Regex
+
+If you need a regex to match a well-known format, think of going shopping for it before you start writing it. Ressource: [RgxDB](https://rgxdb.com/r/3QTTH7RG).
+
+## Documentation
+
+See [DOCUMENTATION.md](./DOCUMENTATION.md)
 
 ## Short reference
 
@@ -163,7 +151,7 @@ Also see [predefined lidy rules](DOCUMENTATION.md#predefined-lidy-rules).
 - `str` -- string
 - `null`
 
-Also see [Scalars](DOCUMENTATION.md#scalar-rules).
+Also see [Scalar rules](DOCUMENTATION.md#scalar-rules).
 
 #### Predefined string checker rules
 
@@ -260,15 +248,7 @@ Somewhat likely to be added (because it wouldn't make lidy heavier):
 - `lang.json`
 - `lang.yaml`
 
-Less likely to be added:
-
-- `pattern.email`
-- `pattern.url`
-- `pattern.uri`
-- `pattern.date`
-- `pattern.time`
-
-Least likely to be added, but still:
+Less likely to be added, but still:
 
 - `lang.regex.pcre`
 - `lang.csv`
@@ -277,3 +257,19 @@ Least likely to be added, but still:
 - `lang.hjson`
 - `lang.html`
 - `lang.xml`
+
+## Contributing
+
+Cloning:
+
+```sh
+git clone https://github.com/ditrit/lidy
+cd lidy
+```
+
+Running the tests:
+
+```sh
+# Tests
+ginkgo
+```
