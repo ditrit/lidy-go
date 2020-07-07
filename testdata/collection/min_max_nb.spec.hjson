@@ -1,9 +1,9 @@
 {
-  // _listOf
-  "_min_max_nb for _listOf, accept": {
+  // _seqOf
+  "_min_max_nb for _seqOf, accept": {
     expressionTemplate:
     '''
-    _listOf: any
+    _seqOf: any
     ${checker}
     '''
     checkerList: ["_min: 2", "_max: 2", "_nb: 2"]
@@ -16,7 +16,7 @@
   "_min_max_nb for _mapOf, reject": {
     expressionTemplate:
     '''
-    _listOf: any
+    _seqOf: any
     ${checker}
     '''
     checkerList: ["_min: 3", "_max: 1", "_nb: 3"]

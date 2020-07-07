@@ -45,7 +45,7 @@ func (p *tParser) parseSchema() []error {
 
 	for ruleName, rule := range schema.ruleMap {
 		if _, present := p.lidyDefaultRuleMap[ruleName]; present {
-			continue
+			continue // TODO this should produce an error
 		}
 
 		expression, erl := schemaParser.expression(rule._node)

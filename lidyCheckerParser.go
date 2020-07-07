@@ -227,8 +227,10 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 
 	tryDecodeInteger := func(theNode yaml.Node) int {
 		var theInt int
-		err := node.Decode(&theInt)
-		errList.Push(sp.schemaError(theNode, "an integer, but error happened: "+err.Error()))
+		err := theNode.Decode(&theInt)
+		if err != nil {
+			errList.Push(sp.schemaError(theNode, "an integer (yaml error happened trying to read the integer) "+err.Error()))
+		}
 		return theInt
 	}
 

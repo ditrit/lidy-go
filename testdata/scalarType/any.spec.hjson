@@ -3,15 +3,15 @@
     expression: any
     _provide: "@any"
 
-    "accept any terminal": {
+    _testList: {
+      // terminal
       "true": {}
       "0.2": {}
       "2": {}
       "a": {}
       "null": {}
-    }
 
-    "accept any container": {
+      // container
       "[]": {}
       "{}": {}
       "[a]": {}

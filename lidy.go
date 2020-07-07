@@ -176,9 +176,9 @@ func (p *tParser) Option(option Option) Parser {
 func (p *tParser) Schema() []error {
 	erl := p.parseSchema()
 	if len(erl) > 0 {
-		return nil
+		return erl
 	}
-	return erl
+	return nil
 }
 
 // Parse -- use the parser to check the given YAML file, and produce a Lidy Result.

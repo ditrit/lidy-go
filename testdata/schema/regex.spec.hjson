@@ -6,7 +6,7 @@
       "a": {}
       ".?": {}
       "^$": {}
-      "(a[b])": {}
+      "(a[bc])": {}
     }
     "accept silenced groups": {
       "(?:a)": {}
@@ -17,14 +17,14 @@
       "(?!a)": {}
       "(?<!a)": {}
     }
-    "reject backreferences": {
+    "accept backreferences": {
       "a(b)\\1": {}
-      // "a\\0": {}
-      // "a\\1": {}
-      // "a(b)\\2": {}
-      // "(?:a)\\1": {}
-      // "a(b)(?:c)\\2": {}
-      // "a\\1(a)": {}
+      "a\\0": {}
+      "a\\1": {}
+      "a(b)\\2": {}
+      "(?:a)\\1": {}
+      "a(b)(?:c)\\2": {}
+      "a\\1(a)": {}
     }
     "PENDING reject empty regex": { "\"\"": {} }
     "reject misplaced quantifier": {
@@ -35,18 +35,23 @@
     }
     "PENDING reject empty group": { "()": {} }
     "PENDING reject empty class": { "[]": {} }
-    "reject unbalanced regex": {
+    "reject unbalanced regexes": {
       "(": {}
       ")": {}
-      "{": {}
-      "}": {}
       "[": {}
+      ")]": {}
+      ")(": {}
+    }
+    "accept the use of {} and [] as litteral sequences": {
       "]": {}
       "(()": {}
       "())": {}
       "[[]": {}
       "[]]": {}
+      "{": {}
+      "}": {}
+      "a{b}": {}
+      "{c}": {}
     }
-    "reject misused quantifier brackets": { "{a}": {} }
   }
 }

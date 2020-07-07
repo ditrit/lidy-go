@@ -2,6 +2,8 @@ package lidy_test
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/hjson/hjson-go"
 )
@@ -33,7 +35,10 @@ type MPreCriteria map[string]TestLine
 type SPreCriteriaMap map[string]SPreCriteria
 type SPreCriteria [][]interface{}
 
-type TestLineSlice []TestLine
+type TestLineSlice struct {
+	slice     []TestLine
+	reference string
+}
 
 // ContentData
 type ContentData struct {
@@ -44,29 +49,24 @@ type ContentGroup struct {
 	target      string
 	schema      string
 	template    string
+	valueName   string
+	valueList   []string
 	description string
 	criteriaMap map[string]TestLineSlice
 }
 
-// UnmarshalHumanJSON -- Hooks onto JSON's rich deserialisation interface
-func (schemaData *SchemaData) UnmarshalHumanJSON(input []byte) error {
-	// Convert to JSON
+// HumanJSONtoJSON -- Convert to JSON
+func HumanJSONtoJSON(input []byte) ([]byte, error) {
 	var data interface{}
 
 	err := hjson.Unmarshal(input, &data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
 
-	// Unmarshal JSON
-	err = json.Unmarshal(jsonData, schemaData)
-
-	return err
+	return jsonData, err
 }
 
 var _ json.Unmarshaler = (*SchemaData)(nil)
@@ -87,9 +87,25 @@ func (schemaData *SchemaData) UnmarshalJSON(compositeJsonInput []byte) error {
 		return err
 	}
 
-	err = json.Unmarshal(pureJsonData, &schemaData.groupMap)
+	return json.Unmarshal(pureJsonData, &schemaData.groupMap)
+}
 
-	return err
+var _ json.Unmarshaler = (*ContentData)(nil)
+
+func (contentData *ContentData) UnmarshalJSON(compositeJsonInput []byte) error {
+	data := make(map[string]interface{})
+
+	err := json.Unmarshal(compositeJsonInput, &data)
+	if err != nil {
+		return err
+	}
+
+	pureJsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(pureJsonData, &contentData.groupMap)
 }
 
 var _ json.Unmarshaler = &SchemaGroup{}
@@ -97,6 +113,8 @@ var _ json.Unmarshaler = &SchemaGroup{}
 func (schemaGroup *SchemaGroup) UnmarshalJSON(jsonInput []byte) error {
 	return json.Unmarshal(jsonInput, &schemaGroup.criteriaMap)
 }
+
+var _ json.Unmarshaler = &ContentGroup{}
 
 var _ json.Unmarshaler = &CriteriaMap{}
 
@@ -132,7 +150,7 @@ func (criteriaMap *CriteriaMap) UnmarshalJSON(jsonInput []byte) error {
 
 			for text, testLine := range preCriteria {
 				testLine.text = text
-				testLineSlice = append(testLineSlice, testLine)
+				testLineSlice.slice = append(testLineSlice.slice, testLine)
 			}
 
 			(*criteriaMap)[name] = testLineSlice
@@ -159,7 +177,7 @@ func (criteriaMap *CriteriaMap) UnmarshalJSON(jsonInput []byte) error {
 						testLine.extraCheck.contain = contain.(string)
 					}
 				}
-				testLineSlice = append(testLineSlice, testLine)
+				testLineSlice.slice = append(testLineSlice.slice, testLine)
 			}
 
 			(*criteriaMap)[name] = testLineSlice
@@ -199,8 +217,49 @@ func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error
 
 		contentGroup.target = "document"
 		contentGroup.template = template
-	} else {
-		panic("Missing schema (`expression: ''`) in contentGroup")
+	}
+
+	for name, value := range data {
+		if !strings.Contains(name, " ") {
+			if list := "List"; strings.HasSuffix(name, list) {
+				contentGroup.valueName = string([]rune(name)[:len(name)-len(list)])
+
+				if len(contentGroup.valueList) > 0 {
+					return jsonError(fmt.Errorf("met *List twice"), compositeJsonInput)
+				}
+				for _, v := range value.([]interface{}) {
+					contentGroup.valueList = append(contentGroup.valueList, v.(string))
+				}
+				delete(data, name)
+			}
+
+			if strings.HasSuffix(name, "Template") {
+				if contentGroup.template == "" {
+					return jsonError(fmt.Errorf("met *Template twice"), compositeJsonInput)
+				}
+				contentGroup.template = value.(string)
+				delete(data, name)
+			}
+
+			newTarget := ""
+
+			if strings.HasPrefix(name, "expression") {
+				newTarget = "expression"
+				delete(data, name)
+			} else if strings.HasPrefix(name, "schema") {
+				newTarget = "document"
+				delete(data, name)
+			} else if name == "target" {
+				newTarget = name
+			}
+			if newTarget != "" {
+				if contentGroup.target != "" {
+					return jsonError(fmt.Errorf("met target declaration twice"), compositeJsonInput)
+				}
+				contentGroup.target = newTarget
+			}
+
+		}
 	}
 
 	pureJsonData, err := json.Marshal(data)
@@ -213,36 +272,51 @@ func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error
 	return err
 }
 
-func (lineSlice *TestLineSlice) UnmarshalJSON(jsonData []byte) error {
-	lineMap := make(map[string]ExtraCheck)
-
-	err := json.Unmarshal(jsonData, &lineMap)
+func (lineSlice *TestLineSlice) UnmarshalJSON(jsonInput []byte) error {
+	var data interface{}
+	err := json.Unmarshal(jsonInput, &data)
 	if err != nil {
 		return err
 	}
 
-	for key, check := range lineMap {
-		*lineSlice = append(*lineSlice, TestLine{text: key, extraCheck: check})
-	}
+	switch content := data.(type) {
+	case map[string]interface{}:
+		lineMap := make(map[string]ExtraCheck)
 
-	var lineArray [][]interface{}
-
-	err = json.Unmarshal(jsonData, &lineArray)
-	if err != nil {
-		return err
-	}
-
-	for _, pair := range lineArray {
-		text := pair[0].(string)
-		checkMap := pair[1].(map[string]string)
-
-		var check ExtraCheck
-		if contain, ok := checkMap["contain"]; ok {
-			check.contain = contain
+		err = json.Unmarshal(jsonInput, &lineMap)
+		if err != nil {
+			return jsonError(err, jsonInput)
 		}
 
-		*lineSlice = append(*lineSlice, TestLine{text: text, extraCheck: check})
+		for key, check := range lineMap {
+			lineSlice.slice = append(lineSlice.slice, TestLine{text: key, extraCheck: check})
+		}
+	case []interface{}:
+		lineArray := content
+		for _, element := range lineArray {
+			pair, ok := element.([]interface{})
+			if !ok {
+				return jsonError(fmt.Errorf("Expected a testline pair"), jsonInput)
+			}
+			text := pair[0].(string)
+			checkMap := pair[1].(map[string]interface{})
+
+			var check ExtraCheck
+			if contain, ok := checkMap["contain"]; ok {
+				check.contain = contain.(string)
+			}
+
+			lineSlice.slice = append(lineSlice.slice, TestLine{text: text, extraCheck: check})
+		}
+	case string:
+		lineSlice.reference = content
+	default:
+		return jsonError(fmt.Errorf("Unrecognized TestLineSlice form"), jsonInput)
 	}
 
 	return nil
+}
+
+func jsonError(err error, jsonInput []byte) error {
+	return fmt.Errorf("[\n  err: [%s]\n  jsonData: ((%s))\n]\n", err.Error(), jsonInput)
 }

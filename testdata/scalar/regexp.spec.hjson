@@ -3,7 +3,7 @@
     expression: _regex: "^$": {}
 
     "accept empty string": {
-       "a": {}
+       "": {}
     }
 
     "reject letter": {

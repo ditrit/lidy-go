@@ -82,7 +82,7 @@
 
   "_map 1 entry whose property is '${keyword}'": {
     expressionTemplate: _map: { "${keyword}": int }
-    keywordList: ["_map", "_mapOf", "_list", "_listOf"]
+    keywordList: ["_map", "_mapOf", "_list", "_seqOf"]
 
     "reject if the entry is missing": {
       "{}": {}
