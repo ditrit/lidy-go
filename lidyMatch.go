@@ -13,6 +13,9 @@ import (
 
 // tRule
 func (rule *tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
+	if rule == nil {
+		panic("aaaaaaaaaa!")
+	}
 	if rule.lidyMatcher != nil {
 		return rule.lidyMatcher(content, parser)
 	}

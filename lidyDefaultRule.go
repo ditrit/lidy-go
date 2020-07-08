@@ -116,7 +116,7 @@ func (sp *tSchemaParser) precomputeLidyDefaultRules() {
 			sp.lidyDefaultRuleMap["boolean"],
 			sp.lidyDefaultRuleMap["int"],
 			sp.lidyDefaultRuleMap["float"],
-			sp.lidyDefaultRuleMap["null"],
+			sp.lidyDefaultRuleMap["nullType"],
 			tMap{
 				tMapForm{
 					mapOf: tKeyValueExpression{
