@@ -126,15 +126,19 @@ func (group *SchemaGroup) runSchemaTest() {
 		})
 	}
 
-	Describe(group.description, func() {
+	Describer := GetDescriber(group.description)
+
+	Describer(group.description, func() {
 		for criterionName, lineSlice := range group.criteriaMap {
 			if startsWithSkipFlag(criterionName) {
 				PSpecify(criterionName, func() {})
 				continue
 			}
 
+			Specifier := SpecifierAndCriterionName(&criterionName)
+
 			if len(lineSlice.slice) == 0 && lineSlice.reference == "" {
-				Specify(criterionName, func() {
+				Specifier(criterionName, func() {
 					Fail("SPEC ERROR: criterion should contain at least one test")
 				})
 				continue
@@ -143,7 +147,7 @@ func (group *SchemaGroup) runSchemaTest() {
 			expectingError := strings.HasPrefix(criterionName, "reject")
 
 			if !expectingError && !strings.HasPrefix(criterionName, "accept") {
-				Specify(criterionName, func() {
+				Specifier(criterionName, func() {
 					Fail("SPEC ERROR: criterion name should begin with \"accept\" or \"reject\". The associated test list was skipped.")
 				})
 				continue
@@ -152,7 +156,7 @@ func (group *SchemaGroup) runSchemaTest() {
 			for k, testLine := range lineSlice.slice {
 				lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
 
-				Specify(lineName, func() {
+				Specifier(lineName, func() {
 					// goal := "___"
 					// if strings.Contains(lineName, goal) {
 					// 	fmt.Printf(goal + "\n")
@@ -182,15 +186,19 @@ func (group *ContentGroup) runContentTest() {
 		})
 	}
 
-	Describe(group.description, func() {
+	Describer := GetDescriber(group.description)
+
+	Describer(group.description, func() {
 		for criterionName, lineSlice := range group.criteriaMap {
 			if startsWithSkipFlag(criterionName) {
 				PSpecify(criterionName, func() {})
 				continue
 			}
 
+			Specifier := SpecifierAndCriterionName(&criterionName)
+
 			if len(lineSlice.slice) == 0 && lineSlice.reference == "" { // TODO implement reference loading
-				Specify(criterionName, func() {
+				Specifier(criterionName, func() {
 					Fail("SPEC ERROR: criterion should contain at least one test")
 				})
 				continue
@@ -199,7 +207,7 @@ func (group *ContentGroup) runContentTest() {
 			expectingError := strings.HasPrefix(criterionName, "reject")
 
 			if !expectingError && !strings.HasPrefix(criterionName, "accept") {
-				Specify(criterionName, func() {
+				Specifier(criterionName, func() {
 					Fail("SPEC ERROR: criterion name should begin with \"accept\" or \"reject\". The associated test list was skipped.")
 				})
 				continue
@@ -216,7 +224,7 @@ func (group *ContentGroup) runContentTest() {
 
 			erl := parser.Schema()
 			if len(erl) > 0 {
-				Specify(group.description, func() {
+				Specifier(group.description, func() {
 					Fail("Even schema failed to parse: " + erl[0].Error())
 				})
 			}
@@ -224,7 +232,7 @@ func (group *ContentGroup) runContentTest() {
 			for k, testLine := range lineSlice.slice {
 				lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
 
-				Specify(lineName, func() {
+				Specifier(lineName, func() {
 					goal := "accept a lot of strings"
 					if strings.Contains(lineName, goal) {
 						fmt.Printf(goal + "\n")
@@ -237,6 +245,27 @@ func (group *ContentGroup) runContentTest() {
 			}
 		}
 	})
+}
+
+func GetDescriber(description string) func(text string, body func()) bool {
+	Describer := Describe
+
+	if strings.HasPrefix(description, "FOCUS ") {
+		Describer = FDescribe
+	}
+
+	return Describer
+}
+
+func SpecifierAndCriterionName(criterionName *string) func(text string, body interface{}, timeout ...float64) bool {
+	Specifier := Specify
+
+	if strings.HasPrefix(*criterionName, "FOCUS ") {
+		*criterionName = string([]rune(*criterionName)[6:])
+		Specifier = FSpecify
+	}
+
+	return Specifier
 }
 
 func startsWithSkipFlag(name string) bool {
