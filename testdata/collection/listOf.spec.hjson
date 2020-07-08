@@ -1,17 +1,17 @@
 {
-  "PENDING _seqOf": {
+  "_seqOf": {
     expression: _seqOf: str
 
-    "reject the empty list": {
+    "accept the empty list": {
        "[]": {}
     }
 
     "accept one string": {
-       "[va vb]": {}
+       "[va, vb]": {}
     }
 
     "accept a lot of strings": {
-       "[va vb vc vd ve vf]": {}
+       "[va, vb, vc, vd, ve, vf]": {}
     }
 
     "reject non-lists": {
@@ -23,9 +23,9 @@
 
     "reject lists with non-matching elements": {
        "[2]": {}
-       "[va 4]": {}
-       "[5 va]": {}
-       "[3 4]": {}
+       "[va, 4]": {}
+       "[5, va]": {}
+       "[3, 4]": {}
     }
   }
 }

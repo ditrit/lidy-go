@@ -1,0 +1,11 @@
+{
+  "validate that the yaml is valid": {
+    expression: any
+
+    "reject ill-formed sequence": {
+      "[a b]": {}
+      "[a, b c]": {}
+      "[a b, c]": {}
+    }
+  }
+}
