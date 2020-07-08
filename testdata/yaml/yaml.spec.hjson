@@ -1,5 +1,5 @@
 {
-  "FOCUS validate that the yaml is valid": {
+  "validate that the yaml is valid": {
     expression: any
 
     "reject the empty document": {

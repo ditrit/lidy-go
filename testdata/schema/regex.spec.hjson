@@ -21,12 +21,14 @@
     "accept empty group": { "()": {} }
     "reject backreferences": {
       "a(b)\\1": {}
-      "a\\0": {}
       "a\\1": {}
       "a(b)\\2": {}
       "(?:a)\\1": {}
       "a(b)(?:c)\\2": {}
       "a\\1(a)": {}
+    }
+    "accept \\0, which, after all, cannot be a reference": {
+      "a\\0": {}
     }
     "reject misplaced quantifier": {
       "?": {}
@@ -41,11 +43,11 @@
       "[": {}
       ")]": {}
       ")(": {}
+      "(()": {}
+      "())": {}
     }
     "accept the use of {} and [] as litteral sequences": {
       "]": {}
-      "(()": {}
-      "())": {}
       "[[]": {}
       "[]]": {}
       "{": {}

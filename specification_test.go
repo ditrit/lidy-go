@@ -151,10 +151,11 @@ func (group *SchemaGroup) runSchemaTest() {
 			for k, testLine := range lineSlice.slice {
 				lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
 
+				text := testLine.text
+
 				Specifier(lineName, func() {
 					var parser lidy.Parser
 
-					text := testLine.text
 					if group.target == "document" {
 						parser = lidy.NewParser("~"+text+"~.yaml", []byte(text))
 					} else if group.target == "expression" {
