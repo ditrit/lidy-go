@@ -17,7 +17,7 @@ type tSchemaParser tParser
 // NewParser create a parser from a lidy paper
 func (p *tParser) parseSchema() []error {
 	if p.schema.ruleMap != nil {
-		return nil
+		return p.schemaErrorSlice
 	}
 
 	// Make sure the schema's Yaml document is loaded
@@ -58,7 +58,9 @@ func (p *tParser) parseSchema() []error {
 		schema.ruleMap[ruleName] = rule
 	}
 
-	return errList.ConcatError()
+	p.schemaErrorSlice = errList.ConcatError()
+
+	return p.schemaErrorSlice
 }
 
 // parseContent apply the schema to the content

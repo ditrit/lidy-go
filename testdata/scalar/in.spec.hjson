@@ -1,6 +1,6 @@
 {
   "_in": {
-    expression: _in: [a present b c]
+    expression: _in: [a, present, b, c]
 
     "accept": {
        "present": {}

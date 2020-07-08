@@ -107,7 +107,11 @@ func (oneOf tOneOf) name() string {
 }
 
 func (oneOf tOneOf) description() string {
-	partList := []string{}
+	if len(oneOf.optionList) == 0 {
+		return "one of (nothing): []"
+	}
+
+	partList := []string{"one of:\n"}
 	for _, option := range oneOf.optionList {
 		partList = append(partList, "- ", option.name(), "\n")
 	}

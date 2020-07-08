@@ -44,11 +44,11 @@
     expression:
       '''
       _map: {}
-      _optional: { a: str b: int }
+      _optional: { a: str, b: int }
       '''
 
     "accept when all entries are present and valid": {
-      "{ a: va b: 4 }": {}
+      "{ a: va, b: 4 }": {}
     }
 
     "accept when only some entries are present": {
@@ -72,7 +72,7 @@
     }
 
     "reject extraneous unknown entries": {
-      "{ a: va b: 4 z: 12 }": {}
+      "{ a: va, b: 4, z: 12 }": {}
     }
 
     "reject if an entry does not match": {
@@ -80,7 +80,7 @@
     }
   }
 
-  "_map 1 entry whose property is '${keyword}'": {
+  "PENDING _map 1 entry whose property is '${keyword}'": {
     expressionTemplate: _map: { "${keyword}": int }
     keywordList: ["_map", "_mapOf", "_list", "_seqOf"]
 

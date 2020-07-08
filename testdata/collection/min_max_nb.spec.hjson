@@ -1,6 +1,6 @@
 {
   // _seqOf
-  "_min_max_nb for _seqOf, accept": {
+  "PENDING _min_max_nb for _seqOf, accept": {
     expressionTemplate:
     '''
     _seqOf: any
@@ -13,7 +13,7 @@
     }
   }
 
-  "_min_max_nb for _mapOf, reject": {
+  "PENDING _min_max_nb for _mapOf, reject": {
     expressionTemplate:
     '''
     _seqOf: any
@@ -27,7 +27,7 @@
   }
 
   // _mapOf
-  "_min_max_nb for _mapOf, accept": {
+  "PENDING _min_max_nb for _mapOf, accept": {
     expressionTemplate:
     '''
     _mapOf: any
@@ -40,7 +40,7 @@
     }
   }
 
-  "_min_max_nb for _mapOf, reject": {
+  "PENDING _min_max_nb for _mapOf, reject": {
     expressionTemplate:
     '''
     _mapOf: any

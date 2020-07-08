@@ -1,5 +1,5 @@
 {
-  "_seqOf": {
+  "PENDING _seqOf": {
     expression: _seqOf: str
 
     "reject the empty list": {

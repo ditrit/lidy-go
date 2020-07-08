@@ -1,9 +1,9 @@
 {
   "_regex empty": {
-    expression: _regex: "^$": {}
+    expression: _regex: "^$"
 
     "accept empty string": {
-       "": {}
+       "''": {}
     }
 
     "reject letter": {
@@ -16,7 +16,7 @@
   }
 
   "_regex email": {
-    expression: _regex: "^[a-zA-Z0-9]+[.][a-zA-Z0-9]+*@[a-zA-Z0-9]+[.][a-zA-Z0-9]++$": {}
+    expression: _regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$"
 
     "accept email": {
        "a@b.c": {}
@@ -30,7 +30,7 @@
   }
 
   "_regex non-empty word": {
-    expression: _regex: "[a-z]+": {}
+    expression: _regex: "[a-z]+"
 
     "accept non-empty word": {
        "a": {}
@@ -38,7 +38,7 @@
     }
 
     "reject the empty string": {
-       "a": {}
+       "''": {}
     }
 
     "reject if not a string": {
@@ -54,7 +54,7 @@
        "null": {}
     }
 
-    "reject if not a string void": {
+    "reject if not a string -- void": {
        "": {}
     }
   }

@@ -1,7 +1,7 @@
 {
   target: document
   "_merge requires identifiers to refer to mapCheckers": {
-    "accept if merging mapCheckers": [
+    "PENDING accept if merging mapCheckers": [
       [
         '''
         main:
@@ -36,7 +36,7 @@
         {}
       ]
     ]
-    "accept merging _oneOf mapCheckers": [
+    "PENDING accept merging _oneOf mapCheckers": [
       [
         '''
         main:
@@ -82,7 +82,7 @@
     ]
   }
   "detect invalid self-references in _merge expressions": {
-    "accept if the self-reference is sufficiently indirect": [
+    "PENDING accept if the self-reference is sufficiently indirect": [
       [
         '''
         main: a
@@ -96,13 +96,13 @@
           _merge:
             - aa
             - bb
-            - { _map: kc: dd }
+            - { _map: { kc: dd } }
         dd:
           _merge:
             - aa
             - bb
             - cc
-            - { _map: kd: aa }
+            - { _map: { kd: aa } }
         '''
         {}
       ]

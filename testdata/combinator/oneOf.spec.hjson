@@ -1,6 +1,6 @@
 {
   "_oneOf scalar": {
-    expression: _oneOf: [ boolean int ]
+    expression: _oneOf: [ boolean, int ]
 
     "accept booleans": {
        "false": {}
@@ -26,7 +26,7 @@
   }
 
   "_oneOf dict": {
-    expression: _oneOf: [ { _dictOf: { str: str } } ]
+    expression: _oneOf: [ { "_mapOf": { "str": "str" } } ]
 
     "accept the empty dict": {
        "{}": {}
@@ -34,9 +34,9 @@
 
     "accept dict with matching-matching entries": {
        "{ ka: va }": {}
-       "{ ka: va kb: vb }": {}
+       "{ ka: va, kb: vb }": {}
        "{ 0k: 0v }": {}
-       "{ ka: va kb: vb 0k: 0v }": {}
+       "{ ka: va, kb: vb, 0k: 0v }": {}
     }
 
     "reject non-dicts": {

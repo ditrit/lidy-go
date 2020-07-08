@@ -1,5 +1,5 @@
 {
-  "_merge _map override": {
+  "PENDING _merge _map override": {
     schema:
     '''
     main:
@@ -65,7 +65,7 @@
     }
   }
 
-  "_merge 0 _optional 2 entries": {
+  "PENDING _merge 0 _optional 2 entries": {
     schema:
       '''
       main:
@@ -102,7 +102,7 @@
     }
   }
 
-  "_merge _mapOf behaves like a _oneOf and does not override": {
+  "PENDING _merge _mapOf behaves like a _oneOf and does not override": {
     schema:
     '''
     main:

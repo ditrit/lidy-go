@@ -121,12 +121,6 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 			Key:   keyResult,
 			Value: valueResult,
 		})
-
-		errList.Push(
-			parser.contentError(
-				content, fmt.Sprintf("no extra property (%s) `%s`", key.Tag, key.Value),
-			),
-		)
 	}
 
 	return mapResult, errList.ConcatError()
@@ -134,7 +128,7 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 
 func (mapChecker tMap) mergeMatch(
 	mapResult MapResult,
-	utilizationTrackingList []bool,
+	utilizzTrackingList []bool,
 	content yaml.Node,
 	parser *tParser,
 ) []error {
@@ -153,33 +147,32 @@ func (mapChecker tMap) mergeMatch(
 
 	// Going through the fields of the map
 	for k := 0; k+1 < len(content.Content); k += 2 {
+		if utilizzTrackingList[k/2] {
+			// don't use the same entry twice
+			continue
+		}
+
 		key := content.Content[k]
 		value := content.Content[k+1]
 
 		// propertyMap
-		if f.propertyMap != nil && key.Tag == "!!str" {
-			property, propertyFound := f.propertyMap[key.Value]
+		property, propertyFound := getMapProperty(f.propertyMap, &utilizzTrackingList[k/2], key)
+		if propertyFound {
+			// Missing keys (updating)
+			delete(requiredSet, key.Value)
+		} else {
+			property, propertyFound = getMapProperty(f.optionalMap, &utilizzTrackingList[k/2], key)
+		}
 
-			if propertyFound {
-				// Missing keys (updating)
-				delete(requiredSet, key.Value)
-				utilizationTrackingList[k/2] = true
-			} else {
-				property, propertyFound = f.optionalMap[key.Value]
-			}
+		if propertyFound {
+			// Matching with the matcher specified for that property
+			result, erl := property.match(*value, parser)
 
-			_, alreadyAssigned := mapResult.Map[key.Value]
+			errList.Push(erl)
 
-			if propertyFound && !alreadyAssigned {
-				// Matching with the matcher specified for that property
-				result, erl := property.match(*value, parser)
-
-				errList.Push(erl)
-
-				// Assigning without checking the error
-				// so that it is now seen as "alreadyAssigned"
-				mapResult.Map[key.Value] = result
-			}
+			// Assigning without checking the error
+			// so that it is now seen as "alreadyAssigned"
+			mapResult.Map[key.Value] = result
 		}
 	}
 
@@ -195,11 +188,25 @@ func (mapChecker tMap) mergeMatch(
 
 	// Merges
 	for _, mergeable := range f.mergeList {
-		erl := mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
+		erl := mergeable.mergeMatch(mapResult, utilizzTrackingList, content, parser)
 		errList.Push(erl)
 	}
 
 	return errList.ConcatError()
+}
+
+func getMapProperty(propertyMap map[string]tExpression, utilized *bool, key *yaml.Node) (tExpression, bool) {
+	if propertyMap != nil && key.Tag == "!!str" {
+		property, propertyFound := propertyMap[key.Value]
+
+		if propertyFound {
+			*utilized = true
+		}
+
+		return property, propertyFound
+	}
+
+	return nil, false
 }
 
 // Seq
@@ -257,6 +264,9 @@ func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
 // OneOf
 func (oneOf tOneOf) match(content yaml.Node, parser *tParser) (Result, []error) {
 	for _, option := range oneOf.optionList {
+		if option == nil {
+			fmt.Printf("aaaaaa, %s\n", oneOf.optionList)
+		}
 		result, err := option.match(content, parser)
 		if len(err) == 0 {
 			return result, nil

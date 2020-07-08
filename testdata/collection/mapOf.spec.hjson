@@ -1,5 +1,5 @@
 {
-  "_mapOf": {
+  "_mapOf basic": {
     expression: _mapOf: { str: int }
 
     "accept the empty dict": {
@@ -11,7 +11,7 @@
     }
 
     "accept dict with several matching-matching entries": {
-       "{ va: 0 vb: 1 vc: 2 }": {}
+       "{ va: 0, vb: 1, vc: 2 }": {}
     }
 
     "reject non-dict": {
@@ -36,6 +36,16 @@
        "{ true: 9 }": {}
        "{ []: 9 }": {}
        "{ {}: 9 }": {}
+    }
+  }
+  "_mapOf more": {
+    expression: _mapOf: { str: str }
+
+    "accept string-string": {
+      "{ ka: va }": {}
+      "{ ka: va, kb: vb }": {}
+      "{ 0k: 0v }": {}
+      "{ ka: va, kb: vb, 0k: 0v }": {}
     }
   }
 }

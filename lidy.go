@@ -92,6 +92,7 @@ type tParser struct {
 	lidyDefaultRuleMap map[string]*tRule
 	option             Option
 	schema             tSchema
+	schemaErrorSlice   []error
 	target             string
 	contentFile        tFile
 }
@@ -129,7 +130,10 @@ func (f *tFile) Yaml() error {
 		}
 
 		if f.yaml.Kind == 0 {
-			return fmt.Errorf("INTERNAL yaml.Unmarshal failed silently. %s", pleaseReport)
+			if len(f.content) == 0 {
+				return fmt.Errorf("yaml: the file is empty")
+			}
+			return fmt.Errorf("INTERNAL yaml.Unmarshal failed silently for content [`%s`]. %s", string(f.content), pleaseReport)
 		}
 	}
 	return nil

@@ -120,6 +120,11 @@ var _ = Describe("schema tests", func() {
 })
 
 func (group *SchemaGroup) runSchemaTest() {
+	if startsWithSkipFlag(group.description) {
+		PDescribe(group.description, func() {})
+		return
+	}
+
 	if len(group.criteriaMap) == 0 {
 		Specify(group.description, func() {
 			Fail("SPEC ERROR: group should contain at least one criterion")
@@ -180,6 +185,11 @@ func (group *SchemaGroup) runSchemaTest() {
 func (group *ContentGroup) runContentTest() {
 	// COPY PASTED from (*SchemaGroup) :( I feel like a Golang noob -- MC
 
+	if startsWithSkipFlag(group.description) {
+		PDescribe(group.description, func() {})
+		return
+	}
+
 	if len(group.criteriaMap) == 0 {
 		Specify(group.description, func() {
 			Fail("SPEC ERROR: group should contain at least one criterion")
@@ -188,7 +198,7 @@ func (group *ContentGroup) runContentTest() {
 
 	Describer := GetDescriber(group.description)
 
-	Describer(group.description, func() {
+	Describer(group.description+" (("+group.schema+"))", func() {
 		for criterionName, lineSlice := range group.criteriaMap {
 			if startsWithSkipFlag(criterionName) {
 				PSpecify(criterionName, func() {})
@@ -225,8 +235,9 @@ func (group *ContentGroup) runContentTest() {
 			erl := parser.Schema()
 			if len(erl) > 0 {
 				Specifier(group.description, func() {
-					Fail("Even schema failed to parse: " + erl[0].Error())
+					Fail("no test run because schema ((" + group.schema + ")) failed to parse: " + erl[0].Error())
 				})
+				continue
 			}
 
 			for k, testLine := range lineSlice.slice {
@@ -269,7 +280,7 @@ func SpecifierAndCriterionName(criterionName *string) func(text string, body int
 }
 
 func startsWithSkipFlag(name string) bool {
-	return strings.HasPrefix(name, "SKIP") || strings.HasPrefix(name, "PENDING")
+	return strings.HasPrefix(name, "SKIP ") || strings.HasPrefix(name, "PENDING ")
 }
 
 func assertErlResult(expectingError bool, erl []error) {
