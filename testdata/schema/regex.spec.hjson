@@ -1,7 +1,7 @@
 {
   // See https://github.com/google/re2/wiki/Syntax
   target: regex.checker
-  "PENDING validate regexes": {
+  "validate regexes": {
     "accept regexes": {
       "a": {}
       ".?": {}
@@ -17,7 +17,9 @@
       "(?!a)": {}
       "(?<!a)": {}
     }
-    "accept backreferences": {
+    "accept the empty regex": { "\"\"": {} }
+    "accept empty group": { "()": {} }
+    "reject backreferences": {
       "a(b)\\1": {}
       "a\\0": {}
       "a\\1": {}
@@ -26,14 +28,12 @@
       "a(b)(?:c)\\2": {}
       "a\\1(a)": {}
     }
-    "reject empty regex": { "\"\"": {} }
     "reject misplaced quantifier": {
       "?": {}
       "*": {}
       "+": {}
       "{2}": {}
     }
-    "reject empty group": { "()": {} }
     "reject empty class": { "[]": {} }
     "reject unbalanced regexes": {
       "(": {}

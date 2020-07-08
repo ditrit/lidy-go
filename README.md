@@ -4,7 +4,7 @@ A YAML-YAML type-oriented schema validation and deserialisation tool.
 
 Lidy is:
 
-- The Lidy schema language, a YAML language to specify how to check YAML files
+- The Lidy schema-type language, a YAML language to specify how to check YAML files
 - An engine to run the Lidy schema on YAML files
 - A rich deserialisation tool (if you want it to)
 
@@ -35,7 +35,6 @@ Lidy is:
     - [Range](#range)
     - [Parameter-less string checkers](#parameter-less-string-checkers)
   - [Contributing](#contributing)
--
 
 ## JSON schema
 

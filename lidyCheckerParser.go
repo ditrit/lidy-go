@@ -93,7 +93,7 @@ func checkMergeable(sp tSchemaParser, node yaml.Node, expression tExpression) (t
 		return checkMergeable(sp, node, rule.expression)
 	}
 
-	return nil, sp.schemaError(node, "a mergeable expression")
+	return nil, sp.schemaError(node, fmt.Sprintf("a mergeable expression but got [%s]", expression.name()))
 	// TODO
 	// the value of `node` is imprecise. The exact link to the node, or at least to it's position
 	// should be kept in all the checker types.

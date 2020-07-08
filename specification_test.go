@@ -24,11 +24,17 @@ type tContext struct {
 }
 
 func newParserFromExpression(filename string, expression string) lidy.Parser {
+	schemaString := "main:" + strings.ReplaceAll("\n"+expression, "\n", "\n  ")
+
 	parser := lidy.NewParser(
 		filename,
-		[]byte("main:"+strings.ReplaceAll("\n"+expression, "\n", "\n  ")),
+		[]byte(schemaString),
 	)
 	return parser
+}
+
+func newParserFromRegexChecker(filename string, regexValue string) lidy.Parser {
+	return newParserFromExpression(filename, "_regex: '"+regexValue+"'")
 }
 
 // validate
@@ -38,22 +44,6 @@ func (line *TestLine) validate(parser lidy.Parser) []error {
 		"~"+line.text+"~.yaml",
 		[]byte(line.text),
 	))
-	return erl
-}
-
-// asSchemaExpression
-// interpret the testline itself as a schema expression
-func (line *TestLine) asSchemaExpression() []error {
-	parser := newParserFromExpression(line.text, line.text)
-	erl := parser.Schema()
-	return erl
-}
-
-// asSchemaDocument
-// interpret the testline itself as a schema document
-func (line *TestLine) asSchemaDocument() []error {
-	parser := lidy.NewParser("~"+line.text+"~.yaml", []byte(line.text))
-	erl := parser.Schema()
 	return erl
 }
 
@@ -162,18 +152,20 @@ func (group *SchemaGroup) runSchemaTest() {
 				lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
 
 				Specifier(lineName, func() {
-					// goal := "___"
-					// if strings.Contains(lineName, goal) {
-					// 	fmt.Printf(goal + "\n")
-					// }
+					var parser lidy.Parser
 
-					var erl []error
-
+					text := testLine.text
 					if group.target == "document" {
-						erl = testLine.asSchemaDocument()
+						parser = lidy.NewParser("~"+text+"~.yaml", []byte(text))
+					} else if group.target == "expression" {
+						parser = newParserFromExpression("~"+text+"~expr.yaml", text)
+					} else if group.target == "regex.checker" {
+						parser = newParserFromRegexChecker("~"+text+"~regex.yaml", text)
 					} else {
-						erl = testLine.asSchemaExpression()
+						panic("Unknown target '" + group.target + "'")
 					}
+
+					erl := parser.Schema()
 
 					assertErlResult(expectingError, erl)
 				})
@@ -228,6 +220,10 @@ func (group *ContentGroup) runContentTest() {
 
 			if group.target == "document" {
 				parser = lidy.NewParser(schemaFilename, []byte(group.schema))
+			} else if group.target == "expression" {
+				parser = newParserFromExpression(schemaFilename, group.schema)
+			} else if group.target == "regex.checker" {
+				parser = newParserFromExpression(schemaFilename, group.schema)
 			} else {
 				parser = newParserFromExpression(schemaFilename, group.schema)
 			}
@@ -244,11 +240,6 @@ func (group *ContentGroup) runContentTest() {
 				lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
 
 				Specifier(lineName, func() {
-					goal := "accept a lot of strings"
-					if strings.Contains(lineName, goal) {
-						fmt.Printf(goal + "\n")
-					}
-
 					erl := testLine.validate(parser)
 
 					assertErlResult(expectingError, erl)

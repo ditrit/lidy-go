@@ -1,7 +1,7 @@
 {
   target: document
   "_merge requires identifiers to refer to mapCheckers": {
-    "PENDING accept if merging mapCheckers": [
+    "PENDING (requires on-demand-rule-loading) accept if merging mapCheckers": [
       [
         '''
         main:
