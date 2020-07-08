@@ -15,7 +15,7 @@ Lidy is:
   - [JSON schema](#json-schema)
     - [About lidy's refs](#about-lidys-refs)
   - [Example](#example)
-  - [Similar tools](#similar-tools)
+  - [Alternatives: YAML Schema validators](#alternatives-yaml-schema-validators)
   - [Using Regex](#using-regex)
   - [Documentation](#documentation)
   - [Short reference](#short-reference)
@@ -31,21 +31,22 @@ Lidy is:
     - [Container checkers](#container-checkers-1)
     - [Scalar checkers](#scalar-checkers)
   - [Not yet in Lidy](#not-yet-in-lidy)
-    - [Functional types (aka type parameter aka template types)](#functional-types-aka-type-parameter-aka-template-types)
     - [Range](#range)
     - [Parameter-less string checkers](#parameter-less-string-checkers)
+    - [Functional types (aka type parameter aka template types)](#functional-types-aka-type-parameter-aka-template-types)
   - [Contributing](#contributing)
+    - [Developing](#developing)
 
 ## JSON schema
 
-How does lidy differ from JSON schema?
+What's the point of Lidy, when there's already JSON schema?
 
-- Lidy targets YAML rather than JSON, though it _does_ work with JSON perfectly fine.
-- In Lidy, refs are first class citizens, you no longer need to write (`{ ref: "#/..." }`) everywhere, see below.
-- Lidy is meant to _assist_ your users with writing YAML: Lidy provides the line numbers at which the checking failed.
-- Lidy schema are similar to Algebriac data types. They have union types (`_oneOf`), products (`_tuple` and `_map`), and combinations (`_merge`).
-- Lidy provides support for rich deserialisation
-- Writing a custom value checker is just as easy as writing a deserialiser, Lidy
+- **YAML**: Lidy targets YAML rather than JSON. Of course, it _does_ work with JSON perfectly fine.
+- **Refs**: In Lidy, refs are first class citizens, they are just like in programming languages: `<name>`, as opposed to JSON Schema's heavy `{ ref: "#/<name>" }`, see below.
+- **Line numbers**: Lidy is meant to _assist_ your users with writing YAML: Lidy provides the line numbers at which the checking failed.
+- **Algebriac data types**: Lidy schema are similar to Algebriac data types. They have union types (`_oneOf`), positional product types (`_tuple`), named product types (`_map`), and combined types (`_merge`). (N.B. parameterized types aren't yet there, but they are on our short list).
+- **Rich deserialisation**: Lidy provides support for rich deserialisation. It's core use-case. This includes access to the source line numbers.
+- **Custom checkers**: Writing a custom value checker is just as easy as writing a deserialiser, Lidy
   handles the two through the same interface
 
 ### About lidy's refs
@@ -105,7 +106,9 @@ children:
 }
 ```
 
-## Similar tools
+## Alternatives: YAML Schema validators
+
+Here's a list of schema validators we could find:
 
 - Kwalify, [[website]](http://www.kuwata-lab.com/kwalify/) [[source (mirror?)]]() (Ruby and Java, v0.7.2, 2010-07-18)
 - [pykwalify](https://github.com/Grokzen/pykwalify), [[documentation]](https://pykwalify.readthedocs.io/en/master) (Python, v1.7.0, 2018-08-03)
@@ -113,13 +116,15 @@ children:
 
 Also see the [dedicated page on JSON Schema Everywhere](https://json-schema-everywhere.github.io/yaml).
 
-A few more project(s):
+And a few more project(s):
 
 - [Azuki](https://github.com/guoyk93/azuki), just a Map evaluation tool (Java)
 
+None has the feature-set of Lidy, nor its type-minded approach.
+
 ## Using Regex
 
-If you need a regex to match a well-known format, think of going shopping for it before you start writing it. Ressource: [RgxDB](https://rgxdb.com/r/3QTTH7RG).
+If you need a regex to match a well-known format, think of going shopping for it before you start writing it. Ressource: [RgxDB](https://rgxdb.com).
 
 ## Documentation
 
@@ -195,6 +200,30 @@ Also see [Predefined string checker rules](DOCUMENTATION#predefined-string-check
 
 ## Not yet in Lidy
 
+### Range
+
+- `_range` -- would apply only to numbers
+  - Examples for floats: `(0 <= float)`, `(1 < float < 10)`, `(float < 0)`
+  - Examples for integers: `(0 <= int <= 9)`
+
+### Parameter-less string checkers
+
+Somewhat likely to be added (because it wouldn't make lidy heavier):
+
+- `lang.regex.re2`
+- `lang.json`
+- `lang.yaml`
+
+Less likely to be added, but still considered:
+
+- `lang.regex.pcre`
+- `lang.csv`
+- `lang.jsonc`
+- `lang.json4`
+- `lang.hjson`
+- `lang.html`
+- `lang.xml`
+
 ### Functional types (aka type parameter aka template types)
 
 Declare a parameter type name:
@@ -231,33 +260,13 @@ Refer to the functional type:
 main: tree<boolean>
 ```
 
-### Range
-
-- `_range` -- would apply only to numbers
-  - Examples for floats: `(0 <= float)`, `(1 < float < 10)`, `(float < 0)`
-  - Examples for integers: `(0 <= int <= 9)`
-
-###
-
-### Parameter-less string checkers
-
-Somewhat likely to be added (because it wouldn't make lidy heavier):
-
-- `lang.regex.re2`
-- `lang.json`
-- `lang.yaml`
-
-Less likely to be added, but still:
-
-- `lang.regex.pcre`
-- `lang.csv`
-- `lang.jsonc`
-- `lang.json4`
-- `lang.hjson`
-- `lang.html`
-- `lang.xml`
-
 ## Contributing
+
+If you have any idea that you'd like to see added to Lidy, please create an issue in the [issue tracker](https://github.com/ditrit/lidy/issues) to share your feature request with us (remember to search-check for duplicate issues first).
+
+You're also welcome to report bugs, ask questions or use the issue tracker as you see fit. We try to be welcoming.
+
+### Developing
 
 Cloning:
 
@@ -266,9 +275,12 @@ git clone https://github.com/ditrit/lidy
 cd lidy
 ```
 
-Running the tests:
+Running Lidy's tests:
 
 ```sh
-# Tests
+# Install
+# go get github.com/onsi/ginkgo/ginkgo
+
+# Test
 ginkgo
 ```
