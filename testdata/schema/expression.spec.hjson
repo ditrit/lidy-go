@@ -10,13 +10,13 @@
       ["int", {}]
       ["str", {}]
     ]
-    "PENDING reject if (rule is) unknown": [
+    "reject if (rule is) unknown": [
       ["cat", { contain: "cat" }]
       ["bar", { contain: "bar" }]
     ]
   }
   "check that checkers are used with the right signature": {
-    "PENDING reject": [
+    "reject": [
       ["_map: word", {}]
       ["_map: str", {}]
       ["_map: 1", {}]
@@ -37,7 +37,7 @@
       ["_map: {}\n_optional: {}\n_mapOf: { str: str }\n_nb: 2", {}]
       ["_mapOf: { str: str }", {}]
     ]
-    "PENDING reject if is a invalid form:": [
+    "reject if is a invalid form:": [
       ["_map: []", {}]
       ["_mapOf: []", {}]
       ["_mapOf: [str]", {}]
@@ -55,11 +55,11 @@
       ["_tuple: []\n_optional: []\n_seqOf: int\n_nb: 2", {}]
       ["_seqOf: int", {}]
     ]
-    "PENDING reject if is a invalid form:": [
+    "reject if is a invalid form:": [
       ["_seqOf: []", {}]
       ["tuple: str", {}]
     ]
-    "PENDING reject if is a invalid form:": [
+    "reject if is a invalid form:": [
       ["_tuple: word", {}]
       ["_map: str", {}]
       ["_map: 1", {}]
@@ -77,7 +77,7 @@
       ["_map: {}\n_max: 2", {}]
       ["_map: {}\n_nb: 2", {}]
     ]
-    "PENDING reject invalid forms": [
+    "reject invalid forms": [
       ["_map: {}\n_min: []", { contain: "_min" }]
       ["_map: {}\n_min: {}", { contain: "_min" }]
       ["_map: {}\n_min: aa", { contain: "_min" }]
@@ -95,7 +95,7 @@
       ["_oneOf: [str]", {}]
       ["_oneOf: [str, int, { _map: {} }]", {}]
     ]
-    "PENDING reject invalid forms": [
+    "reject invalid forms": [
       ["_oneOf: 22", { contain: "_oneOf" }]
       ["_oneOf: {}", { contain: "_oneOf" }]
       ["_oneOf: aa", { contain: "_oneOf" }]
@@ -113,7 +113,7 @@
       ["_in: [false, null, zz, 0.1]", {}]
       ["_in: [aaa, 22, \"22\"]", {}]
     ]
-    "PENDING reject invalid forms": [
+    "reject invalid forms": [
       ["_in: [[]]", { contain: "_in" }]
       ["_in: [{}]", { contain: "_in" }]
       ["_in: [{ _map: {} }]", { contain: "_in" }]
