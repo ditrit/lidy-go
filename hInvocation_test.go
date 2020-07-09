@@ -81,7 +81,7 @@ tree:
   _map:
     name: string
     children:
-      _seqOf: tree
+      _listOf: tree
 `),
 		).Parse(lidy.NewFile(
 			"treeContent.yaml",

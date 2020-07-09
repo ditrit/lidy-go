@@ -24,7 +24,7 @@
         - [\_map and \_mapOf together](#_map-and-_mapof-together)
       - [`MapResult`, the common output type for map-related checkers](#mapresult-the-common-output-type-for-map-related-checkers)
         - [MapResult](#mapresult)
-    - [Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**](#array-list-slice-tuple-seq-sequence-related-checkers) - [\_tuple](#_tuple) - [\_seqOf](#_seqof) - [\_tupleOptional](#_tupleoptional)
+    - [Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**](#array-list-slice-tuple-seq-sequence-related-checkers) - [\_tuple](#_tuple) - [\_listOf](#_listof) - [\_tupleOptional](#_tupleoptional)
     - [OneOf, choose, select, alternaives, options, pick, OR](#oneof-choose-select-alternaives-options-pick-or) - [\_oneOf](#_oneof)
     - [In, exact scalar match in a list of scalars](#in-exact-scalar-match-in-a-list-of-scalars) - [\_in](#_in)
     - [`_nb`, `_min`, `_max`, specify the number of entries in a container](#_nb-_min-_max-specify-the-number-of-entries-in-a-container) - [container sizing](#container-sizing) - [\_nb](#_nb) - [\_min](#_min) - [\_max](#_max)
@@ -102,8 +102,8 @@ any:
     - int
     - float
     - null
-    - mapOf: { any: any }
-    - seqOf: any
+    - { _mapOf: { any: any } }
+    - { _listOf: any }
 ```
 
 Please note that `any` will store YAML map contents in the `mapOf` field of `MapResult` instances.
@@ -254,7 +254,7 @@ The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML
 
 ###### \_tuple
 
-###### \_seqOf
+###### \_listOf
 
 ###### \_tupleOptional
 

@@ -237,9 +237,9 @@ func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
 			result, erl := seq.form.optionalTuple[k].match(*value, parser)
 			errList.Push(erl)
 			seqResult.Tuple = append(seqResult.Tuple, result)
-		} else if seq.form.seqOf != nil {
+		} else if seq.form.listOf != nil {
 			// SeqOf (all the rest)
-			result, erl := seq.form.seqOf.match(*value, parser)
+			result, erl := seq.form.listOf.match(*value, parser)
 			errList.Push(erl)
 			seqResult.SeqOf = append(seqResult.SeqOf, result)
 		} else {

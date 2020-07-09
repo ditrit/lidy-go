@@ -55,7 +55,7 @@
       ]
     ]
     "accept indirect even if no finite schema can be matched": [
-      ["main:\n  _seqOf: main", {}]
+      ["main:\n  _listOf: main", {}]
       ["main:\n  _tuple: [main]", {}]
       ["main:\n  _mapOf: { string: main }", {}]
       ["main:\n  _mapOf: { main: main }", {}]

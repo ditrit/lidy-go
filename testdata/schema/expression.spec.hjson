@@ -55,18 +55,18 @@
     "accept if it is a valid form": [
       ["_tuple: []", {}]
       ["_tuple: []\n_optional: []", {}]
-      ["_tuple: []\n_seqOf: int", {}]
-      ["_tuple: []\n_optional: []\n_seqOf: int", {}]
-      ["_tuple: []\n_optional: []\n_seqOf: int\n_min: 1\n_max: 2", {}]
-      ["_tuple: []\n_optional: []\n_seqOf: int\n_nb: 2", {}]
-      ["_seqOf: int", {}]
+      ["_tuple: []\n_listOf: int", {}]
+      ["_tuple: []\n_optional: []\n_listOf: int", {}]
+      ["_tuple: []\n_optional: []\n_listOf: int\n_min: 1\n_max: 2", {}]
+      ["_tuple: []\n_optional: []\n_listOf: int\n_nb: 2", {}]
+      ["_listOf: int", {}]
     ]
     "PENDING reject if is an invalid form:": [
-      ["_seqOf: []", {}]
+      ["_listOf: []", {}]
       ["_tuple: string", {}]
       ["_tuple: word", {}]
       ["tuple: string", {}]
-      ["seqOf: string", {}]
+      ["listOf: string", {}]
     ]
   }
   "check for min.checker, max.checker and nb.checker": {

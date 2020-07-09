@@ -73,8 +73,8 @@ func (seq tSeq) name() string {
 	if seq.form.tuple != nil {
 		namePartList = append(namePartList, "_tuple")
 	}
-	if seq.form.seqOf != nil {
-		namePartList = append(namePartList, "_seqOf")
+	if seq.form.listOf != nil {
+		namePartList = append(namePartList, "_listOf")
 	}
 	namePartList = append(namePartList, ")")
 
@@ -94,8 +94,8 @@ func (seq tSeq) description() string {
 
 		partList = append(partList, "_tuple: [", innerString, "]")
 	}
-	if seq.form.seqOf != nil {
-		partList = append(partList, "_seqOf: ", seq.form.seqOf.name())
+	if seq.form.listOf != nil {
+		partList = append(partList, "_listOf: ", seq.form.listOf.name())
 	}
 
 	return strings.Join(partList, "\n")

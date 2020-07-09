@@ -76,7 +76,7 @@ tree:
   _map:
     name: string
     children:
-      _seqOf: tree
+      _listOf: tree
 `),
 	).Parse(
 		lidy.NewFile(
@@ -180,7 +180,7 @@ Also see [Predefined string checker rules](DOCUMENTATION#predefined-string-check
 #### Sequence checkers
 
 - [`_tuple`](DOCUMENTATION.md#_tuple) -- (the equivalent of `_map` but for sequences. It could have been named `_seq`)
-- [`_seqOf`](DOCUMENTATION.md#_seqOf)
+- [`_listOf`](DOCUMENTATION.md#_listOf)
 - [`_optional`](DOCUMENTATION.md#_seqOptional)
 
 ### Composite checkers
@@ -247,7 +247,7 @@ tree<ContentType>:
 # uses the same type name
 
 treeChildren<ContentType>:
-  _seqOf: treeOrContent
+  _listOf: treeOrContent
 
 treeOrContent<ContentType>:
   _oneOf:

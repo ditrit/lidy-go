@@ -1,6 +1,6 @@
 {
-  "_seqOf": {
-    expression: _seqOf: string
+  "_listOf": {
+    expression: _listOf: string
 
     "accept the empty list": {
        "[]": {}
