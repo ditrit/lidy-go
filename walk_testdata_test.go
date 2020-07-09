@@ -30,7 +30,6 @@ func GetTestFileList() (TestFileList, error) {
 		if strings.HasSuffix(filename, ".spec.hjson") {
 			content, err := ioutil.ReadFile(filename)
 			file := lidy.NewFile(filename, content)
-
 			if err != nil {
 				return err
 			}

@@ -124,7 +124,6 @@ func (f *tFile) Yaml() error {
 		// TODO
 		// Think of upgrading to using yaml.NewDecoder, and handle any io.Reader
 		err := yaml.Unmarshal(f.content, &f.yaml)
-
 		if err != nil {
 			return err
 		}

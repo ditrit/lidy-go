@@ -15,7 +15,6 @@ var _ = Describe("file.Yaml", func() {
 
 		err := file.Yaml()
 		Expect(err).To(BeNil())
-
 		if err != nil {
 			return
 		}

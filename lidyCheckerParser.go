@@ -324,7 +324,6 @@ func regexChecker(sp tSchemaParser, _ yaml.Node, formMap tFormMap) (tExpression,
 	regexString := regexValueNode.Value
 
 	regex, err := regexp.Compile(regexString)
-
 	if err != nil {
 		return nil, sp.schemaError(regexValueNode, fmt.Sprintf(
 			"a valid regex (error: '%s')",

@@ -103,7 +103,6 @@ var _ = Describe("schema tests", func() {
 			group.runContentTest()
 		}
 	}
-
 	if err != nil {
 		panic(err)
 	}

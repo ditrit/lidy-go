@@ -20,7 +20,6 @@ b:
 `), &node)
 
 		Expect(err).To(BeNil())
-
 		if err != nil {
 			return
 		}

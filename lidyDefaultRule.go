@@ -83,7 +83,6 @@ var lidyDefaultRuleMatcherMap map[string]tLidyMatcher = map[string]tLidyMatcher{
 		}
 
 		_, err := time.Parse(time.RFC3339Nano, content.Value)
-
 		if err != nil {
 			return nil, parser.contentError(content, fmt.Sprintf("a YAML timestamp (an ISO 8601 datetime; got error [%s])", err.Error()))
 		}
