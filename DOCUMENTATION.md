@@ -28,7 +28,7 @@
     - [Array, Sequence, Slice, Tuple, !!seq, **List-related checkers**](#array-sequence-slice-tuple-seq-list-related-checkers)
           - [\_list](#_list)
           - [\_listOf](#_listof)
-          - [\_listOptional](#_listoptional)
+          - [\_listFacultative](#_listfacultative)
     - [OneOf, choose, select, alternaives, options, pick, OR](#oneof-choose-select-alternaives-options-pick-or)
           - [\_oneOf](#_oneof)
     - [In, exact scalar match in a list of scalars](#in-exact-scalar-match-in-a-list-of-scalars)
@@ -167,7 +167,7 @@ Usage:
 
 ```yaml
 _map: <map of strings to lidy expressions>
-_optional?: <map of strings to lidy expressions>
+_mapFacultative?: <map of strings to lidy expressions>
 _min?: <int>
 _max?: <int>
 _nb?: <int>
@@ -179,7 +179,7 @@ Example:
 _map:
   exactPropertyNameA: string
   exactPropertyNameB: int
-_optional:
+_mapFacultative:
   exactPropertyNameCforAnOptionalProperty: bool
 ```
 
@@ -187,11 +187,11 @@ _optional:
 
 All keys defined in the map will be **required** in the YAML content.
 
-The `_optional` keyword, used in the same expression as `_map` allows to define optional properties. For this, the presence of the `_map` keyword is required. If you want to specify a map where there are no required properties, `_map` should receive the empty map, `{}`, see example:
+The `_mapFacultative` keyword, used in the same expression as `_map` allows to define optional properties. For this, the presence of the `_map` keyword is required. If you want to specify a map where there are no required properties, `_map` should receive the empty map, `{}`, see example:
 
 ```yaml
 _map: {}
-_optional:
+_mapFacultative:
   name: string
   birthYear: int
 ```
@@ -266,7 +266,7 @@ The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML
 
 ###### \_listOf
 
-###### \_listOptional
+###### \_listFacultative
 
 ### OneOf, choose, select, alternaives, options, pick, OR
 
@@ -296,7 +296,7 @@ In the above example, the yaml map matched by `main` must have a single entry.
 
 ###### \_min
 
-Example (with `_map` and `_optional`):
+Example (with `_map` and `_mapFacultative`):
 
 ```yaml
 main: person
@@ -304,14 +304,14 @@ main: person
 person:
   _map:
     name: string
-  _optional:
+  _mapFacultative:
     age: int
     birthYear: int
     wealth: float
   _min: 2
 ```
 
-In the above example, in the yaml map matched by `person`, at least **one** of the three optional entries must be provided.
+In the above example, in the yaml map matched by `person`, at least **one** of the three facultative entries must be provided.
 
 ###### \_max
 

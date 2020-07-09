@@ -30,11 +30,12 @@
   "check for mapChecker": {
     "accept if it is a valid form": [
       ["_map: {}", {}]
-      ["_map: {}\n_optional: {}", {}]
+      ["_map: {}\n_mapFacultative: {}", {}]
+      ["_mapFacultative: {}", {}]
       ["_map: {}\n_mapOf: { string: string }", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { string: string }", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { string: string }\n_min: 1\n_max: 2", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { string: string }\n_nb: 2", {}]
+      ["_map: {}\n_mapFacultative: {}\n_mapOf: { string: string }", {}]
+      ["_map: {}\n_mapFacultative: {}\n_mapOf: { string: string }\n_min: 1\n_max: 2", {}]
+      ["_map: {}\n_mapFacultative: {}\n_mapOf: { string: string }\n_nb: 2", {}]
       ["_mapOf: { string: string }", {}]
     ]
     "reject if is an invalid form:": [
@@ -54,11 +55,11 @@
   "check for seqChecker": {
     "accept if it is a valid form": [
       ["_list: []", {}]
-      ["_list: []\n_optional: []", {}]
+      ["_list: []\n_listFacultative: []", {}]
       ["_list: []\n_listOf: int", {}]
-      ["_list: []\n_optional: []\n_listOf: int", {}]
-      ["_list: []\n_optional: []\n_listOf: int\n_min: 1\n_max: 2", {}]
-      ["_list: []\n_optional: []\n_listOf: int\n_nb: 2", {}]
+      ["_list: []\n_listFacultative: []\n_listOf: int", {}]
+      ["_list: []\n_listFacultative: []\n_listOf: int\n_min: 1\n_max: 2", {}]
+      ["_list: []\n_listFacultative: []\n_listOf: int\n_nb: 2", {}]
       ["_listOf: int", {}]
     ]
     "PENDING reject if is an invalid form:": [

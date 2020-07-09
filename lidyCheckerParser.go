@@ -108,7 +108,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 	errList := errorlist.List{}
 
 	propertyMapNode, _map := formMap["_map"]
-	optionalMapNode, _optional := formMap["_optional"]
+	optionalMapNode, _mapFacultative := formMap["_mapFacultative"]
 	mapOfNode, _mapOf := formMap["_mapOf"]
 	mergeNode, _merge := formMap["_merge"]
 
@@ -121,7 +121,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 		propertyMap = mapParameter(sp, propertyMapNode, &errList)
 	}
 
-	if _optional {
+	if _mapFacultative {
 		optionalMap = mapParameter(sp, optionalMapNode, &errList)
 	}
 
@@ -176,14 +176,14 @@ func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tListForm, []e
 	errList := errorlist.List{}
 
 	listNode, _list := formMap["_list"]
-	optionalNode, _optional := formMap["_optional"]
+	optionalNode, _listFacultative := formMap["_listFacultative"]
 	listOfNode, _listOf := formMap["_listOf"]
 
 	listList := []tExpression{}
 	optionalList := []tExpression{}
 	var listOfExpression tExpression = nil
 
-	// _list and _optional
+	// _list and _listFacultative
 
 	if _list {
 		listList = make([]tExpression, len(listNode.Content))
@@ -194,7 +194,7 @@ func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tListForm, []e
 		}
 	}
 
-	if _optional {
+	if _listFacultative {
 		optionalList = make([]tExpression, len(optionalNode.Content))
 		for k, subNode := range listNode.Content {
 			res, erl := sp.expression(*subNode)

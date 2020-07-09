@@ -40,11 +40,10 @@
     }
   }
 
-  "_map 0 _optional 2 entries": {
+  "_map 0 _mapFacultative 2 entries": {
     expression:
       '''
-      _map: {}
-      _optional: { a: string, b: int }
+      _mapFacultative: { a: string, b: int }
       '''
 
     "accept when all entries are present and valid": {

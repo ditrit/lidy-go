@@ -184,9 +184,9 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 
 		// identifying the form
 		switch key {
-		case "_map", "_mapOf", "_merge":
+		case "_map", "_mapFacultative", "_mapOf", "_merge":
 			setForm("map", key, mapChecker)
-		case "_list", "_listOf":
+		case "_list", "_listFacultative", "_listOf":
 			setForm("sequence", key, seqChecker)
 		case "_oneOf":
 			setForm("oneOf", key, oneOfChecker)
@@ -194,7 +194,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 			setForm("in", key, inChecker)
 		case "_regex":
 			setForm("regex", key, regexChecker)
-		case "_optional", "_min", "_max", "_nb":
+		case "_min", "_max", "_nb":
 			if form != "" && form != "map" && form != "sequence" {
 				errList.Push(sp.schemaError(*keyNode, fmt.Sprintf(
 					"only keywords compatible with form '%s' (resulting from keyword '%s')",

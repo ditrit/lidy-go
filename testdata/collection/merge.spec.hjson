@@ -65,15 +65,15 @@
     }
   }
 
-  "PENDING _merge 0 _optional 2 entries": {
+  "PENDING _merge 0 _mapFacultative 2 entries": {
     schema:
       '''
       main:
         _merge:
           - _map: { a: string }
-            _optional: { b: int, c: boolean }
+            _mapFacultative: { b: int, c: boolean }
           - _map: { c: int }
-            _optional: { a: int }
+            _mapFacultative: { a: int }
       '''
 
     "accept when only c is provided": {
@@ -107,12 +107,12 @@
     '''
     main:
       _merge:
-        - { _map: {}, _optional: { kkey: boolean } }
+        - { _mapFacultative: { kkey: boolean } }
         - _mapOf: { string: string }
         - _mapOf: { { _list: [] }: int }
         - _mapOf: { { _list: [] }: string }
         - _mapOf: { { _list: [string] }: int }
-        - { _map: {}, _optional: { pkey: null } }
+        - { _mapFacultative: { pkey: null } }
     '''
 
     "accept if valid": {

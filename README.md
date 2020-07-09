@@ -174,13 +174,13 @@ Also see [Predefined string checker rules](DOCUMENTATION#predefined-string-check
 - [`_map`](DOCUMENTATION.md#_map) -- followed by a map of exact keys to lidy expressions
 - [`_mapOf`](DOCUMENTATION.md#_mapOf) -- Example: `_mapOf: { string: int }`
 - [`_merge`](DOCUMENTATION.md#_merge) -- create a map checker merging the keys of the listed map checkers
-- [`_optional`](DOCUMENTATION.md#_mapOptional) -- \_optional must be used together with \_map
+- [`_mapFacultative`](DOCUMENTATION.md#_mapOptional) -- like `_map`, but the specified entries aren't mendatory
 
 #### List checkers
 
 - [`_list`](DOCUMENTATION.md#_list) -- (the equivalent of `_map` but for sequences. It could have been named `_seq`)
 - [`_listOf`](DOCUMENTATION.md#_listOf)
-- [`_optional`](DOCUMENTATION.md#_seqOptional)
+- [`_listFacultative`](DOCUMENTATION.md#_seqOptional)
 
 ### Composite checkers
 
