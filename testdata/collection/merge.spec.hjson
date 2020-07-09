@@ -12,8 +12,8 @@
         capacity: float
     car:
       _map:
-        id: str
-        engine: str
+        id: string
+        engine: string
     '''
 
     "accept if all keys are present and matching": {
@@ -70,7 +70,7 @@
       '''
       main:
         _merge:
-          - _map: { a: str }
+          - _map: { a: string }
             _optional: { b: int, c: boolean }
           - _map: { c: int }
             _optional: { a: int }
@@ -108,10 +108,10 @@
     main:
       _merge:
         - { _map: {}, _optional: { kkey: boolean } }
-        - _mapOf: { str: str }
+        - _mapOf: { string: string }
         - _mapOf: { { _tuple: [] }: int }
-        - _mapOf: { { _tuple: [] }: str }
-        - _mapOf: { { _tuple: [str] }: int }
+        - _mapOf: { { _tuple: [] }: string }
+        - _mapOf: { { _tuple: [string] }: int }
         - { _map: {}, _optional: { pkey: null } }
     '''
 

@@ -5,14 +5,14 @@
       [
         '''
         main: animal
-        animal: str
+        animal: string
         '''
         {}
       ]
     ]
     "PENDING reject if the target rule (main) is missing": [
       [
-        "animal: str"
+        "animal: string"
         { contain: "main" }
       ]
     ]
@@ -32,8 +32,8 @@
         main: animal
         animal:
           _map:
-            name: str
-            age: str
+            name: string
+            age: string
             eat: edible
         edible:
           _oneOf:
@@ -47,7 +47,7 @@
         main: person
         person:
           _map:
-            name: str
+            name: string
             mother: person
             father: person
         '''
@@ -57,7 +57,7 @@
     "accept indirect even if no finite schema can be matched": [
       [ "main:\n  _seqOf: main", {} ]
       [ "main:\n  _tuple: [main]", {} ]
-      [ "main:\n  _mapOf: { str: main }", {} ]
+      [ "main:\n  _mapOf: { string: main }", {} ]
       [ "main:\n  _mapOf: { main: main }", {} ]
       [ "main:\n  _map: { content: main }", {} ]
     ]
@@ -103,7 +103,7 @@
         main: aa
         aa: { _merge: [bb] }
         bb: { _oneOf: [aa, cc] }
-        cc: str
+        cc: string
         '''
         {
           contain: "aa"

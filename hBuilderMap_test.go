@@ -15,7 +15,7 @@ var _ = Describe("How to use the builderMap", func() {
 			"jungleDefinition.yaml",
 			[]byte(`
 main: animal
-animal:: str
+animal:: string
 `),
 		).With(map[string]lidy.Builder{
 			"animal": func(input interface{}) (lidy.Result, []error) {

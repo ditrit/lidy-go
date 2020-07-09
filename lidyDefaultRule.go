@@ -19,7 +19,7 @@ const regexBase64Source = `^[a-zA-Z0-9_\- \n]*[= \n]*$`
 var regexBase64 = *regexp.MustCompile(regexBase64Source)
 
 var lidyDefaultRuleMatcherMap map[string]tLidyMatcher = map[string]tLidyMatcher{
-	"str": func(content yaml.Node, parser *tParser) (Result, []error) {
+	"string": func(content yaml.Node, parser *tParser) (Result, []error) {
 		if content.Tag != "!!str" {
 			return nil, parser.contentError(content, "a YAML string")
 		}
@@ -111,7 +111,7 @@ func (sp *tSchemaParser) precomputeLidyDefaultRules() {
 
 	ruleAny.expression = tOneOf{
 		optionList: []tExpression{
-			sp.lidyDefaultRuleMap["str"],
+			sp.lidyDefaultRuleMap["string"],
 			sp.lidyDefaultRuleMap["boolean"],
 			sp.lidyDefaultRuleMap["int"],
 			sp.lidyDefaultRuleMap["float"],

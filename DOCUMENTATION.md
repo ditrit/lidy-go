@@ -10,53 +10,43 @@
     - [Predefined Lidy rules](#predefined-lidy-rules)
     - [Scalar rules](#scalar-rules)
     - [Predefined string checker rules](#predefined-string-checker-rules)
-    - [Special checkers](#special-checkers)
-          - [any](#any)
+    - [Special checkers](#special-checkers) - [any](#any)
     - [Lidy checker forms](#lidy-checker-forms)
     - [`_regex: ...`, define your own string checker](#_regex--define-your-own-string-checker)
-        - [\_regex](#_regex)
+      - [\_regex](#_regex)
     - [Hashmap, Dict, Object, !!map, **Map-related checkers**](#hashmap-dict-object-map-map-related-checkers)
       - [`_map`, the structured type](#_map-the-structured-type)
-          - [\_map](#_map)
+        - [\_map](#_map)
       - [`_mapOf`, the associative container](#_mapof-the-associative-container)
-          - [\_mapOf](#_mapof)
-          - [\_merge](#_merge)
+        - [\_mapOf](#_mapof)
+        - [\_merge](#_merge)
       - [Using `_map` and `_mapOf` together: Specify a fallback rule](#using-_map-and-_mapof-together-specify-a-fallback-rule)
-          - [\_map and \_mapOf together](#_map-and-_mapof-together)
+        - [\_map and \_mapOf together](#_map-and-_mapof-together)
       - [`MapResult`, the common output type for map-related checkers](#mapresult-the-common-output-type-for-map-related-checkers)
-          - [MapResult](#mapresult)
-    - [Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**](#array-list-slice-tuple-seq-sequence-related-checkers)
-          - [\_tuple](#_tuple)
-          - [\_seqOf](#_seqof)
-          - [\_tupleOptional](#_tupleoptional)
-    - [OneOf, choose, select, alternaives, options, pick, OR](#oneof-choose-select-alternaives-options-pick-or)
-          - [\_oneOf](#_oneof)
-    - [In, exact scalar match in a list of scalars](#in-exact-scalar-match-in-a-list-of-scalars)
-          - [\_in](#_in)
-    - [`_nb`, `_min`, `_max`, specify the number of entries in a container](#_nb-_min-_max-specify-the-number-of-entries-in-a-container)
-          - [container sizing](#container-sizing)
-          - [\_nb](#_nb)
-          - [\_min](#_min)
-          - [\_max](#_max)
+        - [MapResult](#mapresult)
+    - [Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**](#array-list-slice-tuple-seq-sequence-related-checkers) - [\_tuple](#_tuple) - [\_seqOf](#_seqof) - [\_tupleOptional](#_tupleoptional)
+    - [OneOf, choose, select, alternaives, options, pick, OR](#oneof-choose-select-alternaives-options-pick-or) - [\_oneOf](#_oneof)
+    - [In, exact scalar match in a list of scalars](#in-exact-scalar-match-in-a-list-of-scalars) - [\_in](#_in)
+    - [`_nb`, `_min`, `_max`, specify the number of entries in a container](#_nb-_min-_max-specify-the-number-of-entries-in-a-container) - [container sizing](#container-sizing) - [\_nb](#_nb) - [\_min](#_min) - [\_max](#_max)
   - [Go API](#go-api)
     - [Invocation in Go, simple use case](#invocation-in-go-simple-use-case)
       - [Create a parser](#create-a-parser)
-          - [NewParser](#newparser)
+        - [NewParser](#newparser)
       - [Create a file](#create-a-file)
-          - [NewFile](#newfile)
+        - [NewFile](#newfile)
       - [Parse the file](#parse-the-file)
-          - [Parse](#parse)
+        - [Parse](#parse)
       - [Set the Builder Map](#set-the-builder-map)
-          - [With](#with)
+        - [With](#with)
       - [Set the parse options](#set-the-parse-options)
-          - [Option](#option)
+        - [Option](#option)
     - [Invocation in Go, advanced use case](#invocation-in-go-advanced-use-case)
       - [Check that a file is Yaml](#check-that-a-file-is-yaml)
-          - [Yaml](#yaml)
+        - [Yaml](#yaml)
       - [Check that a file is a Lidy schema](#check-that-a-file-is-a-lidy-schema)
-          - [Schema](#schema)
+        - [Schema](#schema)
       - [Set the schema target](#set-the-schema-target)
-          - [Target](#target)
+        - [Target](#target)
     - [Builder Map | TODO](#builder-map--todo)
     - [Errors | TODO](#errors--todo)
 
@@ -83,7 +73,7 @@ The predefined lidy rules are [the scalars](#scalars), [the predefined string ch
 
 Scalars, as defined in the [YAML specification](https://yaml.org/type/#id838503)
 
-- `str`, a YAML string
+- `string`, a YAML string
 - `bool`, a YAML boolean
 - `int`, a YAML integer
 - `float`, a YAML floating-point value
@@ -107,7 +97,7 @@ There's only one: `any`. It matches any YAML content. It can be defined in Lidy 
 ```yaml
 any:
   _oneOf:
-    - str
+    - string
     - boolean
     - int
     - float
@@ -177,7 +167,7 @@ Example:
 
 ```yaml
 _map:
-  exactPropertyNameA: str
+  exactPropertyNameA: string
   exactPropertyNameB: int
 _optional:
   exactPropertyNameCforAnOptionalProperty: bool
@@ -192,7 +182,7 @@ The `_optional` keyword, used in the same expression as `_map` allows to define 
 ```yaml
 _map: {}
 _optional:
-  name: str
+  name: string
   birthYear: int
 ```
 
@@ -214,7 +204,7 @@ Example:
 ```yaml
 fullname:
   _mapOf:
-    str: str
+    string: string
 conversionTable:
   _mapOf:
     float: float
@@ -288,7 +278,7 @@ Example (with `_mapOf`):
 
 ```yaml
 main:
-  _mapOf: { str: str }
+  _mapOf: { string: string }
   _nb: 1
 ```
 
@@ -303,7 +293,7 @@ main: person
 
 person:
   _map:
-    name: str
+    name: string
   _optional:
     age: int
     birthYear: int
@@ -321,7 +311,7 @@ Example (with `_seq`):
 
 ```yaml
 main:
-  _seq: str
+  _seq: string
   _max: 1
 ```
 
@@ -428,7 +418,7 @@ main: animal
 
 animal:: dog
 
-dog:: str
+dog:: string
 ```
 
 ### Errors | TODO

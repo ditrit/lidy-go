@@ -1,6 +1,6 @@
 {
   "_tuple with 2 entries": {
-    expression: _tuple: [str, int]
+    expression: _tuple: [string, int]
 
     "accept when all entries are present and valid": {
        "[va, 4]": {}

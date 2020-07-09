@@ -38,11 +38,11 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 	})
 	When("Checking that a schema is valid", func() {
 		It("works with YAML", func() {
-			err := lidy.NewParser("schema.yaml", []byte(`main: str`)).Schema()
+			err := lidy.NewParser("schema.yaml", []byte(`main: string`)).Schema()
 			Expect(err).To(BeEmpty())
 		})
 		It("works with JSON, since JSON is YAML", func() {
-			err := lidy.NewParser("schema.json", []byte(`{ "main": "str" }`)).Schema()
+			err := lidy.NewParser("schema.json", []byte(`{ "main": "string" }`)).Schema()
 			Expect(err).To(BeEmpty())
 		})
 	})
@@ -50,7 +50,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		It("works with YAML", func() {
 			content := "Hello, I'm a string!"
 
-			parser := lidy.NewParser("schema.yaml", []byte(`main: str`))
+			parser := lidy.NewParser("schema.yaml", []byte(`main: string`))
 			result, err := parser.Parse(
 				lidy.NewFile("content.yaml", []byte(content)),
 			)
@@ -61,7 +61,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 		It("works with JSON, since JSON is YAML", func() {
 			content := "Hello, I'm a string!"
 
-			parser := lidy.NewParser("schema.json", []byte(`{ "main": "str" }`))
+			parser := lidy.NewParser("schema.json", []byte(`{ "main": "string" }`))
 			result, err := parser.Parse(
 				lidy.NewFile("content.yaml", []byte(content)),
 			)
@@ -79,7 +79,7 @@ main: tree
 
 tree:
   _map:
-    name: str
+    name: string
     children:
       _seqOf: tree
 `),

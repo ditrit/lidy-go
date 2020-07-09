@@ -7,9 +7,9 @@
         main:
           _merge: [animal, plant, shroom]
         animal:
-          _map: { a: str }
+          _map: { a: string }
         plant:
-          _mapOf: { str: str }
+          _mapOf: { string: string }
         shroom:
           _map: { a: int }
           _mapOf: { int: int }
@@ -43,7 +43,7 @@
           _merge:
             - _oneOf:
               - { _map: {} }
-              - { _mapOf: { str: str } }
+              - { _mapOf: { string: string } }
               - { _merge: {} }
         '''
         { contain: "main" }
@@ -64,7 +64,7 @@
           _merge:
             - oneOf:
               - _map: {}
-              - str
+              - string
         '''
         { contain: "main" }
       ]

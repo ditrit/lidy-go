@@ -74,7 +74,7 @@ main: tree
 
 tree:
   _map:
-    name: str
+    name: string
     children:
       _seqOf: tree
 `),
@@ -152,7 +152,7 @@ Also see [predefined lidy rules](DOCUMENTATION.md#predefined-lidy-rules).
 - `boolean`
 - `float`
 - `int` -- integer
-- `str` -- string
+- `string` -- string
 - `null`
 
 Also see [Scalar rules](DOCUMENTATION.md#scalar-rules).
@@ -173,7 +173,7 @@ Also see [Predefined string checker rules](DOCUMENTATION#predefined-string-check
 #### Map checkers
 
 - [`_map`](DOCUMENTATION.md#_map) -- followed by a map of exact keys to lidy expressions
-- [`_mapOf`](DOCUMENTATION.md#_mapOf) -- Example: `_mapOf: { str: int }`
+- [`_mapOf`](DOCUMENTATION.md#_mapOf) -- Example: `_mapOf: { string: int }`
 - [`_merge`](DOCUMENTATION.md#_merge) -- create a map checker merging the keys of the listed map checkers
 - [`_optional`](DOCUMENTATION.md#_mapOptional) -- \_optional must be used together with \_map
 
@@ -240,7 +240,7 @@ Declare a functional type:
 ```yaml
 tree<ContentType>:
   _map:
-    name: str
+    name: string
     children: treeChildren
 # treeChildren requires a parameter: `treeChildren<ContentType>`
 # but lidy is smart enougth to pass it from the parent automatically, since they

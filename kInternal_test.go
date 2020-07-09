@@ -50,8 +50,8 @@ var _ = Describe("_map schema parsing", func() {
 		parser := NewParser("schema.yaml", []byte(`
 main:
   _map:
-    ka: str
-    kb: str
+    ka: string
+    kb: string
 `)).(*tParser)
 		erl := parser.Schema()
 		Expect(erl).To(HaveLen(0))

@@ -8,7 +8,7 @@
       ["float", {}]
       ["any", {}]
       ["int", {}]
-      ["str", {}]
+      ["string", {}]
     ]
     "reject if (rule is) unknown": [
       ["cat", { contain: "cat" }]
@@ -18,7 +18,7 @@
   "check that checkers are used with the right signature": {
     "reject": [
       ["_map: word", {}]
-      ["_map: str", {}]
+      ["_map: string", {}]
       ["_map: 1", {}]
       ["_map: 1.1", {}]
       ["_map: true", {}]
@@ -31,20 +31,20 @@
     "accept if it is a valid form": [
       ["_map: {}", {}]
       ["_map: {}\n_optional: {}", {}]
-      ["_map: {}\n_mapOf: { str: str }", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { str: str }", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { str: str }\n_min: 1\n_max: 2", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { str: str }\n_nb: 2", {}]
-      ["_mapOf: { str: str }", {}]
+      ["_map: {}\n_mapOf: { string: string }", {}]
+      ["_map: {}\n_optional: {}\n_mapOf: { string: string }", {}]
+      ["_map: {}\n_optional: {}\n_mapOf: { string: string }\n_min: 1\n_max: 2", {}]
+      ["_map: {}\n_optional: {}\n_mapOf: { string: string }\n_nb: 2", {}]
+      ["_mapOf: { string: string }", {}]
     ]
     "reject if is an invalid form:": [
-      ["_mapOf: [str]", {}]
-      ["_mapOf: str", {}]
+      ["_mapOf: [string]", {}]
+      ["_mapOf: string", {}]
       ["_mapOf: []", {}]
       ["_map: false", {}]
       ["_map: true", {}]
       ["_map: null", {}]
-      ["_map: str", {}]
+      ["_map: string", {}]
       ["_map: 1.1", {}]
       ["_map: []", {}]
       ["_map: 1", {}]
@@ -63,10 +63,10 @@
     ]
     "PENDING reject if is an invalid form:": [
       ["_seqOf: []", {}]
-      ["_tuple: str", {}]
+      ["_tuple: string", {}]
       ["_tuple: word", {}]
-      ["tuple: str", {}]
-      ["seqOf: str", {}]
+      ["tuple: string", {}]
+      ["seqOf: string", {}]
     ]
   }
   "check for min.checker, max.checker and nb.checker": {
@@ -90,8 +90,8 @@
   "check for oneOf.checker": {
     "accept valid forms": [
       ["_oneOf: []", {}]
-      ["_oneOf: [str]", {}]
-      ["_oneOf: [str, int, { _map: {} }]", {}]
+      ["_oneOf: [string]", {}]
+      ["_oneOf: [string, int, { _map: {} }]", {}]
     ]
     "reject invalid forms": [
       ["_oneOf: 22", { contain: "_oneOf" }]

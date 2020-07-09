@@ -1,6 +1,6 @@
 {
   "_mapOf basic": {
-    expression: _mapOf: { str: int }
+    expression: _mapOf: { string: int }
 
     "accept the empty dict": {
        "{}": {}
@@ -39,7 +39,7 @@
     }
   }
   "_mapOf more": {
-    expression: _mapOf: { str: str }
+    expression: _mapOf: { string: string }
 
     "accept string-string": {
       "{ ka: va }": {}

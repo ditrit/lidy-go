@@ -26,7 +26,7 @@
   }
 
   "_oneOf dict": {
-    expression: _oneOf: [ { "_mapOf": { "str": "str" } } ]
+    expression: _oneOf: [ { "_mapOf": { "string": "string" } } ]
 
     "accept the empty dict": {
        "{}": {}

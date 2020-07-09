@@ -44,7 +44,7 @@
     expression:
       '''
       _map: {}
-      _optional: { a: str, b: int }
+      _optional: { a: string, b: int }
       '''
 
     "accept when all entries are present and valid": {
