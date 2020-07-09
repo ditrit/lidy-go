@@ -221,6 +221,7 @@ Less likely to be added, but still considered:
 - `lang.jsonc`
 - `lang.json4`
 - `lang.hjson`
+- `lang.strictyaml`
 - `lang.html`
 - `lang.xml`
 
