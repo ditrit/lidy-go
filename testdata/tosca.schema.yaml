@@ -76,68 +76,51 @@ value:
     - nullType
 
 value_expression::TValueExpression:
-  _oneOf:
-    - value_expression.concat
-    - value_expression.get_input
-    - value_expression.get_nodes_of_type
-    - value_expression.token
-    - value_expression.join
-    - value_expression.get_property
-    - value_expression.get_attribute
-    - value_expression.get_operation_output
-    - value_expression.get_artifact
+  _max: 1
+  _mapFacultative:
+    concat:               value_expression.concat
+    get_input:            value_expression.get_input
+    get_nodes_of_type:    value_expression.get_nodes_of_type
+    token:                value_expression.token
+    join:                 value_expression.join
+    get_property:         value_expression.get_property
+    get_attribute:        value_expression.get_attribute
+    get_operation_output: value_expression.get_operation_output
+    get_artifact:         value_expression.get_artifact
 
 value_expression.concat:
-  - _mapFacultative:
-      concat:
-        _list: [string_value_expression]
+  _list: [string_value_expression]
 
 value_expression.get_input:
-  - _mapFacultative:
-      get_input:
-        _oneOf: [string, { _listOf: string, _min: 1 }]
+  _oneOf: [string, { _listOf: string, _min: 1 }]
 
-value_expression.get_nodes_of_type:
-  - _mapFacultative:
-      get_nodes_of_type: string
+value_expression.get_nodes_of_type: string
 
 value_expression.token:
-  - _mapFacultative:
-      token:
-        _list: [string_value_expression, string, int]
+  _list: [string_value_expression, string, int]
 
 value_expression.join:
-  - _mapFacultative:
-      join:
-        _oneOf:
-          - _list: [{ _listOf: string_value_expression }]
-          - _list: [{ _listOf: string_value_expression }, string]
+  _oneOf:
+    - _list: [{ _listOf: string_value_expression }]
+    - _list: [{ _listOf: string_value_expression }, string]
 
 value_expression.get_property:
-  - _mapFacultative:
-      get_property:
-        _list: [string, string]
-        _listOf: { _oneOf: [int, string] }
-        _min: 3
+  _list: [string, string]
+  _listOf: { _oneOf: [int, string] }
+  _min: 3
 
 value_expression.get_attribute:
-  - _mapFacultative:
-      get_attribute:
-        _list: [string, string]
-        _listOf: { _oneOf: [int, string] }
-        _min: 3
+  _list: [string, string]
+  _listOf: { _oneOf: [int, string] }
+  _min: 3
 
 value_expression.get_operation_output:
-  - _mapFacultative:
-      get_operation_output:
-        _list: [string, string, string, string]
+  _list: [string, string, string, string]
 
 value_expression.get_artifact:
-  - _mapFacultative:
-      get_artifact:
-        _oneOf:
-          - _list: [string, string, boolean]
-          - _list: [string, string, string, boolean]
+  _oneOf:
+    - _list: [string, string, boolean]
+    - _list: [string, string, string, boolean]
 
 import::TImport:
     _oneOf:
@@ -145,33 +128,35 @@ import::TImport:
       - _nb: 1
         _mapOf: { string: string }
       - _nb: 1
-        _mapOf:
-          string:
-            _map:
-              file: string
-            _mapFacultative:
-              repository: string
-              namespace_prefix: string
-              namespace_uri: string
+        _mapOf: { string: import.target }
+ 
+import.target:
+  _map:
+    file: string
+  _mapFacultative:
+    repository: string
+    namespace_prefix: string
+    namespace_uri: string
 
 imports::TList:
   _listOf: import
   _min: 1
 
 constraint::TConstraint:
-  _oneOf:
-    - _mapFacultative: { equal: value }
-    - _mapFacultative: { greater_than: value }
-    - _mapFacultative: { greater_or_equal: value }
-    - _mapFacultative: { less_than: value }
-    - _mapFacultative: { less_or_equal: value }
-    - _mapFacultative: { in_range: range }
-    - _mapFacultative: { valid_values: { _listOf: any } }
-    - _mapFacultative: { length: int }
-    - _mapFacultative: { min_length: int }
-    - _mapFacultative: { max_length: int }
-    - _mapFacultative: { pattern: string }
-    # - _mapFacultative: { schema: string }
+  _max: 1
+  _mapFacultative:
+    equal: value
+    greater_than: value
+    greater_or_equal: value
+    less_than: value
+    less_or_equal: value
+    in_range: range
+    valid_values: { _listOf: any }
+    length: int
+    min_length: int
+    max_length: int
+    pattern: string
+    schema: string
 
 constraints::TConstraints:
   _listOf: constraint
@@ -478,31 +463,31 @@ relationship_assignment::TRelationshipAssignment:
         interfaces: interface_defs_template
 
 requirement_assignment::TRequirementAssignment:
-    _nb: 1
-    _mapOf:
-      string:
-        _oneOf:
-          - string
-          - _mapFacultative:
-              node: string
-              relationship: { _oneOf: [string, relationship_assignment] }
-              capability: string
-              occurrences: range
-              node_filter: node_filter
+  _nb: 1
+  _mapOf:
+    string:
+      _oneOf:
+        - string
+        - _mapFacultative:
+            node: string
+            relationship: { _oneOf: [string, relationship_assignment] }
+            capability: string
+            occurrences: range
+            node_filter: node_filter
 
 requirement_assignments::TRequirementAssignments:
   _listOf:
     requirement_assignment
 
 workflow_condition_operator::TWorkflowConditionOperator:
-    _nb: 1
-    _mapFacultative:
-      or: workflow_condition_clause
-      and: workflow_condition_clause
-      not: workflow_condition_clause
-      assert: workflow_condition_clause
-    _mapOf:
-      string: constraints
+  _nb: 1
+  _mapFacultative:
+    or: workflow_condition_clause
+    and: workflow_condition_clause
+    not: workflow_condition_clause
+    assert: workflow_condition_clause
+  _mapOf:
+    string: constraints
 
 workflow_condition_clause::TWorkflowConditionClause:
   _listOf: workflow_condition_operator
@@ -513,40 +498,41 @@ workflow_preconditions::TWorkflowPrecondition:
   _min: 1
 
 workflow_precondition::TWorkflowPreconditions:
-    _mapFacultative:
-      target: string
-      target_relationship: string
-      condition: workflow_condition_clause
+  _mapFacultative:
+    target: string
+    target_relationship: string
+    condition: workflow_condition_clause
 
 workflow_activities::TWorkflowActivities:
   _listOf: workflow_activity
   _min: 1
 
 workflow_activity::TWorkflowActivity:
-    _nb: 1
-    _mapFacultative:
-      delegate:
-        _oneOf:
-          - string
-          - _map:
-              workflow: string
-            _mapFacultative:
-              inputs: input_assignments
-      set_state: { _in: [initial, creating, created, configuring, configured, starting, started, stopping, stopped, deleting, deleted, error] }
-      call_operation:
-        _oneOf:
-          - string
-          - _map:
-              operation: string
-            _mapFacultative:
-              inputs: input_assignments
-      inline:
-        _oneOf:
-          - string
-          - _map:
-              workflow: string
-            _mapFacultative:
-              inputs: input_assignments
+  _nb: 1
+  _mapFacultative:
+    delegate: workflow_activity.inline
+    set_state: workflow_activity.state
+    call_operation: workflow_activity.call_operation
+    inline: workflow_activity.inline
+
+workflow_activity.inline:
+  _oneOf:
+    - string
+    - _map:
+        workflow: string
+      _mapFacultative:
+        inputs: input_assignments
+
+workflow_activity.call_operation:
+  _oneOf:
+    - string
+    - _map:
+        operation: string
+      _mapFacultative:
+        inputs: input_assignments
+
+workflow_activity.state:
+  _in: [initial, creating, created, configuring, configured, starting, started, stopping, stopped, deleting, deleted, error]
 
 declarative_workflow_steps::TWorkflowSteps:
   _mapOf:
@@ -748,21 +734,22 @@ target_filter::TTargetFilter:
 
 trigger_def::TTriggerDef:
   _nb: 1
-  _mapOf:
-    string:
-      _mapFacultative:
-        description: description
-        event: event
-        schedule: value
-        target_filter: target_filter
-        condition:
-            _oneOf:
-              - constraint
-              - _mapFacultative: { constraint: constraint }
-        period: string
-        evaluations: int
-        method: string
-        action: { _oneOf: [string, operation_def] }
+  _mapOf: { string: trigger_def.value }
+
+trigger_def.value:
+  _mapFacultative:
+    description: description
+    event: event
+    schedule: value
+    target_filter: target_filter
+    condition:
+        _oneOf:
+          - constraint
+          - _mapFacultative: { constraint: constraint }
+    period: string
+    evaluations: int
+    method: string
+    action: { _oneOf: [string, operation_def] }
 
 trigger_defs::TTriggerDefs:
   _listOf: trigger_def
@@ -903,4 +890,3 @@ service_template::TServiceTemplate:
     group_types: group_types
     policy_types: policy_types
     topology_template: topology_template
- 
