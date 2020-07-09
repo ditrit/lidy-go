@@ -290,3 +290,5 @@ Testing, with the control offered by ginkgo:
 # Test
 ginkgo
 ```
+
+When visiting the `.spec.hjson` files, you can prefix a group description or criterion description with `PENDING` or `FOCUS` to disable running it, or to focus on it. Lidy's specification runner will pass them to Ginkgo using `PDescribe`, `FDescribe`, `PSpecify` and `FSpecify`, accordingly.
