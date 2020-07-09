@@ -414,7 +414,7 @@ Expect(chainable).To(Equal(parser))
 type Result interface {}
 
 type Builder interface {
-	build(input interface{}) (Result, []error)
+  build(input interface{}) (Result, []error)
 }
 ```
 

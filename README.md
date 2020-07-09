@@ -26,7 +26,7 @@ Lidy is:
       - [`any` - Any yaml content](#any---any-yaml-content)
     - [Container checkers](#container-checkers)
       - [Map checkers](#map-checkers)
-      - [List checkers](#sequence-checkers)
+      - [List checkers](#list-checkers)
     - [Composite checkers](#composite-checkers)
     - [Container checkers](#container-checkers-1)
     - [Scalar checkers](#scalar-checkers)
@@ -45,9 +45,8 @@ What's the point of Lidy, when there's already JSON schema?
 - **Refs**: In Lidy, refs are first class citizens, they are just like in programming languages: `<name>`, as opposed to JSON Schema's heavy `{ ref: "#/<name>" }`, see below.
 - **Line numbers**: Lidy is meant to _assist_ your users with writing YAML: Lidy provides the line numbers at which the checking failed.
 - **Algebriac data types**: Lidy schema are similar to Algebriac data types. They have union types (`_oneOf`), positional product types (`_list`), named product types (`_map`), and combined types (`_merge`). (N.B. parameterized types aren't yet there, but they are on our short list).
-- **Rich deserialisation**: Lidy provides support for rich deserialisation. It's core use-case. This includes access to the source line numbers.
-- **Custom checkers**: Writing a custom value checker is just as easy as writing a deserialiser, Lidy
-  handles the two through the same interface
+- **Rich deserialisation**: Lidy provides support for rich deserialisation. It is a core use-case. This includes access to the source line numbers.
+- **Custom checkers**: Writing a custom value checker is also a core use-case. Actually, it's just as easy as writing a type deserialiser since Lidy handles the two through the same interface.
 
 ### About lidy's refs
 
@@ -110,17 +109,17 @@ children:
 
 Here's a list of schema validators we could find:
 
-- Kwalify, [[website]](http://www.kuwata-lab.com/kwalify/) [[source (mirror?)]]() (Ruby and Java, v0.7.2, 2010-07-18)
-- [pykwalify](https://github.com/Grokzen/pykwalify), [[documentation]](https://pykwalify.readthedocs.io/en/master) (Python, v1.7.0, 2018-08-03)
-- [Rx](https://github.com/rjbs/Rx), [[website]](http://rx.codesimply.com/) (Js, Perl, PHP, Python, Ruby, v0.200006, 2014-05-21)
+- Kwalify, [[source (mirror?)]](https://github.com/sunaku/kwalify/), [[website]](http://www.kuwata-lab.com/kwalify/) (Ruby and Java, v0.7.2, 2010-07-18)
+- pykwalify [[source]](https://github.com/Grokzen/pykwalify), [[documentation]](https://pykwalify.readthedocs.io/en/master) (Python, v1.7.0, 2018-08-03)
+- Rx [[source]](https://github.com/rjbs/Rx), [[website]](http://rx.codesimply.com/) (Js, Perl, PHP, Python, Ruby, v0.200006, 2014-05-21)
 
 Also see the [dedicated page on JSON Schema Everywhere](https://json-schema-everywhere.github.io/yaml).
 
 And a few more project(s):
 
-- [Azuki](https://github.com/guoyk93/azuki), just a Map evaluation tool (Java)
+- Azuki [[source]](https://github.com/guoyk93/azuki), just a Map evaluation tool (Java)
 
-None has the feature-set of Lidy, nor its type-minded approach.
+None has the feature-set of Lidy, nor its type-oriented approach.
 
 ## Using Regex
 
@@ -277,6 +276,12 @@ cd lidy
 ```
 
 Running Lidy's tests:
+
+```sh
+go test
+```
+
+Testing, with the control offered by ginkgo:
 
 ```sh
 # Install
