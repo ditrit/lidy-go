@@ -90,13 +90,12 @@ value_expression::TValueExpression:
 value_expression.concat:
   - _mapFacultative:
       concat:
-        _nb: 1
-        _listOf: string_value_expression
+        _list: [string_value_expression]
 
 value_expression.get_input:
   - _mapFacultative:
       get_input:
-        _oneOf: [string, { _listOf: string }]
+        _oneOf: [string, { _listOf: string, _min: 1 }]
 
 value_expression.get_nodes_of_type:
   - _mapFacultative:
@@ -110,22 +109,23 @@ value_expression.token:
 value_expression.join:
   - _mapFacultative:
       join:
-        _list: [{ _listOf: string_value_expression }, string]
-        _optional: [2]
+        _oneOf:
+          - _list: [{ _listOf: string_value_expression }]
+          - _list: [{ _listOf: string_value_expression }, string]
 
 value_expression.get_property:
   - _mapFacultative:
       get_property:
-        _list: [string, string, string]
+        _list: [string, string]
         _listOf: { _oneOf: [int, string] }
-        _optional: [2, 4]
+        _min: 3
 
 value_expression.get_attribute:
   - _mapFacultative:
       get_attribute:
-        _list: [string, string, string]
+        _list: [string, string]
         _listOf: { _oneOf: [int, string] }
-        _optional: [2, 4]
+        _min: 3
 
 value_expression.get_operation_output:
   - _mapFacultative:
@@ -135,8 +135,9 @@ value_expression.get_operation_output:
 value_expression.get_artifact:
   - _mapFacultative:
       get_artifact:
-        _list: [string, string, string, boolean]
-        _optional: [3]
+        _oneOf:
+          - _list: [string, string, boolean]
+          - _list: [string, string, string, boolean]
 
 import::TImport:
     _oneOf:
@@ -155,6 +156,7 @@ import::TImport:
 
 imports::TList:
   _listOf: import
+  _min: 1
 
 constraint::TConstraint:
   _oneOf:
@@ -173,6 +175,7 @@ constraint::TConstraint:
 
 constraints::TConstraints:
   _listOf: constraint
+  _min: 1
 
 entry_schema:
   _oneOf:
@@ -302,7 +305,7 @@ type_common_keys:
 
 artifact_type::TArtifactType:
   _mapFacultative:
-    file_ext: { _listOf: string }
+    file_ext: { _listOf: string, _min: 1 }
     mime_type: string
     properties: properties
   _merge: type_common_keys
@@ -325,8 +328,11 @@ implementation::TImplementation:
   _oneOf:
     - string
     - _mapFacultative:
-        primary: { _oneOf: [string, artifact_def] }
-        dependencies: { _listOf: { _oneOf: [string, artifact_def] } }
+        primary:
+          _oneOf: [string, artifact_def]
+        dependencies:
+          _listOf: { _oneOf: [string, artifact_def] }
+          _min: 1
 
 operation_def::TOperationDef:
   _oneOf:
@@ -379,7 +385,7 @@ capability_type::TCapabilityType:
   _mapFacultative:
     properties: properties
     attributes: attributes
-    valid_source_types: { _listOf: string }
+    valid_source_types: { _listOf: string, _min: 1 }
   _merge: type_common_keys
 
 capability_types::TCapabilityTypes:
@@ -393,7 +399,7 @@ capability_def::TCapabilityDef:
         description: description
         properties: properties
         attributes: attributes
-        valid_source_types: { _listOf: string, _optional: [1] }
+        valid_source_types: { _listOf: string }
         occurrences: range
     - string
 
@@ -416,7 +422,9 @@ property_filter::TPropertyFilter:
       _oneOf:
         - constraint
         - value
-        - _listOf: { _oneOf: [constraint, value] }
+        - _listOf:
+            _oneOf: [constraint, value]
+          _min: 1
 
 properties_filter::TPropertiesFilter:
   _listOf:
@@ -498,9 +506,11 @@ workflow_condition_operator::TWorkflowConditionOperator:
 
 workflow_condition_clause::TWorkflowConditionClause:
   _listOf: workflow_condition_operator
+  _min: 1
 
 workflow_preconditions::TWorkflowPrecondition:
   _listOf: workflow_precondition
+  _min: 1
 
 workflow_precondition::TWorkflowPreconditions:
     _mapFacultative:
@@ -510,6 +520,7 @@ workflow_precondition::TWorkflowPreconditions:
 
 workflow_activities::TWorkflowActivities:
   _listOf: workflow_activity
+  _min: 1
 
 workflow_activity::TWorkflowActivity:
     _nb: 1
@@ -552,9 +563,9 @@ declarative_workflow_step::TWorkflowStep:
     filter: workflow_condition_clause
     operation_host: string
     on_succes:
-      _oneOf: [string, { _listOf: string }]
+      _oneOf: [string, { _listOf: string, _min: 1 }]
     on_failure:
-      _oneOf: [string, { _listOf: string }]
+      _oneOf: [string, { _listOf: string, _min: 1 }]
 
 imperative_workflow_step::TWorkflowStep:
   _map:
@@ -565,12 +576,13 @@ imperative_workflow_step::TWorkflowStep:
     filter: workflow_condition_clause
     operation_host: string
     on_succes:
-      _oneOf: [string, { _listOf: string }]
+      _oneOf: [string, { _listOf: string, _min: 1 }]
     on_failure:
-      _oneOf: [string, { _listOf: string }]
+      _oneOf: [string, { _listOf: string, _min: 1 }]
 
 workflow_source_weaving_list::TWorkflowSourceWeavingList:
   _listOf: workflow_source_weaving
+  _min: 1
 
 workflow_source_weaving::TWorkflowSourceWeaving:
   _mapFacultative:
@@ -582,6 +594,7 @@ workflow_source_weaving::TWorkflowSourceWeaving:
 
 workflow_target_weaving_list::TWorkflowTargetWeavingList:
   _listOf: workflow_target_weaving
+  _min: 1
 
 workflow_target_weaving::TWorkflowTargetWeaving:
   _mapFacultative:
@@ -669,7 +682,7 @@ relationship_type::TRelationshipType:
     properties: properties
     attributes: attributes
     interfaces: interface_defs
-    valid_target_types: { _listOf: string }
+    valid_target_types: { _listOf: string, _min: 1 }
     workflows: declarative_workflow_rel_defs
   _merge: type_common_keys
 
@@ -699,7 +712,7 @@ group_type::TGroupType:
     capabilities: capability_defs
     requirements: requirement_defs
     interfaces: interface_defs
-    members: { _listOf: string }
+    members: { _listOf: string, _min: 1 }
   _merge: type_common_keys
 
 group_types::TGroupTypes:
@@ -711,7 +724,7 @@ group_def::TGroupDef:
   _mapFacultative:
     description: description
     properties: property_assignments
-    members: { _listOf: string }
+    members: { _listOf: string, _min: 1 }
     interfaces: interface_assignments
 
 group_defs::TGroupDefs:
@@ -719,6 +732,7 @@ group_defs::TGroupDefs:
 
 trigger_defs::TTriggerDef:
   _listOf: trigger_def
+  _min: 1
 
 event::TEvent:
   _oneOf:
@@ -751,12 +765,13 @@ trigger_def::TTriggerDef:
         action: { _oneOf: [string, operation_def] }
 
 trigger_defs::TTriggerDefs:
-  _listof: trigger_def
+  _listOf: trigger_def
+  _min: 1
 
 policy_type::TPolicyType:
   _mapFacultative:
     properties: properties
-    targets: { _listOf: string }
+    targets: { _listOf: string, _min: 1 }
     triggers: trigger_defs
   _merge: type_common_keys
 
@@ -765,6 +780,7 @@ policy_types::TPolicyTypes:
 
 policy_defs::TPolicyDefs:
   _listOf: policy_def
+  _min: 1
 
 policy_def::TPolicyDef:
   _nb: 1
@@ -774,7 +790,7 @@ policy_def::TPolicyDef:
         type: string
         description: description
         properties: property_assignments
-        targets: { _listOf: string }
+        targets: { _listOf: string, _min: 1 }
         triggers: trigger_defs
 
 properties_mapping::TPropertiesMapping:
@@ -785,8 +801,9 @@ property_mapping::TPropertyMapping:
   _oneOf:
     - value
     - value_expression
-    - _listOf: { string }
-      max: 3
+    - _listOf: string
+      _min: 1
+      _max: 3
     - _nb: 1
       _mapFacultative:
         mapping:
@@ -802,8 +819,9 @@ attribute_mapping::TAttributeMapping:
   _oneOf:
     - value
     - value_expression
-    - _listOf: { string }
-      max: 3
+    - _listOf: string
+      _min: 1
+      _max: 3
     - _nb: 1
       _mapFacultative:
         mapping:
@@ -817,7 +835,7 @@ capabilities_mapping::TCapabilitiesMapping:
 
 capability_mapping::TCapabilityMapping:
   _oneOf:
-    - { _listOf: string, max: 2 }
+    - { _listOf: string, _min: 1, max: 2 }
     - _mapFacultative:
         mapping: { _oneOf: [string, { _listOf: string, nb: 2 }] }
         properties: property_assignments
@@ -829,9 +847,9 @@ requirements_mapping::TRequirementsMapping:
 
 requirement_mapping::TRequirementMapping:
   _oneOf:
-    - { _listOf: string, max: 2 }
+    - { _listOf: string, _min: 1, max: 2 }
     - _mapFacultative:
-        mapping: { _oneOf: [string, { _listOf: string, max: 3 }] }
+        mapping: { _oneOf: [string, { _listOf: string, _min: 1, max: 3 }] }
         properties: property_assignments
         attributes: attribute_assignments
 
