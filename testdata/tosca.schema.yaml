@@ -1,46 +1,41 @@
 
-str->TString:          terminal
-int->TInteger:         terminal
-float->TFloat:         terminal
-boolean->TBoolean:     terminal
-unbounded->TUnbounded: terminal
-timestamp->TTimestamp: terminal
-null->TNull:           terminal
+unbounded::TUnbounded:
+  _in: ["unbounded"]
 
-namespace->TNamespace: string
+namespace::TNamespace: string
 
 description: string
 
-range->TRange:
-  _list: [ _oneOf: [ scalar, unbounded ], _oneOf: [ scalar, unbounded ] ]
+range::TRange:
+  _list: [scalarOrUnbounded, scalarOrUnbounded]
 
-metadata->TMetadata:
-  _dict:
+metadata::TMetadata:
+  _mapFacultative:
     template_version: version
     template_author: string
     template_name: string
-  _dictOf: { string: string }
+  _mapOf: { string: string }
 
-version->TVersion:
+version::TVersion:
   _regex: '^[0-d]+(\.[0-d]+(\.[0-9]+(.[a-zA-Z0-9_]+(\-[0-9]+)?)?)?)?$'
 
-url->TUrl:
+url::TUrl:
   _regex: '^(https?:\\/\\/)?((([a-z\\d]([a-z\\d_-]*[a-z\\d])*)\\.?)+[a-z\\d_-]{2,}|((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*(\\?[;&a-z\\d%_.~+=-]*)?(\\#[-a-z\\d_]*)?$'
 
-size: scalar-unit.size
-scalar-unit.size->TSize:
+size: scalar_unit.size
+scalar_unit.size::TSize:
   _regex: '((?<sign>[+-]) *)?(?<value>[0-9]+(\.[0-9]+)?) *(?<unit>B|kB|KiB|MB|MiB|GB|GiB|TB|TiB)$'
 
-time: scalar-unit.time
-scalar-unit.time->TTime:
+time: scalar_unit.time
+scalar_unit.time::TTime:
   _regex: '((?<sign>[+-]) *)?(?<value>[0-9]+(\.[0-9]+)?) *(?<unit>d|h|m|s|ms|us|ns)$'
 
-frequency: scalar-unit.frequency
-scalar-unit.frequency->TFreq:
+frequency: scalar_unit.frequency
+scalar_unit.frequency::TFreq:
   _regex: '((?<sign>[+-]) *)?(?<value>[0-9]+(\.[0-9]+)?) *(?<unit>Hz|kHz|MHz|GHz)$'
 
-bitrate: scalar-unit.bitrate
-scalar-unit.bitrate->TBitrate:
+bitrate: scalar_unit.bitrate
+scalar_unit.bitrate::TBitrate:
   _regex: '((?<sign>[+-]) *)?(?<value>[0-9]+(\.[0-9]+)?) *(?<unit>bps|Kbps|Kibps|Mbps|Mibps|Gbps|Gibps|Tbps|Tibps|Bps|KBps|KiBps|MBps|MiBps|GBps|GiBps|TBps|TiBps)$'
 
 string_value_expresion:
@@ -58,6 +53,11 @@ scalar:
     - size
     - timestamp
 
+scalarOrUnbounded:
+  _oneOf:
+    - scalar
+    - unbounded
+
 value:
   _oneOf:
     - boolean
@@ -71,167 +71,218 @@ value:
     - size
     - timestamp
     - string
-    - list
-    - map
-    - null
+    - { _listOf: any }
+    - { _mapOf: any }
+    - nullType
 
-value_expression->TValueExpression:
+value_expression::TValueExpression:
   _oneOf:
-    - _dict: { concat: { _nb: 1, _listOf: string_value_expression } }
-    - _dict: { get_input: { _oneOf: [ string, { _listOf: string } ] } }
-    - _dict: { get_nodes_of_type: string }
-    - _dict: { token: { _list: [ string_value_expression, string, int] } }
-    - _dict: { join: { _list: [ { _listOf: string_value_expression }, string ], _optional: [2] } }
-    - _dict: { get_property: { _list: [ string, string, string ], _listOf: { _oneOf: [ int, string] }, _optional: [2,4] } }
-    - _dict: { get_attribute: { _list: [ string, string, string ], _listOf: { _oneOf: [ int, string] } , _optional: [2,4] } }
-    - _dict: { get_operation_output: { _list: [ string, string, string, string ] } }
-    - _dict: { get_artifact: { _list: [ string, string, string, boolean ], _optional: [3] } }
+    - value_expression.concat
+    - value_expression.get_input
+    - value_expression.get_nodes_of_type
+    - value_expression.token
+    - value_expression.join
+    - value_expression.get_property
+    - value_expression.get_attribute
+    - value_expression.get_operation_output
+    - value_expression.get_artifact
 
-import->TImport:
+value_expression.concat:
+  - _mapFacultative:
+      concat:
+        _nb: 1
+        _listOf: string_value_expression
+
+value_expression.get_input:
+  - _mapFacultative:
+      get_input:
+        _oneOf: [string, { _listOf: string }]
+
+value_expression.get_nodes_of_type:
+  - _mapFacultative:
+      get_nodes_of_type: string
+
+value_expression.token:
+  - _mapFacultative:
+      token:
+        _list: [string_value_expression, string, int]
+
+value_expression.join:
+  - _mapFacultative:
+      join:
+        _list: [{ _listOf: string_value_expression }, string]
+        _optional: [2]
+
+value_expression.get_property:
+  - _mapFacultative:
+      get_property:
+        _list: [string, string, string]
+        _listOf: { _oneOf: [int, string] }
+        _optional: [2, 4]
+
+value_expression.get_attribute:
+  - _mapFacultative:
+      get_attribute:
+        _list: [string, string, string]
+        _listOf: { _oneOf: [int, string] }
+        _optional: [2, 4]
+
+value_expression.get_operation_output:
+  - _mapFacultative:
+      get_operation_output:
+        _list: [string, string, string, string]
+
+value_expression.get_artifact:
+  - _mapFacultative:
+      get_artifact:
+        _list: [string, string, string, boolean]
+        _optional: [3]
+
+import::TImport:
     _oneOf:
       - string
       - _nb: 1
-        _dictOf: { string: string }
+        _mapOf: { string: string }
       - _nb: 1
-        _dictOf:
+        _mapOf:
           string:
-            _required: [file]
-            _dict:
+            _map:
               file: string
+            _mapFacultative:
               repository: string
               namespace_prefix: string
               namespace_uri: string
 
-imports->TList:
+imports::TList:
   _listOf: import
 
-constraint->TConstraint:
+constraint::TConstraint:
   _oneOf:
-    - _dict: { equal: value }
-    - _dict: { greater_than: value }
-    - _dict: { greater_or_equal: value }
-    - _dict: { less_than: value }
-    - _dict: { less_or_equal: value }
-    - _dict: { in_range: range }
-    - _dict: { valid_values: list }
-    - _dict: { length: int }
-    - _dict: { min_length: int }
-    - _dict: { max_length: int }
-    - _dict: { pattern: string }
-    #- _dict: { schema: string }
+    - _mapFacultative: { equal: value }
+    - _mapFacultative: { greater_than: value }
+    - _mapFacultative: { greater_or_equal: value }
+    - _mapFacultative: { less_than: value }
+    - _mapFacultative: { less_or_equal: value }
+    - _mapFacultative: { in_range: range }
+    - _mapFacultative: { valid_values: { _listOf: any } }
+    - _mapFacultative: { length: int }
+    - _mapFacultative: { min_length: int }
+    - _mapFacultative: { max_length: int }
+    - _mapFacultative: { pattern: string }
+    # - _mapFacultative: { schema: string }
 
-constraints->TConstraints:
+constraints::TConstraints:
   _listOf: constraint
 
 entry_schema:
   _oneOf:
     - string
-    - _required: [ type ]
-      _dict:
+    - _map:
         type: string
+      _mapFacultative:
         description: description
         constraints: constraints
         entry_schema: entry_schema
 
-parameter_assignment->TParameterAssignment:
+parameter_assignment::TParameterAssignment:
   _oneOf:
     - value_expression
     - value
-    - _dict:
+    - _mapFacultative:
         description: description
-        value: { _oneOf: [ value_expression, value ] }
+        value: { _oneOf: [value_expression, value] }
 
-property->TProperty:
-  _required: [ type ]
-  _dict:
+property::TProperty:
+  _map:
     type: string
+  _mapFacultative:
     description: description
     constraints: constraints
     required: boolean
     default: value
-    status: { _in: [ supported, unsupported, experimental, deprecated, optional ] }
+    status: { _in: [supported, unsupported, experimental, deprecated, optional] }
     metadata: metadata
     entry_schema: entry_schema
 
-properties->TProperties:
-  _dictOf: { string: property }
+properties::TProperties:
+  _mapOf: { string: property }
 
-property_assignments->TPropertyAssignments:
-  _dictOf: { string: parameter_assignment }
+property_assignments::TPropertyAssignments:
+  _mapOf: { string: parameter_assignment }
 
-attribute->TAttribute:
-  _required: [ type ]
-  _dict:
+attribute::TAttribute:
+  _map:
     type: string
+  _mapFacultative:
     description: description
     default: value
-    status: { _in: [ supported, unsupported, experimental, deprecated, optional ] }
+    status: { _in: [supported, unsupported, experimental, deprecated, optional] }
     entry_schema: entry_schema
 
-attributes->TAttributes:
-  _dictOf: { string: attribute }
+attributes::TAttributes:
+  _mapOf: { string: attribute }
 
-attribute_assignments->TAttributeAssignments:
-  _dictOf: { string: parameter_assignment }
+attribute_assignments::TAttributeAssignments:
+  _mapOf: { string: parameter_assignment }
 
-input_parameter->TInput:
-  _required: [ type ]
-  _dict:
+input_parameter::TInput:
+  _map:
+    type: string
+  _mapFacultative:
+    description: description
+    constraints: constraints
+    required: boolean
+    default: value
+    status: { _in: [supported, unsupported, experimental, deprecated, optional] }
+    entry_schema: entry_schema
+    value: { _oneOf: [value, value_expression] }
+
+input_parameters::TInputs:
+  _mapOf: { string: input_parameter }
+
+input_assignments::TInputAssignments:
+  _mapOf: { string: parameter_assignment }
+
+output_parameter::TOutput:
+  _mapFacultative:
     type: string
     description: description
     constraints: constraints
     required: boolean
     default: value
-    status: { _in: [ supported, unsupported, experimental, deprecated, optional ] }
+    status: { _in: [supported, unsupported, experimental, deprecated, optional] }
     entry_schema: entry_schema
-    value: { _oneOf: [ value, value_expression ] }
+    value: { _oneOf: [value, value_expression] }
 
-input_parameters->TInputs:
-  _dictOf: { string: input_parameter }
+output_parameters::TOutputs:
+  _mapOf: { string: output_parameter }
 
-input_assignments->TInputAssignments:
-  _dictOf: { string: parameter_assignment }
-
-output_parameter->TOutput:
-  _dict:
-    type: string
-    description: description
-    constraints: constraints
-    required: boolean
-    default: value
-    status: { _in: [ supported, unsupported, experimental, deprecated, optional ]}
-    entry_schema: entry_schema
-    value: { _oneOf: [ value, value_expression ] }
-
-output_parameters->TOutputs:
-  _dictOf: { string: output_parameter }
-
-repository->TRepository:
+repository::TRepository:
   _oneOf:
     - string
-    - _required: [url]
-      _dict:
+    - _map:
         url: string
+      _mapFacultative:
         description: description
         credential:
-          _required: [token]
-          _dict:
-            protocol: string
+          _map:
             token: string
+          _mapFacultative:
+            protocol: string
             token_type: string
             user: string
 
-repositories->TRepositories:
-  _dictOf: { string: output_parameter }
+repositories::TRepositories:
+  _mapOf: { string: output_parameter }
 
-artifact_def->TArtifactDef:
+artifact_def::TArtifactDef:
   _oneOf:
     - string
-    - _required: [type, file]
-      _dict:
-        description: description
+    - _map:
         type: string
         file: string
+      _mapFacultative:
+        description: description
         repository: string
         deploy_path: string
         version: version
@@ -239,107 +290,106 @@ artifact_def->TArtifactDef:
         checksum_algorithm: string
         properties: property_assignments
 
-artifact_defs->TArtifactDefs:
-  _dictOf: { string: artifact_def }
+artifact_defs::TArtifactDefs:
+  _mapOf: { string: artifact_def }
 
 type_common_keys:
-  _dict:
+  _mapFacultative:
     derived_from: string
     version: version
     metadata: metadata
     description: description
 
-artifact_type->TArtifactType:
-  _dict:
+artifact_type::TArtifactType:
+  _mapFacultative:
     file_ext: { _listOf: string }
     mime_type: string
     properties: properties
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-artifact_types->TArtifactTypes:
-  _dictOf: { string: artifact_type}
+artifact_types::TArtifactTypes:
+  _mapOf: { string: artifact_type }
 
-
-data_type->TDataType:
-  _dict:
+data_type::TDataType:
+  _mapFacultative:
     properties: properties
     constraints: constraints
     key_schema: entry_schema
     entry_schema: entry_schema
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-data_types->TDataTypes:
-  _dictOf: { string: data_type}
+data_types::TDataTypes:
+  _mapOf: { string: data_type }
 
-
-implementation->TImplementation:
+implementation::TImplementation:
   _oneOf:
     - string
-    - _dict:
-        primary: {_oneOf: [ string, artifact_def ]}
-        dependencies: { _listOf: {_oneOf: [string, artifact_def]}}
+    - _mapFacultative:
+        primary: { _oneOf: [string, artifact_def] }
+        dependencies: { _listOf: { _oneOf: [string, artifact_def] } }
 
-operation_def->TOperationDef:
+operation_def::TOperationDef:
   _oneOf:
     - string
-    - _dict:
+    - _mapFacultative:
         description: description
         inputs: properties
         implementation: implementation
 
-operation_def_template->TOperationDefTemplate:
+operation_def_template::TOperationDefTemplate:
   _oneOf:
     - string
-    - _dict:
+    - _mapFacultative:
         description: description
         inputs: input_assignments
         implementation: implementation
 
-interface_type->TInterfaceType:
-  _dict:
+interface_type::TInterfaceType:
+  _mapFacultative:
     inputs: properties
-  _copy: type_common_keys
-  _dictOf:
+  _mapOf:
     string: operation_def
+  _merge: type_common_keys
 
-interface_types->TInterfaceTypes:
-  _dictOf: { string: interface_type }
+interface_types::TInterfaceTypes:
+  _mapOf: { string: interface_type }
 
-interface_def->TInterfaceDef:
-  #_required: [ type ]
-  _dict:
+interface_def::TInterfaceDef:
+  # _map:
+  #   type: string
+  _mapFacultative:
     type: string
     inputs: properties
-  _dictOf:
+  _mapOf:
     string: operation_def
 
-interface_defs->TInterfaceDefs:
-  _dictOf: { string: interface_def }
+interface_defs::TInterfaceDefs:
+  _mapOf: { string: interface_def }
 
-interface_assignment->TInterfaceAssignment:
-  _dict:
+interface_assignment::TInterfaceAssignment:
+  _mapFacultative:
     inputs: property_assignments
-  _dictOf:
+  _mapOf:
     string: operation_def_template
 
-interface_assignments->TInterfaceAssignments:
-  _dictOf: { string: interface_assignment }
+interface_assignments::TInterfaceAssignments:
+  _mapOf: { string: interface_assignment }
 
-capability_type->TCapabilityType:
-  _dict:
+capability_type::TCapabilityType:
+  _mapFacultative:
     properties: properties
     attributes: attributes
     valid_source_types: { _listOf: string }
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-capability_types->TCapabilityTypes:
-  _dictOf: { string: capability_type }
+capability_types::TCapabilityTypes:
+  _mapOf: { string: capability_type }
 
-capability_def->TCapabilityDef:
+capability_def::TCapabilityDef:
   _oneOf:
-    - _required: [type]
-      _dict:
+    - _map:
         type: string
+      _mapFacultative:
         description: description
         properties: properties
         attributes: attributes
@@ -347,220 +397,218 @@ capability_def->TCapabilityDef:
         occurrences: range
     - string
 
-capability_defs->TCapabilityDefs:
-  _dictOf: { string: capability_def }
+capability_defs::TCapabilityDefs:
+  _mapOf: { string: capability_def }
 
-capability_assignment->TCapabilityAssignment:
-  _dict:
+capability_assignment::TCapabilityAssignment:
+  _mapFacultative:
     properties: property_assignments
     attributes: attribute_assignments
     occurences: range
 
-capability_assignments->TCapabilityAssignments:
-  _dictOf: { string: capability_assignment }
+capability_assignments::TCapabilityAssignments:
+  _mapOf: { string: capability_assignment }
 
-property_filter->TPropertyFilter:
+property_filter::TPropertyFilter:
   _nb: 1
-  _dictOf:
+  _mapOf:
     string:
       _oneOf:
         - constraint
         - value
-        - _listOf: { _oneOf: [ constraint, value ] }
+        - _listOf: { _oneOf: [constraint, value] }
 
-properties_filter->TPropertiesFilter:
+properties_filter::TPropertiesFilter:
   _listOf:
     property_filter
 
-capability_filter->TCapabilityFilter:
+capability_filter::TCapabilityFilter:
   _nb: 1
-  _dictOf:
-    string: { _dict: { properties: properties_filter } }
+  _mapOf:
+    string: { _mapFacultative: { properties: properties_filter } }
 
-capabilities_filter->TCapabilitiesFilter:
+capabilities_filter::TCapabilitiesFilter:
   _listOf:
     capability_filter
 
-node_filter->TNodeFilter:
-  _dict:
+node_filter::TNodeFilter:
+  _mapFacultative:
     properties: properties_filter
     capabilities: capabilities_filter
 
-relationship_def->TRelationshipDef:
+relationship_def::TRelationshipDef:
   _oneOf:
     - string
-    - _dict:
+    - _mapFacultative:
         type: string
         interfaces: interface_defs
 
-
-requirement_def->TRequirementDef:
+requirement_def::TRequirementDef:
   _nb: 1
-  _dictOf:
+  _mapOf:
     string:
       _oneOf:
         - string
-        - _required: [ capability ]
-          _dict:
+        - _map:
             capability: string
+          _mapFacultative:
             description: description
             node: string
             occurrences: range
             relationship: relationship_def
 
-
-requirement_defs->TRequirementDefs:
+requirement_defs::TRequirementDefs:
   _listOf:
     requirement_def
 
-relationship_assignment->TRelationshipAssignment:
+relationship_assignment::TRelationshipAssignment:
   _oneOf:
     - string
-    - _dict:
+    - _mapFacultative:
         type: string
         properties: property_assignments
         interfaces: interface_defs_template
 
-requirement_assignment->TRequirementAssignment:
+requirement_assignment::TRequirementAssignment:
     _nb: 1
-    _dictOf:
+    _mapOf:
       string:
         _oneOf:
           - string
-          - _dict:
+          - _mapFacultative:
               node: string
-              relationship: { _oneOf: [ string, relationship_assignment ] }
+              relationship: { _oneOf: [string, relationship_assignment] }
               capability: string
               occurrences: range
               node_filter: node_filter
 
-requirement_assignments->TRequirementAssignments:
+requirement_assignments::TRequirementAssignments:
   _listOf:
     requirement_assignment
 
-workflow_condition_operator->TWorkflowConditionOperator:
+workflow_condition_operator::TWorkflowConditionOperator:
     _nb: 1
-    _dict:
+    _mapFacultative:
       or: workflow_condition_clause
       and: workflow_condition_clause
       not: workflow_condition_clause
       assert: workflow_condition_clause
-    _dictOf:
+    _mapOf:
       string: constraints
 
-workflow_condition_clause->TWorkflowConditionClause:
+workflow_condition_clause::TWorkflowConditionClause:
   _listOf: workflow_condition_operator
 
-workflow_preconditions->TWorkflowPrecondition:
+workflow_preconditions::TWorkflowPrecondition:
   _listOf: workflow_precondition
 
-workflow_precondition->TWorkflowPreconditions:
-    _dict:
+workflow_precondition::TWorkflowPreconditions:
+    _mapFacultative:
       target: string
       target_relationship: string
       condition: workflow_condition_clause
 
-workflow_activities->TWorkflowActivities:
+workflow_activities::TWorkflowActivities:
   _listOf: workflow_activity
 
-workflow_activity->TWorkflowActivity:
+workflow_activity::TWorkflowActivity:
     _nb: 1
-    _dict:
+    _mapFacultative:
       delegate:
         _oneOf:
           - string
-          - _required: [workflow]
-            _dict:
+          - _map:
               workflow: string
+            _mapFacultative:
               inputs: input_assignments
-      set_state: { _in: [ initial, creating, created, configuring, configured, starting, started, stopping, stopped, deleting, deleted, error ] }
+      set_state: { _in: [initial, creating, created, configuring, configured, starting, started, stopping, stopped, deleting, deleted, error] }
       call_operation:
         _oneOf:
           - string
-          - _required: [operation]
-            _dict:
+          - _map:
               operation: string
+            _mapFacultative:
               inputs: input_assignments
       inline:
         _oneOf:
           - string
-          - _required: [workflow]
-            _dict:
+          - _map:
               workflow: string
+            _mapFacultative:
               inputs: input_assignments
 
-declarative_workflow_steps->TWorkflowSteps:
-  _dictOf:
+declarative_workflow_steps::TWorkflowSteps:
+  _mapOf:
     string: declarative_workflow_step
 
-imperative_workflow_steps->TWorkflowSteps:
-  _dictOf:
+imperative_workflow_steps::TWorkflowSteps:
+  _mapOf:
     string: imperative_workflow_step
 
-declarative_workflow_step->TWorkflowStep:
-  _required: [activities]
-  _dict:
-    filter: workflow_condition_clause
+declarative_workflow_step::TWorkflowStep:
+  _map:
     activities: workflow_activities
+  _mapFacultative:
+    filter: workflow_condition_clause
     operation_host: string
     on_succes:
-      _oneOf: [ string, { _listOf: string } ]
+      _oneOf: [string, { _listOf: string }]
     on_failure:
-      _oneOf: [ string, { _listOf: string } ]
+      _oneOf: [string, { _listOf: string }]
 
-imperative_workflow_step->TWorkflowStep:
-  _required: [target, activities]
-  _dict:
+imperative_workflow_step::TWorkflowStep:
+  _map:
     target: string
+    activities: workflow_activities
+  _mapFacultative:
     target_relationship: string
     filter: workflow_condition_clause
-    activities: workflow_activities
     operation_host: string
     on_succes:
-      _oneOf: [ string, { _listOf: string } ]
+      _oneOf: [string, { _listOf: string }]
     on_failure:
-      _oneOf: [ string, { _listOf: string } ]
+      _oneOf: [string, { _listOf: string }]
 
-workflow_source_weaving_list->TWorkflowSourceWeavingList:
+workflow_source_weaving_list::TWorkflowSourceWeavingList:
   _listOf: workflow_source_weaving
 
-workflow_source_weaving->TWorkflowSourceWeaving:
-  _dict:
+workflow_source_weaving::TWorkflowSourceWeaving:
+  _mapFacultative:
     after: string
     before: string
     wait_target: string
     after_target: string
     activity: string
 
-workflow_target_weaving_list->TWorkflowTargetWeavingList:
+workflow_target_weaving_list::TWorkflowTargetWeavingList:
   _listOf: workflow_target_weaving
 
-workflow_target_weaving->TWorkflowTargetWeaving:
-  _dict:
+workflow_target_weaving::TWorkflowTargetWeaving:
+  _mapFacultative:
     after: string
     before: string
     wait_source: string
     after_source: string
     activity: string
 
-declarative_workflow_node_defs->TDeclarativeWorkflowNodeDefs:
-  _dictOf:
+declarative_workflow_node_defs::TDeclarativeWorkflowNodeDefs:
+  _mapOf:
     string: declarative_workflow_node_def
 
-declarative_workflow_node_def->TDeclarativeWorkflowNodeDef:
-  _dict:
+declarative_workflow_node_def::TDeclarativeWorkflowNodeDef:
+  _mapFacultative:
     description: description
     metadata: metadata
     inputs: properties
     preconditions: workflow_preconditions
     steps: declarative_workflow_steps
 
-declarative_workflow_rel_defs->TDeclarativeWorkflowRelDefs:
-  _dictOf:
+declarative_workflow_rel_defs::TDeclarativeWorkflowRelDefs:
+  _mapOf:
     string: declarative_workflow_rel_def
 
-declarative_workflow_rel_def->TDeclarativeWorkflowRelDef:
-  _dict:
+declarative_workflow_rel_def::TDeclarativeWorkflowRelDef:
+  _mapFacultative:
     description: description
     metadata: metadata
     inputs: properties
@@ -568,20 +616,20 @@ declarative_workflow_rel_def->TDeclarativeWorkflowRelDef:
     source_weaving: workflow_source_weaving_list
     target_weaving: workflow_target_weaving_list
 
-imperative_workflow_defs->TImperativeWorkflowDefs:
-  _dictOf:
+imperative_workflow_defs::TImperativeWorkflowDefs:
+  _mapOf:
     string: imperative_workflow_def
 
-imperative_workflow_def->TImperativeWorkflowDef:
-      _dict:
+imperative_workflow_def::TImperativeWorkflowDef:
+      _mapFacultative:
         description: description
         metadata: metadata
         inputs: properties
         preconditions: workflow_preconditions
         steps: imperative_workflow_steps
 
-node_type->TNodeType:
-  _dict:
+node_type::TNodeType:
+  _mapFacultative:
     properties: properties
     attributes: attributes
     capabilities: capability_defs
@@ -589,15 +637,19 @@ node_type->TNodeType:
     interfaces: interface_defs
     workflows: declarative_workflow_node_defs
     artifacts: artifact_defs
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-node_types->TNodeTypes:
-  _dictOf: { string: node_type }
+node_types::TNodeTypes:
+  _mapOf: { string: node_type }
 
-node_template->TNodeTemplate:
-  _required: [ type|copy ]
-  _dict:
-    type: string
+node_template::TNodeTemplate:
+  _merge:
+    _oneOf:
+      - _map:
+          type: string
+      - _map:
+          copy: string
+  _mapFacultative:
     metadata: metadata
     description: description
     directives: { _list: string }
@@ -608,81 +660,83 @@ node_template->TNodeTemplate:
     interfaces: interface_assignments
     artifacts: artifact_defs
     node_filter: node_filter
-    copy: string
 
-node_templates->TNodeTemplates:
-  _dictOf: { string: node_template }
+node_templates::TNodeTemplates:
+  _mapOf: { string: node_template }
 
-relationship_type->TRelationshipType:
-  _dict:
+relationship_type::TRelationshipType:
+  _mapFacultative:
     properties: properties
     attributes: attributes
     interfaces: interface_defs
     valid_target_types: { _listOf: string }
     workflows: declarative_workflow_rel_defs
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-relationship_types->TRelationshipTypes:
-  _dictOf: { string: relationship_type }
+relationship_types::TRelationshipTypes:
+  _mapOf: { string: relationship_type }
 
-relationship_template->TRelationshipTemplate:
-  _required: [ type|copy ]
-  _dict:
-    type: string
+relationship_template::TRelationshipTemplate:
+  _merge:
+    _oneOf:
+      - _map:
+          type: string
+      - _map:
+          copy: string
+  _mapFacultative:
     description: description
     metadata: metadata
     properties: properties
     attributes: attributes
     interfaces: interface_assignments
-    copy: string
 
-relationship_templates->TRelationshipTemplates:
-  _dictOf: { string: relationship_template }
+relationship_templates::TRelationshipTemplates:
+  _mapOf: { string: relationship_template }
 
-group_type->TGroupType:
-  _dict:
+group_type::TGroupType:
+  _mapFacultative:
     properties: properties
     capabilities: capability_defs
     requirements: requirement_defs
     interfaces: interface_defs
     members: { _listOf: string }
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-group_types->TGroupTypes:
-  _dictOf: { string: group_type }
+group_types::TGroupTypes:
+  _mapOf: { string: group_type }
 
-group_def->TGroupDef:
-  _required: [type]
-  _dict:
+group_def::TGroupDef:
+  _map:
     type: string
+  _mapFacultative:
     description: description
     properties: property_assignments
     members: { _listOf: string }
     interfaces: interface_assignments
 
-group_defs->TGroupDefs:
-  _dictOf: { string: group_def }
+group_defs::TGroupDefs:
+  _mapOf: { string: group_def }
 
-trigger_defs->TTriggerDef:
+trigger_defs::TTriggerDef:
   _listOf: trigger_def
 
-event->TEvent:
+event::TEvent:
   _oneOf:
-    - string,
-    - _dict:
+    - string
+    - _mapFacultative:
         type: string
 
-target_filter->TTargetFilter:
-  _dict:
+target_filter::TTargetFilter:
+  _mapFacultative:
     node: string
     requirement: string
     capability: string
 
-trigger_def->TTriggerDef:
+trigger_def::TTriggerDef:
   _nb: 1
-  _dictOf:
+  _mapOf:
     string:
-      _dict:
+      _mapFacultative:
         description: description
         event: event
         schedule: value
@@ -690,111 +744,110 @@ trigger_def->TTriggerDef:
         condition:
             _oneOf:
               - constraint
-              - _dict: { constraint: constraint }
+              - _mapFacultative: { constraint: constraint }
         period: string
         evaluations: int
         method: string
-        action: { _oneOf: [ string, operation_def ] }
+        action: { _oneOf: [string, operation_def] }
 
-trigger_defs->TTriggerDefs:
+trigger_defs::TTriggerDefs:
   _listof: trigger_def
 
-
-policy_type->TPolicyType:
-  _dict:
+policy_type::TPolicyType:
+  _mapFacultative:
     properties: properties
     targets: { _listOf: string }
     triggers: trigger_defs
-  _copy: type_common_keys
+  _merge: type_common_keys
 
-policy_types->TPolicyTypes:
-  _dictOf: { string:  policy_type }
+policy_types::TPolicyTypes:
+  _mapOf: { string:  policy_type }
 
-policy_defs->TPolicyDefs:
+policy_defs::TPolicyDefs:
   _listOf: policy_def
 
-policy_def->TPolicyDef:
+policy_def::TPolicyDef:
   _nb: 1
-  _dictOf:
+  _mapOf:
     string:
-      _dict:
+      _mapFacultative:
         type: string
         description: description
         properties: property_assignments
         targets: { _listOf: string }
         triggers: trigger_defs
 
-properties_mapping->TPropertiesMapping:
-  _dictOf:
+properties_mapping::TPropertiesMapping:
+  _mapOf:
     string: property_mapping
 
-property_mapping->TPropertyMapping:
+property_mapping::TPropertyMapping:
   _oneOf:
     - value
     - value_expression
     - _listOf: { string }
       max: 3
     - _nb: 1
-      _dict:
+      _mapFacultative:
         mapping:
-          _oneOf: [ string, { max: 3, _listOf: string } ]
+          _oneOf: [string, { max: 3, _listOf: string }]
         value:
-          _oneOf: [ value, value_expression ]
+          _oneOf: [value, value_expression]
 
-attributes_mapping->TAttributesMapping:
-  _dictOf:
+attributes_mapping::TAttributesMapping:
+  _mapOf:
     string: attribute_mapping
 
-attribute_mapping->TAttributeMapping:
+attribute_mapping::TAttributeMapping:
   _oneOf:
     - value
     - value_expression
     - _listOf: { string }
       max: 3
     - _nb: 1
-      _dict:
+      _mapFacultative:
         mapping:
-          _oneOf: [ string, { max: 3, _listOf: string } ]
+          _oneOf: [string, { max: 3, _listOf: string }]
         value:
-          _oneOf: [ value, value_expression ]
+          _oneOf: [value, value_expression]
 
-capabilities_mapping->TCapabilitiesMapping:
-  _dictOf:
+capabilities_mapping::TCapabilitiesMapping:
+  _mapOf:
     string: capability_mapping
 
-capability_mapping->TCapabilityMapping:
+capability_mapping::TCapabilityMapping:
   _oneOf:
     - { _listOf: string, max: 2 }
-    - _dict:
-        mapping: { _oneOf: [ string, {_listOf: string, nb: 2 } ] }
+    - _mapFacultative:
+        mapping: { _oneOf: [string, { _listOf: string, nb: 2 }] }
         properties: property_assignments
         attributes: attribute_assignments
 
-requirements_mapping->TRequirementsMapping:
-  _dictOf:
+requirements_mapping::TRequirementsMapping:
+  _mapOf:
     string: requirement_mapping
 
-requirement_mapping->TRequirementMapping:
+requirement_mapping::TRequirementMapping:
   _oneOf:
     - { _listOf: string, max: 2 }
-    - _dict:
-        mapping: { _oneOf: [ string, {_listOf: string, max: 3 } ] }
+    - _mapFacultative:
+        mapping: { _oneOf: [string, { _listOf: string, max: 3 }] }
         properties: property_assignments
         attributes: attribute_assignments
 
-interfaces_mapping->TInterfacesMapping:
-  _dictOf:
+interfaces_mapping::TInterfacesMapping:
+  _mapOf:
     string: interface_mapping
 
-interface_mapping->TInterfaceMapping:
+interface_mapping::TInterfaceMapping:
   _nb: 1
-  _dictOf:
+  _mapOf:
     string: string
 
-substitution_mappings->TSubstitutionMappings:
-  _required: [ node_type ]
-  _dict:
+substitution_mappings::TSubstitutionMappings:
+  _map:
     node_type: string
+  _mapFacultative:
     substitution_filter: node_filter
     properties: properties_mapping
     capabilities: capabilities_mapping
@@ -802,8 +855,8 @@ substitution_mappings->TSubstitutionMappings:
     attributes: attributes_mapping
     interfaces: interfaces_mapping
 
-topology_template->TTopologyTemplate:
-  _dict:
+topology_template::TTopologyTemplate:
+  _mapFacultative:
     description: description
     inputs: input_parameters
     outputs: output_parameters
@@ -814,10 +867,10 @@ topology_template->TTopologyTemplate:
     substitution_mappings: substitution_mappings
     workflows: imperative_workflow_defs
 
-service_template->TServiceTemplate:
-  _required: [ tosca_definitions_version ]
-  _dict:
+service_template::TServiceTemplate:
+  _map:
     tosca_definitions_version: string
+  _mapFacultative:
     description: description
     namespace: namespace
     metadata: metadata
