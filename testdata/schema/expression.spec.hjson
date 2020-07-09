@@ -53,19 +53,19 @@
   }
   "check for seqChecker": {
     "accept if it is a valid form": [
-      ["_tuple: []", {}]
-      ["_tuple: []\n_optional: []", {}]
-      ["_tuple: []\n_listOf: int", {}]
-      ["_tuple: []\n_optional: []\n_listOf: int", {}]
-      ["_tuple: []\n_optional: []\n_listOf: int\n_min: 1\n_max: 2", {}]
-      ["_tuple: []\n_optional: []\n_listOf: int\n_nb: 2", {}]
+      ["_list: []", {}]
+      ["_list: []\n_optional: []", {}]
+      ["_list: []\n_listOf: int", {}]
+      ["_list: []\n_optional: []\n_listOf: int", {}]
+      ["_list: []\n_optional: []\n_listOf: int\n_min: 1\n_max: 2", {}]
+      ["_list: []\n_optional: []\n_listOf: int\n_nb: 2", {}]
       ["_listOf: int", {}]
     ]
     "PENDING reject if is an invalid form:": [
       ["_listOf: []", {}]
-      ["_tuple: string", {}]
-      ["_tuple: word", {}]
-      ["tuple: string", {}]
+      ["_list: string", {}]
+      ["_list: word", {}]
+      ["list: string", {}]
       ["listOf: string", {}]
     ]
   }

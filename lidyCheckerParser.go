@@ -175,28 +175,28 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []error) {
 	errList := errorlist.List{}
 
-	tupleNode, _tuple := formMap["_tuple"]
+	listNode, _list := formMap["_list"]
 	optionalNode, _optional := formMap["_optional"]
 	listOfNode, _listOf := formMap["_listOf"]
 
-	tupleList := []tExpression{}
+	listList := []tExpression{}
 	optionalList := []tExpression{}
 	var listOfExpression tExpression = nil
 
-	// _tuple and _optional
+	// _list and _optional
 
-	if _tuple {
-		tupleList = make([]tExpression, len(tupleNode.Content))
-		for k, subNode := range tupleNode.Content {
+	if _list {
+		listList = make([]tExpression, len(listNode.Content))
+		for k, subNode := range listNode.Content {
 			res, erl := sp.expression(*subNode)
 			errList.Push(erl)
-			tupleList[k] = res
+			listList[k] = res
 		}
 	}
 
 	if _optional {
 		optionalList = make([]tExpression, len(optionalNode.Content))
-		for k, subNode := range tupleNode.Content {
+		for k, subNode := range listNode.Content {
 			res, erl := sp.expression(*subNode)
 			errList.Push(erl)
 			optionalList[k] = res
@@ -210,9 +210,9 @@ func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []er
 	}
 
 	return tSeqForm{
-		tuple:         tupleList,
-		optionalTuple: optionalList,
-		listOf:        listOfExpression,
+		list:         listList,
+		optionalList: optionalList,
+		listOf:       listOfExpression,
 	}, errList.ConcatError()
 }
 

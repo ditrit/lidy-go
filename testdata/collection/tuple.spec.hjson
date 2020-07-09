@@ -1,6 +1,6 @@
 {
-  "_tuple with 2 entries": {
-    expression: _tuple: [string, int]
+  "_list with 2 entries": {
+    expression: _list: [string, int]
 
     "accept when all entries are present and valid": {
        "[va, 4]": {}
@@ -27,14 +27,14 @@
     }
   }
 
-  "_tuple with 0 entry": {
-    expression: _tuple: []
+  "_list with 0 entry": {
+    expression: _list: []
 
-    "accept the empty tuple": {
+    "accept the empty list": {
        "[]": {}
     }
 
-    "reject any non-empty tuple": {
+    "reject any non-empty list": {
        "[va]": {}
        "[4]": {}
     }

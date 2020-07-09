@@ -70,8 +70,8 @@ func (mapChecker tMap) description() string {
 func (seq tSeq) name() string {
 	namePartList := []string{"("}
 
-	if seq.form.tuple != nil {
-		namePartList = append(namePartList, "_tuple")
+	if seq.form.list != nil {
+		namePartList = append(namePartList, "_list")
 	}
 	if seq.form.listOf != nil {
 		namePartList = append(namePartList, "_listOf")
@@ -84,15 +84,15 @@ func (seq tSeq) name() string {
 func (seq tSeq) description() string {
 	partList := []string{}
 
-	if seq.form.tuple != nil {
+	if seq.form.list != nil {
 		inner := []string{}
 
-		for _, expression := range seq.form.tuple {
+		for _, expression := range seq.form.list {
 			inner = append(inner, expression.name())
 		}
 		innerString := strings.Join(inner, ", ")
 
-		partList = append(partList, "_tuple: [", innerString, "]")
+		partList = append(partList, "_list: [", innerString, "]")
 	}
 	if seq.form.listOf != nil {
 		partList = append(partList, "_listOf: ", seq.form.listOf.name())

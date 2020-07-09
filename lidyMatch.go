@@ -227,16 +227,16 @@ func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
 
 	// Going through the fields of the map
 	for k, value := range content.Content {
-		if k < len(seq.form.tuple) {
-			// Tuple (required)
-			result, erl := seq.form.tuple[k].match(*value, parser)
+		if k < len(seq.form.list) {
+			// List (required)
+			result, erl := seq.form.list[k].match(*value, parser)
 			errList.Push(erl)
-			seqResult.Tuple = append(seqResult.Tuple, result)
-		} else if k -= len(seq.form.tuple); k < len(seq.form.optionalTuple) {
-			// Tuple (optional)
-			result, erl := seq.form.optionalTuple[k].match(*value, parser)
+			seqResult.List = append(seqResult.List, result)
+		} else if k -= len(seq.form.list); k < len(seq.form.optionalList) {
+			// List (optional)
+			result, erl := seq.form.optionalList[k].match(*value, parser)
 			errList.Push(erl)
-			seqResult.Tuple = append(seqResult.Tuple, result)
+			seqResult.List = append(seqResult.List, result)
 		} else if seq.form.listOf != nil {
 			// SeqOf (all the rest)
 			result, erl := seq.form.listOf.match(*value, parser)
@@ -253,10 +253,10 @@ func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
 	}
 
 	// Signaling missing keys
-	for k := len(content.Content); k < len(seq.form.tuple); k++ {
+	for k := len(content.Content); k < len(seq.form.list); k++ {
 		message := fmt.Sprintf(
 			"a %dth entry %s",
-			k, seq.form.tuple[k].description(),
+			k, seq.form.list[k].description(),
 		)
 		errList.Push(parser.contentError(content, message))
 	}

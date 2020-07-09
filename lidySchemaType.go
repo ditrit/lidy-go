@@ -78,9 +78,9 @@ type tSeq struct {
 }
 
 type tSeqForm struct {
-	tuple         []tExpression
-	optionalTuple []tExpression
-	listOf        tExpression
+	list         []tExpression
+	optionalList []tExpression
+	listOf       tExpression
 }
 
 // Sizing

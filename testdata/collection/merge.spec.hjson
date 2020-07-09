@@ -109,9 +109,9 @@
       _merge:
         - { _map: {}, _optional: { kkey: boolean } }
         - _mapOf: { string: string }
-        - _mapOf: { { _tuple: [] }: int }
-        - _mapOf: { { _tuple: [] }: string }
-        - _mapOf: { { _tuple: [string] }: int }
+        - _mapOf: { { _list: [] }: int }
+        - _mapOf: { { _list: [] }: string }
+        - _mapOf: { { _list: [string] }: int }
         - { _map: {}, _optional: { pkey: null } }
     '''
 

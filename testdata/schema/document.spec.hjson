@@ -26,7 +26,7 @@
   "detect invalid self-references in documents": {
     "accept if the self-reference is sufficiently indirect": [
       ["main:\n  _map: {}\n  _optional: { content: main }", {}]
-      ["main:\n  _tuple: []\n  _optional: [main]", {}]
+      ["main:\n  _list: []\n  _optional: [main]", {}]
       [
         '''
         main: animal
@@ -56,7 +56,7 @@
     ]
     "accept indirect even if no finite schema can be matched": [
       ["main:\n  _listOf: main", {}]
-      ["main:\n  _tuple: [main]", {}]
+      ["main:\n  _list: [main]", {}]
       ["main:\n  _mapOf: { string: main }", {}]
       ["main:\n  _mapOf: { main: main }", {}]
       ["main:\n  _map: { content: main }", {}]

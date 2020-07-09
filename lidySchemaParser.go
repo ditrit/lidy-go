@@ -186,7 +186,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 		switch key {
 		case "_map", "_mapOf", "_merge":
 			setForm("map", key, mapChecker)
-		case "_tuple", "_listOf":
+		case "_list", "_listOf":
 			setForm("sequence", key, seqChecker)
 		case "_oneOf":
 			setForm("oneOf", key, oneOfChecker)

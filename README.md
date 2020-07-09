@@ -44,7 +44,7 @@ What's the point of Lidy, when there's already JSON schema?
 - **YAML**: Lidy targets YAML rather than JSON. Of course, it _does_ work with JSON perfectly fine.
 - **Refs**: In Lidy, refs are first class citizens, they are just like in programming languages: `<name>`, as opposed to JSON Schema's heavy `{ ref: "#/<name>" }`, see below.
 - **Line numbers**: Lidy is meant to _assist_ your users with writing YAML: Lidy provides the line numbers at which the checking failed.
-- **Algebriac data types**: Lidy schema are similar to Algebriac data types. They have union types (`_oneOf`), positional product types (`_tuple`), named product types (`_map`), and combined types (`_merge`). (N.B. parameterized types aren't yet there, but they are on our short list).
+- **Algebriac data types**: Lidy schema are similar to Algebriac data types. They have union types (`_oneOf`), positional product types (`_list`), named product types (`_map`), and combined types (`_merge`). (N.B. parameterized types aren't yet there, but they are on our short list).
 - **Rich deserialisation**: Lidy provides support for rich deserialisation. It's core use-case. This includes access to the source line numbers.
 - **Custom checkers**: Writing a custom value checker is just as easy as writing a deserialiser, Lidy
   handles the two through the same interface
@@ -179,7 +179,7 @@ Also see [Predefined string checker rules](DOCUMENTATION#predefined-string-check
 
 #### Sequence checkers
 
-- [`_tuple`](DOCUMENTATION.md#_tuple) -- (the equivalent of `_map` but for sequences. It could have been named `_seq`)
+- [`_list`](DOCUMENTATION.md#_list) -- (the equivalent of `_map` but for sequences. It could have been named `_seq`)
 - [`_listOf`](DOCUMENTATION.md#_listOf)
 - [`_optional`](DOCUMENTATION.md#_seqOptional)
 
