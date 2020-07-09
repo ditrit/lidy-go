@@ -65,10 +65,10 @@ func (tSizingNone) check(content yaml.Node, parser *tParser) []error {
 }
 
 func getSize(content yaml.Node) (int, []error) {
-	switch content.Tag {
-	case "!!seq":
+	switch content.Kind {
+	case yaml.SequenceNode:
 		return len(content.Content), nil
-	case "!!map":
+	case yaml.MappingNode:
 		return len(content.Content) / 2, nil
 	default:
 		const errorTemplate = "Lidy internal error -- " +

@@ -187,6 +187,11 @@ func listForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tListForm, []
 
 	if _list {
 		listList = make([]tExpression, len(listNode.Content))
+
+		if listNode.Kind != yaml.SequenceNode {
+			errList.Push(sp.schemaError(listNode, "a yaml sequence"))
+		}
+
 		for k, subNode := range listNode.Content {
 			res, erl := sp.expression(*subNode)
 			errList.Push(erl)

@@ -62,7 +62,7 @@
       ["_list: []\n_listFacultative: []\n_listOf: int\n_nb: 2", {}]
       ["_listOf: int", {}]
     ]
-    "PENDING reject if is an invalid form:": [
+    "reject if is an invalid form:": [
       ["_listOf: []", {}]
       ["_list: string", {}]
       ["_list: word", {}]
