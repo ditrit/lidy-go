@@ -1,6 +1,6 @@
 {
   "_oneOf scalar": {
-    expression: _oneOf: [ boolean, int ]
+    expression: _oneOf: [boolean, int]
 
     "accept booleans": {
        "false": {}
@@ -26,7 +26,7 @@
   }
 
   "_oneOf dict": {
-    expression: _oneOf: [ { "_mapOf": { "string": "string" } } ]
+    expression: _oneOf: [{ "_mapOf": { "string": "string" } }]
 
     "accept the empty dict": {
        "{}": {}

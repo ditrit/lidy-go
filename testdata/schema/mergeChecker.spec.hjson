@@ -108,9 +108,9 @@
       ]
     ]
     "PENDING reject if the self-reference is too direct": [
-      [ "main: { _merge: [main] }", { contain: "main" } ]
-      [ "main: { _merge: [{ _merge: [main] }] }", { contain: "main" } ]
-      [ "main: animal\nanimal: { _merge: [animal] }", { contain: "animal" } ]
+      ["main: { _merge: [main] }", { contain: "main" }]
+      ["main: { _merge: [{ _merge: [main] }] }", { contain: "main" }]
+      ["main: animal\nanimal: { _merge: [animal] }", { contain: "animal" }]
       [
         '''
         main: a
