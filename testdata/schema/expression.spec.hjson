@@ -3,9 +3,9 @@
   "distinguish known and unknown identifiers": {
     "accept if known": [
       ["timestamp", {}]
+      ["nullType", {}]
       ["boolean", {}]
       ["float", {}]
-      ["null", {}]
       ["any", {}]
       ["int", {}]
       ["str", {}]
@@ -31,17 +31,23 @@
     "accept if it is a valid form": [
       ["_map: {}", {}]
       ["_map: {}\n_optional: {}", {}]
-      ["_map: {}\n_mapOf: {}", {}]
+      ["_map: {}\n_mapOf: { str: str }", {}]
       ["_map: {}\n_optional: {}\n_mapOf: { str: str }", {}]
-      ["_map: {}\n_optional: {}\n_mapOf: { str: str }\n_min: 1\n_max:2", {}]
+      ["_map: {}\n_optional: {}\n_mapOf: { str: str }\n_min: 1\n_max: 2", {}]
       ["_map: {}\n_optional: {}\n_mapOf: { str: str }\n_nb: 2", {}]
       ["_mapOf: { str: str }", {}]
     ]
-    "reject if is a invalid form:": [
-      ["_map: []", {}]
-      ["_mapOf: []", {}]
+    "reject if is an invalid form:": [
       ["_mapOf: [str]", {}]
       ["_mapOf: str", {}]
+      ["_mapOf: []", {}]
+      ["_map: false", {}]
+      ["_map: true", {}]
+      ["_map: null", {}]
+      ["_map: str", {}]
+      ["_map: 1.1", {}]
+      ["_map: []", {}]
+      ["_map: 1", {}]
       ["map: {}", {}]
     ]
   }
@@ -55,20 +61,12 @@
       ["_tuple: []\n_optional: []\n_seqOf: int\n_nb: 2", {}]
       ["_seqOf: int", {}]
     ]
-    "reject if is a invalid form:": [
+    "PENDING reject if is an invalid form:": [
       ["_seqOf: []", {}]
-      ["tuple: str", {}]
-    ]
-    "reject if is a invalid form:": [
+      ["_tuple: str", {}]
       ["_tuple: word", {}]
-      ["_map: str", {}]
-      ["_map: 1", {}]
-      ["_map: 1.1", {}]
-      ["_map: true", {}]
-      ["_map: false", {}]
-      ["_map: null", {}]
-      ["_map: []", {}]
-      ["map: {}", {}]
+      ["tuple: str", {}]
+      ["seqOf: str", {}]
     ]
   }
   "check for min.checker, max.checker and nb.checker": {
