@@ -26,7 +26,7 @@ Lidy is:
       - [`any` - Any yaml content](#any---any-yaml-content)
     - [Container checkers](#container-checkers)
       - [Map checkers](#map-checkers)
-      - [Sequence checkers](#sequence-checkers)
+      - [List checkers](#sequence-checkers)
     - [Composite checkers](#composite-checkers)
     - [Container checkers](#container-checkers-1)
     - [Scalar checkers](#scalar-checkers)
@@ -177,7 +177,7 @@ Also see [Predefined string checker rules](DOCUMENTATION#predefined-string-check
 - [`_merge`](DOCUMENTATION.md#_merge) -- create a map checker merging the keys of the listed map checkers
 - [`_optional`](DOCUMENTATION.md#_mapOptional) -- \_optional must be used together with \_map
 
-#### Sequence checkers
+#### List checkers
 
 - [`_list`](DOCUMENTATION.md#_list) -- (the equivalent of `_map` but for sequences. It could have been named `_seq`)
 - [`_listOf`](DOCUMENTATION.md#_listOf)

@@ -66,8 +66,8 @@ func (mapChecker tMap) description() string {
 	return strings.Join(partList, "\n")
 }
 
-// Seq
-func (seq tSeq) name() string {
+// List
+func (seq tList) name() string {
 	namePartList := []string{"("}
 
 	if seq.form.list != nil {
@@ -81,7 +81,7 @@ func (seq tSeq) name() string {
 	return strings.Join(namePartList, "&")
 }
 
-func (seq tSeq) description() string {
+func (seq tList) description() string {
 	partList := []string{}
 
 	if seq.form.list != nil {

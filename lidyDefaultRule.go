@@ -125,8 +125,8 @@ func (sp *tSchemaParser) precomputeLidyDefaultRules() {
 				},
 				tSizingNone{},
 			},
-			tSeq{
-				tSeqForm{
+			tList{
+				tListForm{
 					listOf: ruleAny,
 				},
 				tSizingNone{},

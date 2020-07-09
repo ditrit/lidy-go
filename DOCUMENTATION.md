@@ -25,7 +25,7 @@
           - [\_map and \_mapOf together](#_map-and-_mapof-together)
       - [`MapResult`, the common output type for map-related checkers](#mapresult-the-common-output-type-for-map-related-checkers)
           - [MapResult](#mapresult)
-    - [Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**](#array-list-slice-tuple-seq-sequence-related-checkers)
+    - [Array, Sequence, Slice, Tuple, !!seq, **List-related checkers**](#array-sequence-slice-tuple-seq-list-related-checkers)
           - [\_list](#_list)
           - [\_listOf](#_listof)
           - [\_listOptional](#_listoptional)
@@ -258,7 +258,7 @@ func (MapResult) Hashed() (map[string]Result, error)
 
 Assuming all keys are strings, `Hashed()` converts the KeyValueResult list into a map of `string`-s to `Result`-s. It errors if any key is not a string.
 
-### Array, List, Slice, Tuple, !!seq, **Sequence-related checkers**
+### Array, Sequence, Slice, Tuple, !!seq, **List-related checkers**
 
 The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML sequence. See [container sizing](#container-sizing).
 

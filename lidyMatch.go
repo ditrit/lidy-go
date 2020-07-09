@@ -212,14 +212,14 @@ func getMapProperty(propertyMap map[string]tExpression, utilized *bool, key *yam
 	return nil, false
 }
 
-// Seq
-func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
+// List
+func (seq tList) match(content yaml.Node, parser *tParser) (Result, []error) {
 	// Non-maps
 	if content.Tag != "!!seq" {
 		return nil, parser.contentError(content, "a YAML list (seq), "+seq.description())
 	}
 
-	seqResult := SeqResult{}
+	seqResult := ListResult{}
 	errList := errorlist.List{}
 
 	// Bad sizing
@@ -238,12 +238,12 @@ func (seq tSeq) match(content yaml.Node, parser *tParser) (Result, []error) {
 			errList.Push(erl)
 			seqResult.List = append(seqResult.List, result)
 		} else if seq.form.listOf != nil {
-			// SeqOf (all the rest)
+			// ListOf (all the rest)
 			result, erl := seq.form.listOf.match(*value, parser)
 			errList.Push(erl)
-			seqResult.SeqOf = append(seqResult.SeqOf, result)
+			seqResult.ListOf = append(seqResult.ListOf, result)
 		} else {
-			// Rejecting extra entries (all the rest, if no SeqOf)
+			// Rejecting extra entries (all the rest, if no ListOf)
 			message := fmt.Sprintf(
 				"no %dth entry (%s) `%s`",
 				k, value.Tag, value.Value,

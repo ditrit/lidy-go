@@ -35,8 +35,8 @@ type KeyValueResult struct {
 	Value Result
 }
 
-// SeqResult -- A lidy yaml sequence result
-type SeqResult struct {
-	List  []Result
-	SeqOf []Result
+// ListResult -- A lidy yaml sequence result
+type ListResult struct {
+	List   []Result
+	ListOf []Result
 }

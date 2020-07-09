@@ -69,15 +69,15 @@ type tKeyValueExpression struct {
 	value tExpression
 }
 
-// tSeq
-var _ tExpression = tSeq{}
+// tList
+var _ tExpression = tList{}
 
-type tSeq struct {
-	form   tSeqForm
+type tList struct {
+	form   tListForm
 	sizing tSizing
 }
 
-type tSeqForm struct {
+type tListForm struct {
 	list         []tExpression
 	optionalList []tExpression
 	listOf       tExpression

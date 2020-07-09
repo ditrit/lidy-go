@@ -147,7 +147,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 	checker := missingChecker
 
 	keyword := ""
-	mustBeMapOrSequence := false
+	mustBeMapOrList := false
 	conflictingForm := ""
 
 	formMap := make(map[string]yaml.Node)
@@ -156,7 +156,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 	setForm := func(newForm string, key string, newChecker tChecker) {
 		if form != "" && form != newForm {
 			conflictingForm = newForm
-		} else if mustBeMapOrSequence && newForm != "map" && newForm != "sequence" {
+		} else if mustBeMapOrList && newForm != "map" && newForm != "sequence" {
 			conflictingForm = newForm
 		} else {
 			form = newForm
@@ -201,7 +201,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 					form, keyword,
 				)))
 			} else {
-				mustBeMapOrSequence = true
+				mustBeMapOrList = true
 			}
 			if keyword != "" {
 				keyword = key

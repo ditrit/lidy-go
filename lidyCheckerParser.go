@@ -40,7 +40,7 @@ func seqChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression
 	sizing, err := sizingChecker(sp, node, formMap)
 	errList.Push(err)
 
-	return tSeq{
+	return tList{
 		form,
 		sizing,
 	}, errList.ConcatError()
@@ -172,7 +172,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 	}, errList.ConcatError()
 }
 
-func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []error) {
+func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tListForm, []error) {
 	errList := errorlist.List{}
 
 	listNode, _list := formMap["_list"]
@@ -209,7 +209,7 @@ func seqForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSeqForm, []er
 		listOfExpression = res
 	}
 
-	return tSeqForm{
+	return tListForm{
 		list:         listList,
 		optionalList: optionalList,
 		listOf:       listOfExpression,
