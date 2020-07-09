@@ -67,13 +67,13 @@ func (mapChecker tMap) description() string {
 }
 
 // List
-func (seq tList) name() string {
+func (list tList) name() string {
 	namePartList := []string{"("}
 
-	if seq.form.list != nil {
+	if list.form.list != nil {
 		namePartList = append(namePartList, "_list")
 	}
-	if seq.form.listOf != nil {
+	if list.form.listOf != nil {
 		namePartList = append(namePartList, "_listOf")
 	}
 	namePartList = append(namePartList, ")")
@@ -81,21 +81,21 @@ func (seq tList) name() string {
 	return strings.Join(namePartList, "&")
 }
 
-func (seq tList) description() string {
+func (list tList) description() string {
 	partList := []string{}
 
-	if seq.form.list != nil {
+	if list.form.list != nil {
 		inner := []string{}
 
-		for _, expression := range seq.form.list {
+		for _, expression := range list.form.list {
 			inner = append(inner, expression.name())
 		}
 		innerString := strings.Join(inner, ", ")
 
 		partList = append(partList, "_list: [", innerString, "]")
 	}
-	if seq.form.listOf != nil {
-		partList = append(partList, "_listOf: ", seq.form.listOf.name())
+	if list.form.listOf != nil {
+		partList = append(partList, "_listOf: ", list.form.listOf.name())
 	}
 
 	return strings.Join(partList, "\n")

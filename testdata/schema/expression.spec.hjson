@@ -52,7 +52,7 @@
       ["map: {}", {}]
     ]
   }
-  "check for seqChecker": {
+  "check for listChecker": {
     "accept if it is a valid form": [
       ["_list: []", {}]
       ["_list: []\n_listFacultative: []", {}]

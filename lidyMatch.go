@@ -213,35 +213,35 @@ func getMapProperty(propertyMap map[string]tExpression, utilized *bool, key *yam
 }
 
 // List
-func (seq tList) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (list tList) match(content yaml.Node, parser *tParser) (Result, []error) {
 	// Non-maps
 	if content.Tag != "!!seq" {
-		return nil, parser.contentError(content, "a YAML list (seq), "+seq.description())
+		return nil, parser.contentError(content, "a YAML list (seq), "+list.description())
 	}
 
-	seqResult := ListResult{}
+	listResult := ListResult{}
 	errList := errorlist.List{}
 
 	// Bad sizing
-	errList.Push(seq.sizing.check(content, parser))
+	errList.Push(list.sizing.check(content, parser))
 
 	// Going through the fields of the map
 	for k, value := range content.Content {
-		if k < len(seq.form.list) {
+		if k < len(list.form.list) {
 			// List (required)
-			result, erl := seq.form.list[k].match(*value, parser)
+			result, erl := list.form.list[k].match(*value, parser)
 			errList.Push(erl)
-			seqResult.List = append(seqResult.List, result)
-		} else if k -= len(seq.form.list); k < len(seq.form.optionalList) {
+			listResult.List = append(listResult.List, result)
+		} else if k -= len(list.form.list); k < len(list.form.optionalList) {
 			// List (optional)
-			result, erl := seq.form.optionalList[k].match(*value, parser)
+			result, erl := list.form.optionalList[k].match(*value, parser)
 			errList.Push(erl)
-			seqResult.List = append(seqResult.List, result)
-		} else if seq.form.listOf != nil {
+			listResult.List = append(listResult.List, result)
+		} else if list.form.listOf != nil {
 			// ListOf (all the rest)
-			result, erl := seq.form.listOf.match(*value, parser)
+			result, erl := list.form.listOf.match(*value, parser)
 			errList.Push(erl)
-			seqResult.ListOf = append(seqResult.ListOf, result)
+			listResult.ListOf = append(listResult.ListOf, result)
 		} else {
 			// Rejecting extra entries (all the rest, if no ListOf)
 			message := fmt.Sprintf(
@@ -253,15 +253,15 @@ func (seq tList) match(content yaml.Node, parser *tParser) (Result, []error) {
 	}
 
 	// Signaling missing keys
-	for k := len(content.Content); k < len(seq.form.list); k++ {
+	for k := len(content.Content); k < len(list.form.list); k++ {
 		message := fmt.Sprintf(
 			"a %dth entry %s",
-			k, seq.form.list[k].description(),
+			k, list.form.list[k].description(),
 		)
 		errList.Push(parser.contentError(content, message))
 	}
 
-	return seqResult, errList.ConcatError()
+	return listResult, errList.ConcatError()
 }
 
 // OneOf

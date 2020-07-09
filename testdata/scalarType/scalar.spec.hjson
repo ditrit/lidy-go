@@ -9,7 +9,7 @@
       null: ["null", "~", ""]
     }
     extraExampleObject: {
-      seq: ['[]', '[a]']
+      list: ['[]', '[a]']
       map: ['{}', '{ k: v }']
     }
     selfAcceptExample: {}
