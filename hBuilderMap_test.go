@@ -18,8 +18,8 @@ main: animal
 animal:: string
 `),
 		).With(map[string]lidy.Builder{
-			"animal": func(input interface{}) (lidy.Result, []error) {
-				animal := input.(string)
+			"animal": func(input lidy.Result) (interface{}, []error) {
+				animal := input.Data().(string)
 				if len(animal) == 0 {
 					return nil, []error{fmt.Errorf("animal can't be the empty string")}
 				}
@@ -33,7 +33,7 @@ animal:: string
 
 		Expect(err).To(BeEmpty())
 
-		switch v := result.(type) {
+		switch v := result.Data().(type) {
 		case string:
 			Expect(v).To(Equal("J"))
 		default:

@@ -64,11 +64,11 @@ func (p *tParser) parseSchema() []error {
 }
 
 // parseContent apply the schema to the content
-func (p *tParser) parseContent(file File) (Result, []error) {
+func (p *tParser) parseContent(file File) (tResult, []error) {
 	// make sure the schema is loaded
 	erl := p.Schema()
 	if len(erl) > 0 {
-		return nil, erl
+		return tResult{}, erl
 	}
 
 	// assert that the schema is valid; that the schema parser works
@@ -88,13 +88,13 @@ func (p *tParser) parseContent(file File) (Result, []error) {
 	// Checking that the target rule is present
 	targetRule, ruleFound := p.schema.ruleMap[p.target]
 	if !ruleFound {
-		return nil, []error{fmt.Errorf("Could not find target rule '%s' in grammar", p.target)}
+		return tResult{}, []error{fmt.Errorf("Could not find target rule '%s' in grammar", p.target)}
 	}
 
 	// Parsing the content
 	err := file.Yaml()
 	if err != nil {
-		return nil, []error{err}
+		return tResult{}, []error{err}
 	}
 
 	contentFile := file.(*tFile)
@@ -104,7 +104,7 @@ func (p *tParser) parseContent(file File) (Result, []error) {
 	contentRoot, erl := getRoot(contentFile.yaml)
 
 	if len(erl) > 0 {
-		return nil, erl
+		return tResult{}, erl
 	}
 
 	// defer func() {

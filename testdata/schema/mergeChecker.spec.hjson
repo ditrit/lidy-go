@@ -36,7 +36,7 @@
         {}
       ]
     ]
-    "PENDING accept merging _oneOf mapCheckers": [
+    "accept merging _oneOf mapCheckers": [
       [
         '''
         main:
@@ -44,12 +44,12 @@
             - _oneOf:
               - { _map: {} }
               - { _mapOf: { string: string } }
-              - { _merge: {} }
+              - { _merge: [] }
         '''
         { contain: "main" }
       ]
     ]
-    "PENDING reject if not solving only to mapCheckers": [
+    "reject if not solving only to mapCheckers": [
       [
         '''
         main:
@@ -69,7 +69,7 @@
         { contain: "main" }
       ]
     ]
-    "PENDING reject if not used with a sequence": [
+    "reject if not used with a sequence": [
       [
         '''
         main:
@@ -82,7 +82,7 @@
     ]
   }
   "detect invalid self-references in _merge expressions": {
-    "PENDING accept if the self-reference is sufficiently indirect": [
+    "PENDING (requires on-demand-rule-loading) accept if the self-reference is sufficiently indirect": [
       [
         '''
         main: a

@@ -3,6 +3,7 @@ package lidy
 // lidy.go
 //
 // Exported types, methods, functions and other entry points
+// Also see lidyResultType.go
 
 import (
 	"fmt"
@@ -20,7 +21,7 @@ type File interface {
 	Content() []byte
 	Yaml() error
 
-	unimplementable()
+	zzFile()
 }
 
 //
@@ -40,7 +41,21 @@ type Parser interface {
 	Schema() []error
 	// Parse
 	// validate a yaml content, and deserialise it into a Lidy result
-	Parse(file File) (Result, []error)
+	Parse(file File) (tResult, []error)
+}
+
+// Warning -- a non-fatal exception in Lidy
+type Warning interface {
+	error
+	zzWarning()
+}
+
+// Error -- a user-fatal exception in Lidy
+// (a lidy thread can keep running despite a lidy.Error)
+type Error interface {
+	error
+	GetContent() []error
+	zzError()
 }
 
 // Option cherry-pick some parser behaviour
@@ -67,10 +82,10 @@ type Option struct {
 }
 
 // Builder -- user-implemented input-validation and creation of user objects
-type Builder func(input interface{}) (Result, []error)
+type Builder func(input Result) (interface{}, []error)
 
-// tLidyBuilder -- builders for lidy's internal types
-type tLidyMatcher func(content yaml.Node, p *tParser) (Result, []error)
+// tLidyMatcher -- Lidy default rules
+type tLidyMatcher func(content yaml.Node, p *tParser) (tResult, []error)
 
 //
 // Concrete types
@@ -95,6 +110,15 @@ type tParser struct {
 	schemaErrorSlice   []error
 	target             string
 	contentFile        tFile
+}
+
+type tWarning struct {
+	text string
+}
+
+type tError struct {
+	text    string
+	content []error
 }
 
 //
@@ -138,9 +162,17 @@ func (f *tFile) Yaml() error {
 	return nil
 }
 
-// File is unimplementable by external libraries
+// File cannot be implemented by external libraries
 // This method must exist to validate the interface
-func (*tFile) unimplementable() {}
+func (*tFile) zzFile() {}
+
+// Warning cannot be implemented by external libraries
+// This method must exist to validate the interface
+func (*tWarning) zzWarning() {}
+
+// Error cannot be implemented by external libraries
+// This method must exist to validate the interface
+func (*tError) zzError() {}
 
 //
 // Parser
@@ -185,10 +217,10 @@ func (p *tParser) Schema() []error {
 }
 
 // Parse -- use the parser to check the given YAML file, and produce a Lidy Result.
-func (p *tParser) Parse(file File) (Result, []error) {
+func (p *tParser) Parse(file File) (tResult, []error) {
 	result, erl := p.parseContent(file)
 	if len(erl) > 0 {
-		return nil, erl
+		return tResult{}, erl
 	}
 	return result, nil
 }

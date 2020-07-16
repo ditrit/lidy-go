@@ -12,7 +12,7 @@ import (
 // Implement match() and mergeMatch() on tExpression and tMergeableExpression
 
 // tRule
-func (rule *tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (rule *tRule) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	if rule == nil {
 		panic("aaaaaaaaaa!")
 	}
@@ -27,23 +27,25 @@ func (rule *tRule) match(content yaml.Node, parser *tParser) (Result, []error) {
 	result, err := rule.expression.match(content, parser)
 
 	if len(err) > 0 {
-		return nil, err
+		return tResult{}, err
 	}
 
 	if rule.builder != nil {
-		result, err := rule.builder(result)
+		data, err := rule.builder(result)
+		result := parser.wrap(data, content)
+		result.ruleName = rule.ruleName
 		return result, err
 	}
 
 	return result, err
 }
 
-func (rule tRule) mergeMatch(mapResult MapResult, utilizationTrackingList []bool, content yaml.Node, parser *tParser) []error {
+func (rule tRule) mergeMatch(mapResult MapData, utilizationTrackingList []bool, content yaml.Node, parser *tParser) []error {
 	return mergeMatchExpression(mapResult, utilizationTrackingList, content, rule.expression, parser)
 }
 
 // tExpression
-func mergeMatchExpression(mapResult MapResult, utilizationTrackingList []bool, content yaml.Node, expression tExpression, parser *tParser) []error {
+func mergeMatchExpression(mapResult MapData, utilizationTrackingList []bool, content yaml.Node, expression tExpression, parser *tParser) []error {
 	switch mergeable := expression.(type) {
 	case tMap:
 		return mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
@@ -59,23 +61,23 @@ func mergeMatchExpression(mapResult MapResult, utilizationTrackingList []bool, c
 }
 
 // Map
-func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (mapChecker tMap) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	// Non-maps
 	if content.Tag != "!!map" {
-		return nil, parser.contentError(content, "a YAML map, "+mapChecker.description())
+		return tResult{}, parser.contentError(content, "a YAML map, "+mapChecker.description())
 	}
 
 	// Extra key (preparation)
 	// list tracking whether a key-value pair was used or not
 	utilizationTrackingList := make([]bool, len(content.Content)/2)
 
-	mapResult := MapResult{
+	mapData := MapData{
 		Map:   make(map[string]Result),
 		MapOf: nil,
 	}
 	// mapResult.Map = make(map[string]Result)
 
-	erl := mapChecker.mergeMatch(mapResult, utilizationTrackingList, content, parser)
+	erl := mapChecker.mergeMatch(mapData, utilizationTrackingList, content, parser)
 
 	errList := errorlist.List{}
 	errList.Push(erl)
@@ -120,17 +122,17 @@ func (mapChecker tMap) match(content yaml.Node, parser *tParser) (Result, []erro
 
 		// (if both the key and the value are valid)
 		// Adding the key-value pair
-		mapResult.MapOf = append(mapResult.MapOf, KeyValueResult{
+		mapData.MapOf = append(mapData.MapOf, KeyValueData{
 			Key:   keyResult,
 			Value: valueResult,
 		})
 	}
 
-	return mapResult, errList.ConcatError()
+	return parser.wrap(mapData, content), errList.ConcatError()
 }
 
 func (mapChecker tMap) mergeMatch(
-	mapResult MapResult,
+	mapResult MapData,
 	utilizzTrackingList []bool,
 	content yaml.Node,
 	parser *tParser,
@@ -213,13 +215,13 @@ func getMapProperty(propertyMap map[string]tExpression, utilized *bool, key *yam
 }
 
 // List
-func (list tList) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (list tList) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	// Non-maps
 	if content.Tag != "!!seq" {
-		return nil, parser.contentError(content, "a YAML list (seq), "+list.description())
+		return tResult{}, parser.contentError(content, "a YAML list (seq), "+list.description())
 	}
 
-	listResult := ListResult{}
+	listData := ListData{}
 	errList := errorlist.List{}
 
 	// Bad sizing
@@ -231,17 +233,17 @@ func (list tList) match(content yaml.Node, parser *tParser) (Result, []error) {
 			// List (required)
 			result, erl := list.form.list[k].match(*value, parser)
 			errList.Push(erl)
-			listResult.List = append(listResult.List, result)
+			listData.List = append(listData.List, result)
 		} else if k -= len(list.form.list); k < len(list.form.optionalList) {
 			// List (optional)
 			result, erl := list.form.optionalList[k].match(*value, parser)
 			errList.Push(erl)
-			listResult.List = append(listResult.List, result)
+			listData.List = append(listData.List, result)
 		} else if list.form.listOf != nil {
 			// ListOf (all the rest)
 			result, erl := list.form.listOf.match(*value, parser)
 			errList.Push(erl)
-			listResult.ListOf = append(listResult.ListOf, result)
+			listData.ListOf = append(listData.ListOf, result)
 		} else {
 			// Rejecting extra entries (all the rest, if no ListOf)
 			message := fmt.Sprintf(
@@ -261,11 +263,11 @@ func (list tList) match(content yaml.Node, parser *tParser) (Result, []error) {
 		errList.Push(parser.contentError(content, message))
 	}
 
-	return listResult, errList.ConcatError()
+	return parser.wrap(listData, content), errList.ConcatError()
 }
 
 // OneOf
-func (oneOf tOneOf) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (oneOf tOneOf) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	for _, option := range oneOf.optionList {
 		if option == nil {
 			fmt.Printf("aaaaaa, %s\n", oneOf.optionList)
@@ -276,11 +278,11 @@ func (oneOf tOneOf) match(content yaml.Node, parser *tParser) (Result, []error) 
 		}
 	}
 
-	return nil, parser.contentError(content, oneOf.description())
+	return tResult{}, parser.contentError(content, oneOf.description())
 }
 
 func (oneOf tOneOf) mergeMatch(
-	mapResult MapResult,
+	mapResult MapData,
 	utilizationTrackingList []bool,
 	content yaml.Node,
 	parser *tParser,
@@ -311,25 +313,48 @@ func (oneOf tOneOf) mergeMatch(
 }
 
 // In
-func (in tIn) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (in tIn) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	if acceptList, found := in.valueMap[content.Tag]; found {
 		for _, accept := range acceptList {
 			if content.Value == accept {
-				return content.Value, nil
+				// TODO:
+				// `data := content.Value, nil` only works if the value is supposed to be a string
+				// This returns the wrong type if the value must be a boolean or an integer or a float
+				data := content.Value
+				return parser.wrap(data, content), nil
 			}
 		}
 	}
 
-	return nil, parser.contentError(content, in.description())
+	return tResult{}, parser.contentError(content, in.description())
 }
 
 // Regex
-func (rxp tRegex) match(content yaml.Node, parser *tParser) (Result, []error) {
+func (rxp tRegex) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	if content.Tag != "!!str" || !rxp.regex.MatchString(content.Value) {
-		return nil, parser.contentError(content, fmt.Sprintf("a string (matching the regex [%s])", rxp.regexString))
+		return tResult{}, parser.contentError(content, fmt.Sprintf("a string (matching the regex [%s])", rxp.regexString))
 	}
 
-	return content.Value, nil
+	return parser.wrap(content.Value, content), nil
+}
+
+// Add metadata to value, to create a Result
+func (parser tParser) wrap(data interface{}, content yaml.Node) tResult {
+	return tResult{
+		tPosition:    positionFromYamlNode(parser.contentFile.Name(), content),
+		isLidyData:   true,
+		hasBeenBuilt: false,
+		ruleName:     "",
+		data:         data,
+	}
+}
+
+func positionFromYamlNode(filename string, node yaml.Node) tPosition {
+	return tPosition{
+		filename: filename,
+		line:     node.Line,
+		column:   node.Column,
+	}
 }
 
 // Yaml document root

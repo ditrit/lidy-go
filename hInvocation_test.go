@@ -56,7 +56,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 			)
 
 			Expect(err).To(BeEmpty())
-			Expect(result).To(Equal(content))
+			Expect(result.Data()).To(Equal(content))
 		})
 		It("works with JSON, since JSON is YAML", func() {
 			content := "Hello, I'm a string!"
@@ -67,7 +67,7 @@ var _ = Describe("The different ways to invoke lidy checking features", func() {
 			)
 
 			Expect(err).To(BeEmpty())
-			Expect(result).To(Equal(content))
+			Expect(result.Data()).To(Equal(content))
 		})
 	})
 
@@ -101,8 +101,8 @@ children:
 
 		Expect(err).To(BeEmpty())
 
-		switch v := result.(type) {
-		case lidy.MapResult:
+		switch v := result.Data().(type) {
+		case lidy.MapData:
 			Expect(v.MapOf).To(BeEmpty())
 			Expect(v.Map).To(HaveLen(2))
 		default:

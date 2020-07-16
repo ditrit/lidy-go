@@ -7,14 +7,14 @@ import (
 )
 
 type tExpression interface {
-	match(content yaml.Node, parser *tParser) (Result, []error)
+	match(content yaml.Node, parser *tParser) (tResult, []error)
 	name() string
 	description() string
 }
 
 type tMergeableExpression interface {
 	tExpression
-	mergeMatch(mapResult MapResult, usefulList []bool, content yaml.Node, parser *tParser) []error
+	mergeMatch(mapResult MapData, usefulList []bool, content yaml.Node, parser *tParser) []error
 }
 
 type tSchema struct {
@@ -128,6 +128,12 @@ type tIn struct {
 	// valueMap
 	// maps Node.Tag-s to slices of Node.Value
 	valueMap map[string][]string
+	// TODO:
+	// valueMap map[string]tInAccepter
+	// type tInAccepter struct {
+	//     exactStringFormSlice []string
+	//     converter(stringForm string) interface{}
+	// }
 }
 
 // Regex
