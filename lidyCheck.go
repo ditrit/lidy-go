@@ -2,6 +2,7 @@ package lidy
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ditrit/lidy/errorlist"
 	"gopkg.in/yaml.v3"
@@ -29,7 +30,7 @@ func (sizing tSizingMin) check(content yaml.Node, parser *tParser) []error {
 	}
 
 	if size < sizing.min {
-		return parser.contentError(content, "have at least "+string(sizing.min)+" entries")
+		return parser.contentError(content, "have at least "+strconv.Itoa(sizing.min)+" entries")
 	}
 	return nil
 }
@@ -42,7 +43,7 @@ func (sizing tSizingMax) check(content yaml.Node, parser *tParser) []error {
 	}
 
 	if size > sizing.max {
-		return parser.contentError(content, "have at most "+string(sizing.max)+" entries")
+		return parser.contentError(content, "have at most "+strconv.Itoa(sizing.max)+" entries")
 	}
 	return nil
 }
@@ -55,7 +56,7 @@ func (sizing tSizingNb) check(content yaml.Node, parser *tParser) []error {
 	}
 
 	if size != sizing.nb {
-		return parser.contentError(content, "have exactly "+string(sizing.nb)+" entries")
+		return parser.contentError(content, "have exactly "+strconv.Itoa(sizing.nb)+" entries")
 	}
 	return nil
 }

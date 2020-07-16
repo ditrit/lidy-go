@@ -221,8 +221,8 @@ func (contentGroup *ContentGroup) UnmarshalJSON(compositeJsonInput []byte) error
 
 	for name, value := range data {
 		if !strings.Contains(name, " ") {
-			if list := "List"; strings.HasSuffix(name, list) {
-				contentGroup.valueName = string([]rune(name)[:len(name)-len(list)])
+			if listSuffix := "List"; strings.HasSuffix(name, listSuffix) {
+				contentGroup.valueName = string([]rune(name)[:len(name)-len(listSuffix)])
 
 				if len(contentGroup.valueList) > 0 {
 					return jsonError(fmt.Errorf("met *List twice"), compositeJsonInput)

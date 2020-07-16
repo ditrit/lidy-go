@@ -47,21 +47,28 @@ func (line *TestLine) validate(parser lidy.Parser) []error {
 	return erl
 }
 
-// Loading files and running tests
-var _ = Describe("schema tests", func() {
-	testFileList, err := GetTestFileList()
+var testFileList TestFileList
+
+var _ = Describe("init", func() {
+	// Loading test data files
+	var err error
+	testFileList, err = GetTestFileList()
 	if err != nil {
 		panic(err)
 	}
+})
 
-	Specify("the testFileList contains files", func() {
-		if len(testFileList.content) == 0 {
-			Fail("empty .content")
-		}
-		if len(testFileList.schema) == 0 {
+func nop() {}
+
+// Running schema tests
+var _ = Describe("schema tests", func() {
+	okFunc := nop
+	if len(testFileList.schema) == 0 {
+		okFunc = func() {
 			Fail("empty .schema")
 		}
-	})
+	}
+	Specify("the testFileList contains testdata files", okFunc)
 
 	// Schema
 	for _, file := range testFileList.schema {
@@ -84,6 +91,18 @@ var _ = Describe("schema tests", func() {
 		}
 	}
 
+})
+
+// Running content tests
+var _ = Describe("content tests", func() {
+	okFunc := nop
+	if len(testFileList.content) == 0 {
+		okFunc = func() {
+			Fail("empty .content")
+		}
+	}
+	Specify("the testFileList contains testdata content files", okFunc)
+
 	// Content
 	for _, file := range testFileList.content {
 		// Let's hook onto JSON's rich deserialisation interface
@@ -102,9 +121,6 @@ var _ = Describe("schema tests", func() {
 			group.description = description
 			group.runContentTest()
 		}
-	}
-	if err != nil {
-		panic(err)
 	}
 })
 
@@ -215,35 +231,46 @@ func (group *ContentGroup) runContentTest() {
 				continue
 			}
 
-			var parser lidy.Parser
-			schemaFilename := "~" + group.description + "~.yaml"
-
-			if group.target == "document" {
-				parser = lidy.NewParser(schemaFilename, []byte(group.schema))
-			} else if group.target == "expression" {
-				parser = newParserFromExpression(schemaFilename, group.schema)
-			} else if group.target == "regex.checker" {
-				parser = newParserFromExpression(schemaFilename, group.schema)
-			} else {
-				parser = newParserFromExpression(schemaFilename, group.schema)
+			template := group.schema
+			substitutionValueList := []string{""}
+			if len(group.valueList) > 0 {
+				substitutionValueList = group.valueList
+				template = group.template
 			}
 
-			erl := parser.Schema()
-			if len(erl) > 0 {
-				Specifier(group.description, func() {
-					Fail("no test run because schema ((" + group.schema + ")) failed to parse: " + erl[0].Error())
-				})
-				continue
-			}
+			for _, substitutionValue := range substitutionValueList {
+				var parser lidy.Parser
+				schemaFilename := "~" + group.description + "~" + substitutionValue + "~.yaml"
 
-			for k, testLine := range lineSlice.slice {
-				lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
+				schema := strings.ReplaceAll(template, "${"+group.valueName+"}", substitutionValue)
 
-				Specifier(lineName, func() {
-					erl := testLine.validate(parser)
+				if group.target == "document" {
+					parser = lidy.NewParser(schemaFilename, []byte(schema))
+				} else if group.target == "expression" {
+					parser = newParserFromExpression(schemaFilename, schema)
+				} else if group.target == "regex.checker" {
+					parser = newParserFromExpression(schemaFilename, schema)
+				} else {
+					parser = newParserFromExpression(schemaFilename, schema)
+				}
 
-					assertErlResult(expectingError, erl)
-				})
+				erl := parser.Schema()
+				if len(erl) > 0 {
+					Specifier(group.description+"~"+substitutionValue, func() {
+						Fail("no test run because schema ((" + group.schema + ")) failed to parse: " + erl[0].Error())
+					})
+					continue
+				}
+
+				for k, testLine := range lineSlice.slice {
+					lineName := fmt.Sprintf("%s (#%d)", criterionName, k)
+
+					Specifier(lineName, func() {
+						erl := testLine.validate(parser)
+
+						assertErlResult(expectingError, erl)
+					})
+				}
 			}
 		}
 	})
