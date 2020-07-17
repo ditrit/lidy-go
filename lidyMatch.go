@@ -368,7 +368,7 @@ func getRoot(documentNode yaml.Node) (*yaml.Node, []error) {
 
 	if len(documentNode.Content) != 1 {
 		return nil, []error{fmt.Errorf(
-			"Internal: Content lenght of root node is not 1, but %d. %s",
+			"Internal: Content length of root node is not 1, but %d. %s",
 			len(documentNode.Content), pleaseReport,
 		)}
 	}

@@ -68,7 +68,7 @@ type Option struct {
 	WarnUnimplementedBuilder bool
 	// IgnoreExtraBuilder Do not warn when the builderMap contains useless builders
 	IgnoreExtraBuilder bool
-	// WarnUnusedRule **DO** warn when some used are declared but never refered to in the schema
+	// WarnUnusedRule **DO** warn when some used are declared but never referred to in the schema
 	WarnUnusedRule bool
 	// BypassMissingRule Persist to run the schema even if there are reported references to undeclared rules. The undeclared rules will accept any YAML content
 	BypassMissingRule bool
