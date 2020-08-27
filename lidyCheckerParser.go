@@ -236,6 +236,9 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 		if err != nil {
 			errList.Push(sp.schemaError(theNode, "an integer (yaml error happened trying to read the integer) "+err.Error()))
 		}
+		if theInt < 0 {
+			errList.Push(sp.schemaError(theNode, "a _positive_ integer"))
+		}
 		return theInt
 	}
 
@@ -251,9 +254,11 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 	case _max && !_min:
 		sizing = tSizingMax{max: tryDecodeInteger(maxNode)}
 	case _min && _max:
+		min := tryDecodeInteger(minNode)
+		max := tryDecodeInteger(maxNode)
 		sizing = tSizingMinMax{
-			tSizingMin{min: tryDecodeInteger(minNode)},
-			tSizingMax{max: tryDecodeInteger(maxNode)},
+			tSizingMin{min: min},
+			tSizingMax{max: max},
 		}
 	default:
 		errList.Push(sp.schemaError(node, "no unexpected combination of _nb, _min and _max (Internal error? "+pleaseReport+")"))
