@@ -5,13 +5,14 @@
 /*
 
 !/.github/
+!/asset/
+
 !/errorlist/
 !/fileoutline/
 !/linenumber/
 !/paper/
 !/testdata/
 !/*.go
-!/lidy.schema.yaml
 
 !/.gitignore
 !/DOCUMENTATION.md

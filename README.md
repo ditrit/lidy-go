@@ -1,6 +1,14 @@
-# Lidy
-
-A YAML-YAML type-oriented schema validation and deserialisation tool.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ditrit/lidy/master/asset/img/lidy-logo.svg" width="250px">
+</p>
+<p align="center">
+  <a href="https://goreportcard.com/report/github.com/ditrit/lidy"><img src="https://goreportcard.com/badge/github.com/ditrit/lidy?style=flat-square" alt="GoReport"></a>
+  <a href="http://godoc.org/github.com/ditrit/lidy"><img src="https://img.shields.io/badge/go-documentation-blue.svg?style=flat-square" alt="GoDoc"></a>
+  <a href="https://github.com/ditrit/lidy/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ditrit/lidy?style=flat-square" alt="License"></a>
+</p>
+<hr>
+<h3 align="center">The YAML-YAML type-oriented schema validation tool</h3>
+<hr>
 
 Lidy is:
 
@@ -10,32 +18,32 @@ Lidy is:
 
 ## Content
 
-- [Lidy](#lidy)
-  - [Content](#content)
-  - [JSON schema](#json-schema)
-    - [About lidy's refs](#about-lidys-refs)
-  - [Example](#example)
-  - [Alternatives: YAML Schema validators](#alternatives-yaml-schema-validators)
-  - [Using Regex](#using-regex)
-  - [Documentation](#documentation)
-  - [Short reference](#short-reference)
-    - [Lidy expression](#lidy-expression)
-    - [Predefined lidy rules](#predefined-lidy-rules)
-      - [Scalar types](#scalar-types)
-      - [Predefined string checker rules](#predefined-string-checker-rules)
-      - [`any` - Any yaml content](#any---any-yaml-content)
-    - [Container checkers](#container-checkers)
-      - [Map checkers](#map-checkers)
-      - [List checkers](#list-checkers)
-    - [Composite checkers](#composite-checkers)
-    - [Container checkers](#container-checkers-1)
-    - [Scalar checkers](#scalar-checkers)
-  - [Not yet in Lidy](#not-yet-in-lidy)
-    - [Range](#range)
-    - [Parameter-less string checkers](#parameter-less-string-checkers)
-    - [Functional types (aka type parameter aka template types)](#functional-types-aka-type-parameter-aka-template-types)
-  - [Contributing](#contributing)
-    - [Developing](#developing)
+- [Content](#content)
+- [JSON schema](#json-schema)
+  - [About lidy's refs](#about-lidys-refs)
+- [Example](#example)
+- [Alternatives: YAML Schema validators](#alternatives-yaml-schema-validators)
+- [Using Regex](#using-regex)
+- [Documentation](#documentation)
+- [Short reference](#short-reference)
+  - [Glossary](#glossary)
+  - [Lidy expression](#lidy-expression)
+  - [Predefined lidy rules](#predefined-lidy-rules)
+    - [Scalar types](#scalar-types)
+    - [Predefined string checker rules](#predefined-string-checker-rules)
+    - [`any` - Any yaml content](#any---any-yaml-content)
+  - [Container checkers](#container-checkers)
+    - [Map checkers](#map-checkers)
+    - [List checkers](#list-checkers)
+  - [Composite checkers](#composite-checkers)
+  - [Container checkers](#container-checkers-1)
+  - [Scalar checkers](#scalar-checkers)
+- [Not yet in Lidy](#not-yet-in-lidy)
+  - [Range](#range)
+  - [Parameter-less string checkers](#parameter-less-string-checkers)
+  - [Functional types (aka type parameter aka template types)](#functional-types-aka-type-parameter-aka-template-types)
+- [Contributing](#contributing)
+  - [Developing](#developing)
 
 ## JSON schema
 
@@ -55,6 +63,8 @@ Where you used to write `"a": { "ref": "#/$def/b" }`, you now write `"a": "b"`. 
 Note: Lidy does not yet support remote references.
 
 ## Example
+
+`main.go`
 
 ```go
 package main
@@ -127,9 +137,24 @@ If you need a regex to match a well-known format, think of going shopping for it
 
 ## Documentation
 
-See [DOCUMENTATION.md](./DOCUMENTATION.md)
+See [DOCUMENTATION.md](DOCUMENTATION.md)
 
 ## Short reference
+
+### Glossary
+
+<dl>
+  <dt>Expression</dt>
+  <dd>A lidy expression specifies a way to check a yaml value</dd>
+  <dt>Rule</dt>
+  <dd>A user rule declaration gives a rule name to an expression</dd>
+  <dt>Builder</dt>
+  <dd>A builder is a user-provided function which can process the data read by a rule, and change its content, or produce an error</dd>
+  <dt>Scalar type</dt>
+  <dd>Scalar types are predefined lidy rules which allow to check for a given scalar type, i.e. a type that is not a container</dd>
+  <dt>Container checker</dt>
+  <dd>A container checker allows to create a lidy expression for a YAML map or a YAML sequence matching certain types</dd>
+</dl>
 
 ### Lidy expression
 
@@ -151,8 +176,8 @@ Also see [predefined lidy rules](DOCUMENTATION.md#predefined-lidy-rules).
 - `boolean`
 - `float`
 - `int` -- integer
-- `string` -- string
-- `null`
+- `string`
+- `nullType` -- null
 
 Also see [Scalar rules](DOCUMENTATION.md#scalar-rules).
 

@@ -4,6 +4,7 @@
 
 - [Lidy Documentation](#lidy-documentation)
   - [Content](#content)
+  - [Glossary Notice](#glossary-notice)
   - [Lidy schema syntax](#lidy-schema-syntax)
     - [Lidy identifier](#lidy-identifier)
     - [Lidy expression](#lidy-expression)
@@ -59,6 +60,10 @@
           - [Target](#target)
     - [Builder Map | TODO](#builder-map--todo)
     - [Errors | TODO](#errors--todo)
+
+## Glossary Notice
+
+You might want to have a look at the [glossary](./README.md#glossary).
 
 ## Lidy schema syntax
 
