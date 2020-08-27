@@ -17,6 +17,7 @@
     - [`_regex: ...`, define your own string checker](#_regex--define-your-own-string-checker)
         - [\_regex](#_regex)
     - [Hashmap, Dict, Object, !!map, **Map-related checkers**](#hashmap-dict-object-map-map-related-checkers)
+          - [mapChecker](#mapchecker)
       - [`_map`, the structured type](#_map-the-structured-type)
           - [\_map](#_map)
       - [`_mapOf`, the associative container](#_mapof-the-associative-container)
@@ -27,9 +28,10 @@
       - [`MapResult`, the common output type for map-related checkers](#mapresult-the-common-output-type-for-map-related-checkers)
           - [MapResult](#mapresult)
     - [Array, Sequence, Slice, Tuple, !!seq, **List-related checkers**](#array-sequence-slice-tuple-seq-list-related-checkers)
+          - [listChecker](#listchecker)
           - [\_list](#_list)
-          - [\_listOf](#_listof)
           - [\_listFacultative](#_listfacultative)
+          - [\_listOf](#_listof)
     - [OneOf, choose, select, alternaives, options, pick, OR](#oneof-choose-select-alternaives-options-pick-or)
           - [\_oneOf](#_oneof)
     - [In, exact scalar match in a list of scalars](#in-exact-scalar-match-in-a-list-of-scalars)
@@ -162,6 +164,8 @@ Note: In [single quoted strings](https://yaml.org/spec/1.1/#id905860) the backsl
 
 ### Hashmap, Dict, Object, !!map, **Map-related checkers**
 
+###### mapChecker
+
 The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML map. See [container sizing](#container-sizing).
 
 #### `_map`, the structured type
@@ -192,7 +196,7 @@ _mapFacultative:
 
 All keys defined in the map will be **required** in the YAML content.
 
-The `_mapFacultative` keyword, used in the same expression as `_map` allows to define optional properties. For this, the presence of the `_map` keyword is required. If you want to specify a map where there are no required properties, `_map` should receive the empty map, `{}`, see example:
+The `_mapFacultative` keyword allows to define optional properties.
 
 ```yaml
 _map: {}
@@ -204,6 +208,8 @@ _mapFacultative:
 #### `_mapOf`, the associative container
 
 ###### \_mapOf
+
+`_mapOf` defines a map of the given key and value types. The `_mapOf` keyword accepts a map which must contain a single key-value pair. The key and the value of this pair must each be valid checkers. They will each be used to validate all entries of the map.
 
 Usage:
 
@@ -231,9 +237,32 @@ sparseArray:
 
 ###### \_merge
 
+Using the `_merge` keyword allows to extend a previously defined map checker.
+The extended map checker may itself extend another map checker, but it may not contain a `_mapOf` keyword.
+
 #### Using `_map` and `_mapOf` together: Specify a fallback rule
 
 ###### \_map and \_mapOf together
+
+When `_map` and `_mapOf` are used together, the checker first check keys against
+the `_map`. If they are found in the `_map`, the checker specified in the `_map` is used for the value. If they are **not** found in the `_map`, then
+the two checkers specified in the `_mapOf` are applied, one to the key and one to the value.
+
+Note:
+
+`_mapOf` can be used together with `_map` to produce a `_map` which accepts extra keys. Here's one way to do it:
+
+```yaml
+house:
+  _map:
+    kitchen: room
+    bedroom: room
+  _mapOf:
+    any: any
+# The above house is defined as *requering* a kitchen and a bedroom entries,
+# both of which must be rooms. However, it may contain any other key, of any
+# othe value
+```
 
 #### `MapResult`, the common output type for map-related checkers
 
@@ -265,21 +294,84 @@ Assuming all keys are strings, `Hashed()` converts the KeyValueResult list into 
 
 ### Array, Sequence, Slice, Tuple, !!seq, **List-related checkers**
 
-The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML sequence. See [container sizing](#container-sizing).
+###### listChecker
+
+The `_min`, `_max` and `_nb` keywords apply to the number of entries in the YAML sequence. See [container sizing](#container-sizing). They can only be used if the `_listOf` keyword is used in the definition of the list checker.
+
+A list checker is defined by the use at least one of the lidy keywords `_list`, `_listFacultative` or `_listOf`. List checkers validate that the yaml node is a
+sequence, then map the nodes one by one to the checkers specified by `_list`, then those specified by `_listFacultative`, and all remaining nodes are validated by the single checker specified by `_listOf`.
+
+The validated sequence must contain at least one element for each checker of `_list`. All element of the sequence being validated must have a corresponding checker for lidy to accept it. Definition of sequences which can have any number of element require the use of the `_listOf` keyword.
+
+Usage:
+
+```yaml
+_list?: <sequence of lidy expressions>
+_listFacultative?: <sequence of lidy expressions>
+_listOf?: <lidy expression>
+_min?: <int>
+_max?: <int>
+_nb?: <int>
+```
+
+Example:
+
+```yaml
+_list:
+  - cat
+  - cat
+_listFacultative:
+  - dog
+  - dog
+_listOf:
+  - animal
+```
 
 ###### \_list
 
-###### \_listOf
-
 ###### \_listFacultative
+
+###### \_listOf
 
 ### OneOf, choose, select, alternaives, options, pick, OR
 
 ###### \_oneOf
 
+`_oneOf` specifies a list of checkers to choose from. The first checker that
+matches will be picked and the node will be accepted. If no checker matches, \_oneOf will reject the node.
+
+Usage:
+
+```yaml
+_oneOf?: <sequence of lidy expressions>
+```
+
+Example:
+
+```yaml
+_oneOf:
+  - cat
+  - dog
+  - kangaroo
+```
+
 ### In, exact scalar match in a list of scalars
 
 ###### \_in
+
+`_in` specifies a list of exact **scalar** value that the node may take.
+
+Usage:
+
+```yaml
+_oneOf?: <sequence of YAML scalars>
+```
+
+Example:
+
+```yaml
+_oneOf: [int, float, nullType]
+```
 
 ### `_nb`, `_min`, `_max`, specify the number of entries in a container
 
