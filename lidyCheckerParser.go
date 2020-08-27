@@ -40,6 +40,10 @@ func listChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpressio
 	sizing, err := sizingChecker(sp, node, formMap)
 	errList.Push(err)
 
+	if _, isNone := sizing.(tSizingNone); form.listOf == nil && !isNone {
+		errList.Push(sp.schemaError(node, "_min, _max or _nb can only be used together with _listOf"))
+	}
+
 	return tList{
 		form,
 		sizing,
