@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// invocation_test.go
+// hInvocation_test.go
 
 var _ = Describe("The lidy loaders", func() {
 	Specify("Using a Lidy file loader", func() {

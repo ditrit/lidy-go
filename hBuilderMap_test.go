@@ -9,6 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// hBuilderMap_test.go
+
 var _ = Describe("How to use the builderMap", func() {
 	It("Runs the builder", func() {
 		result, err := lidy.NewParser(

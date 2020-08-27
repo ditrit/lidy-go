@@ -26,7 +26,6 @@ var _ tMergeableExpression = &tRule{}
 
 type tRule struct {
 	ruleName string
-	//
 	// On lidy default rules //
 	// lidyMatcher
 	// present iif the rule is a lidy default rule

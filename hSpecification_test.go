@@ -10,6 +10,8 @@ import (
 	. "github.com/onsi/ginkgo"
 )
 
+// hSpecification_test.go
+
 type TestLine struct {
 	text       string
 	extraCheck ExtraCheck

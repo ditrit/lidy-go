@@ -8,7 +8,7 @@ import (
 	"github.com/hjson/hjson-go"
 )
 
-// readTestdata_test.go
+// hReadTestdata_test.go
 //
 // Types and methods to deserialize the .hjson files in testdata/
 
