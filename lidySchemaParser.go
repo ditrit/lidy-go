@@ -86,7 +86,7 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (*tRule, []er
 	nameSlice := strings.SplitN(key.Value, ":", 3)
 
 	localName := nameSlice[0]
-	var builder Builder = nil
+	var builder Builder
 	if strings.Contains(key.Value, ":") {
 		var exportName string
 

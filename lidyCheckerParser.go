@@ -185,7 +185,7 @@ func listForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tListForm, []
 
 	listList := []tExpression{}
 	optionalList := []tExpression{}
-	var listOfExpression tExpression = nil
+	var listOfExpression tExpression
 
 	// _list and _listFacultative
 
@@ -232,7 +232,7 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 	maxNode, _max := formMap["_max"]
 	nbNode, _nb := formMap["_nb"]
 
-	var sizing tSizing = nil
+	var sizing tSizing
 
 	tryDecodeInteger := func(theNode yaml.Node) int {
 		var theInt int
