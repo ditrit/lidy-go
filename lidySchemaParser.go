@@ -23,7 +23,7 @@ var regexIdentifierDeclaration = *regexp.MustCompile("^" +
 // lidySchemaParser.go
 // implement methods tSchemaParser
 
-// tSchemaParser.hollowSchema parse the outline of a lidy schema document
+// tSchemaParser.hollowSchema parses the outline of a lidy schema document
 // it fills the `ruleMap` with `tRule` instances whose expression is uncomputed. It errors if the yaml node isn't a map.
 func (sp tSchemaParser) hollowSchema(documentNode yaml.Node) (tSchema, []error) {
 	// Note: The parsing is done in two steps

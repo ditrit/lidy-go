@@ -338,7 +338,7 @@ func (rxp tRegex) match(content yaml.Node, parser *tParser) (tResult, []error) {
 // Add metadata to value, to create a Result
 func (parser tParser) wrap(data interface{}, content yaml.Node) tResult {
 	return tResult{
-		tPosition:    positionFromYamlNode(parser.contentFile.Name(), content),
+		tPosition:    positionFromYamlNode(parser.contentFile.name, content),
 		isLidyData:   true,
 		hasBeenBuilt: false,
 		ruleName:     "",

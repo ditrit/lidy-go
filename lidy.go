@@ -107,9 +107,15 @@ type tParser struct {
 	lidyDefaultRuleMap map[string]*tRule
 	option             Option
 	schema             tSchema
-	schemaErrorSlice   []error
-	target             string
-	contentFile        tFile
+	// schemaErrorSlice
+	// memoizes the error output of .parseSchema()
+	schemaErrorSlice []error
+	// target
+	// the rule which will be used for the root node of the content document
+	target string
+	// contentFile
+	// the Lidy file currently
+	contentFile tFile
 }
 
 type tWarning struct {

@@ -14,7 +14,8 @@ const pleaseReport = "please report it to https://github.com/ditrit/lidy/issues 
 
 type tSchemaParser tParser
 
-// NewParser create a parser from a lidy paper
+// parseSchema parses the schema as yaml and lidy schema and stores it
+// in the parser object, or return a non-empty error slice.
 func (p *tParser) parseSchema() []error {
 	if p.schema.ruleMap != nil {
 		return p.schemaErrorSlice
@@ -26,20 +27,24 @@ func (p *tParser) parseSchema() []error {
 		return []error{err}
 	}
 	if p.yaml.Kind == 0 {
-		panic("yaml didn't load (" + p.name + "). " + pleaseReport)
+		panic("go-yaml didn't load (" + p.name + "). " + pleaseReport)
 	}
 
+	// Cast the parser to tSchemaParser so as to be able to invoke methods related to tSchemaParser
+	// note: this is possible because the tSchemaParser type is aliased to tParser
 	schemaParser := (*tSchemaParser)(p)
 
 	schemaParser.precomputeLidyDefaultRules()
 
+	// first step of processing the yaml schema
+	// it produces a schema with a hollow ruleMap
 	schema, erl := schemaParser.hollowSchema(p.yaml)
 
 	if erl != nil {
 		return erl
 	}
 
-	schemaParser.schema = schema
+	p.schema = schema
 
 	errList := errorlist.List{}
 
@@ -100,6 +105,7 @@ func (p *tParser) parseContent(file File) (tResult, []error) {
 	contentFile := file.(*tFile)
 
 	p.contentFile = *contentFile
+	defer (func() { p.contentFile = tFile{} })()
 
 	contentRoot, erl := getRoot(contentFile.yaml)
 
