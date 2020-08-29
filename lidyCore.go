@@ -48,24 +48,33 @@ func (p *tParser) parseSchema() []error {
 
 	errList := errorlist.List{}
 
-	for ruleName, rule := range schema.ruleMap {
+	for ruleName := range schema.ruleMap {
 		if _, present := p.lidyDefaultRuleMap[ruleName]; present {
 			continue // TODO this should produce an error
 		}
 
-		expression, erl := schemaParser.expression(rule._node)
-		if len(erl) == 0 && expression == nil {
-			errList.Push(schemaParser.schemaError(rule._node, "unknown resolution error. This should not happen, "+pleaseReport))
-		}
-
-		errList.Push(erl)
-		rule.expression = expression
-		schema.ruleMap[ruleName] = rule
+		errList.Push(schemaParser.processRule(ruleName))
 	}
 
 	p.schemaErrorSlice = errList.ConcatError()
 
 	return p.schemaErrorSlice
+}
+
+func (schemaParser *tSchemaParser) processRule(ruleName string) []error {
+	errList := errorlist.List{}
+
+	expression, erl := schemaParser.expression(schemaParser.schema.ruleMap[ruleName]._node)
+	if len(erl) == 0 && expression == nil {
+		node := schemaParser.schema.ruleMap[ruleName]._node
+		message := "unknown resolution error. This should not happen, " + pleaseReport
+		errList.Push(schemaParser.schemaError(node, message))
+	}
+
+	errList.Push(erl)
+	schemaParser.schema.ruleMap[ruleName].expression = expression
+
+	return errList.ConcatError()
 }
 
 // parseContent apply the schema to the content
