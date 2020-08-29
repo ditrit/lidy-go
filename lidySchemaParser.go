@@ -94,6 +94,7 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (*tRule, []er
 
 		if nameSlice[1] != "" {
 			log.Fatalf("Internal error with rule name parsing of `%s`, %s", key.Value, pleaseReport)
+			// -> It appears the regex didn't do its job properly
 		}
 
 		if strings.Contains(key.Value, "::") {
@@ -111,7 +112,7 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (*tRule, []er
 	}, nil
 }
 
-// tSchemaParser.expression parse any lidy schema expression
+// tSchemaParser.expression parse any lidy schema expression.
 func (sp tSchemaParser) expression(node yaml.Node) (tExpression, []error) {
 	switch {
 	case node.Tag == "!!str":

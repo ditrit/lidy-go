@@ -70,7 +70,7 @@ type Option struct {
 	IgnoreExtraBuilder bool
 	// WarnUnusedRule **DO** warn when some used are declared but never referred to in the schema
 	WarnUnusedRule bool
-	// BypassMissingRule Persist to run the schema even if there are reported references to undeclared rules. The undeclared rules will accept any YAML content
+	// BypassMissingRule /!\ unstable; might get removed /!\ Persist to run the schema even if there are reported references to undeclared rules. The undeclared rules will accept any YAML content
 	BypassMissingRule bool
 	// StopAtFirstSchemaError Return at most one error while parsing the schema
 	StopAtFirstSchemaError bool

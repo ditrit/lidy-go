@@ -20,6 +20,7 @@ main: animal
 animal:: string
 `),
 		).With(map[string]lidy.Builder{
+			// The animal builder reduces the animal name to its first letter
 			"animal": func(input lidy.Result) (interface{}, []error) {
 				animal := input.Data().(string)
 				if len(animal) == 0 {
