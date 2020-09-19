@@ -16,6 +16,7 @@
 
 !/.gitignore
 !/DOCUMENTATION.md
+!/DEVELOP.md
 !/MAINTAINERS.md
 !/README.md
 !/LICENSE
