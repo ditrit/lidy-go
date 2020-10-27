@@ -3,7 +3,7 @@ export let scalarObject: Record<string, string> = {
     float: '0.2',
     int: '2',
     str: 'a',
-    // null: 'null', // skip
+    null: 'null',
 }
 
 export let collectionObject: Record<string, string> = {

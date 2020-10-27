@@ -1,5 +1,5 @@
 import japa from 'japa'
-import { parse, reject } from '../util/lidy_parse'
+import { parse } from '../util/lidy_parse'
 import { scalarObject, collectionObject } from './typeObject'
 
 japa.group('any', () => {

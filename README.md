@@ -8,6 +8,8 @@ Lidy is:
 - An engine to run the Lidy schema
 - A rich deserialisation tool
 
+/!\ The ts-lidy branch contains the old intermediate, WIP, Typescript version of the Lidy code. Not the newer Go version. /!\
+
 ## JSON schema
 
 How does lidy differ from JSON schema?
