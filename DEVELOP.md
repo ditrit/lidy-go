@@ -19,7 +19,10 @@ cat lidy*.go | grep -EA 4 '^// lidy'`
 <dt>lidy*.go</dt>
 <dd>Files used to provide the features of lidy</dd>
 
-<dt>lidy_suite_test*.go</dt>
+<dt>lidyCore.go</dt>
+<dd>"Main", containing the steps and loops to process the YAML schema, as well as those to apply the parsed schema to the content</dd>
+
+<dt>lidy_suite_test.go</dt>
 <dd>Entry point for Ginkgo</dd>
 </dl>
 

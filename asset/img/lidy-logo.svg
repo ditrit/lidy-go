@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="297mm"
+   width="320mm"
    height="160mm"
-   viewBox="0 0 297 160"
+   viewBox="0 0 320 160"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="logo-lidy.svg">
+   sodipodi:docname="lidy-logo.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -75,7 +75,7 @@
          id="tspan12937"
          x="11.339286"
          y="395.28757"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:141.11109924px;line-height:1.25;font-family:KacstOffice;-inkscape-font-specification:KacstOffice;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -86,18 +86,18 @@
          id="tspan12941"
          x="13.229166"
          y="384.00323"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:141.11109924px;line-height:1.25;font-family:'David Libre';-inkscape-font-specification:'David Libre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:141.11109924px;line-height:1.25;font-family:'David Libre';-inkscape-font-specification:'David Libre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="11.717261"
        y="254.66667"
        id="text12947"><tspan
          sodipodi:role="line"
          id="tspan12945"
          x="11.717261"
-         y="413.41666"
-         style="stroke-width:0.26458332;-inkscape-font-specification:'David Libre';font-family:'David Libre';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"></tspan></text>
+         y="381.36865"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'David Libre';-inkscape-font-specification:'David Libre';stroke-width:0.26458332" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:141.11109924px;line-height:1.25;font-family:'HoloLens MDL2 Assets';-inkscape-font-specification:'HoloLens MDL2 Assets';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -108,18 +108,18 @@
          id="tspan12949"
          x="15.497024"
          y="416.44049"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:165.61305237px;line-height:1.25;font-family:'HoloLens MDL2 Assets';-inkscape-font-specification:'HoloLens MDL2 Assets';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31052443"
-       x="23.699076"
+       x="16.895504"
        y="257.69412"
        id="text12955"
        transform="skewX(-0.30559597)"><tspan
          sodipodi:role="line"
          id="tspan12953"
-         x="23.699076"
+         x="16.895504"
          y="257.69412"
-         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Italic';stroke-width:0.31052443">lidy</tspan></text>
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Italic';stroke-width:0.31052443">Lidy</tspan></text>
   </g>
 </svg>

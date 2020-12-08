@@ -12,6 +12,7 @@
 !/linenumber/
 !/paper/
 !/testdata/
+!/schema.lidy.yaml
 !/*.go
 
 !/.gitignore

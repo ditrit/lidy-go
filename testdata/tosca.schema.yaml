@@ -72,7 +72,7 @@ value:
     - timestamp
     - string
     - { _listOf: any }
-    - { _mapOf: any }
+    - { _mapOf: { any: any } }
     - nullType
 
 value_expression::TValueExpression:

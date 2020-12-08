@@ -10,6 +10,7 @@ type tExpression interface {
 	match(content yaml.Node, parser *tParser) (tResult, []error)
 	name() string
 	description() string
+	dependencyList() []string
 }
 
 type tMergeableExpression interface {
@@ -44,6 +45,9 @@ type tRule struct {
 	// - missing from rules with a lidyMatcher-s
 	// - missing at the 0th pass, added during the 1th.
 	expression tExpression
+	// _mergeList
+	// list of rule
+	_mergeList []string
 }
 
 // Map
@@ -57,10 +61,11 @@ type tMap struct {
 
 // tMapForm map-related size-agnostic content of a tMap node
 type tMapForm struct {
-	propertyMap map[string]tExpression
-	optionalMap map[string]tExpression
-	mapOf       tKeyValueExpression
-	mergeList   []tMergeableExpression
+	propertyMap     map[string]tExpression
+	optionalMap     map[string]tExpression
+	mapOf           tKeyValueExpression
+	mergeList       []tMergeableExpression
+	_dependencyList []string
 }
 
 type tKeyValueExpression struct {
@@ -117,7 +122,8 @@ var _ tExpression = tOneOf{}
 var _ tMergeableExpression = tOneOf{}
 
 type tOneOf struct {
-	optionList []tExpression
+	optionList      []tExpression
+	_dependencyList []string
 }
 
 // In
@@ -127,12 +133,6 @@ type tIn struct {
 	// valueMap
 	// maps Node.Tag-s to slices of Node.Value
 	valueMap map[string][]string
-	// TODO:
-	// valueMap map[string]tInAccepter
-	// type tInAccepter struct {
-	//     exactStringFormSlice []string
-	//     converter(stringForm string) interface{}
-	// }
 }
 
 // Regex

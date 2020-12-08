@@ -58,7 +58,7 @@ func (sp tSchemaParser) hollowSchema(documentNode yaml.Node) (tSchema, []error) 
 			return tSchema{}, err
 		}
 		if _, present := schema.ruleMap[rule.ruleName]; present {
-			message := "no repeted rule declaration"
+			message := "no repeated rule declaration"
 
 			if _, isDefaultRule := sp.lidyDefaultRuleMap[rule.ruleName]; isDefaultRule {
 				message = "no redeclaration of lidy default rule"
@@ -98,7 +98,11 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (*tRule, []er
 		}
 
 		if strings.Contains(key.Value, "::") {
-			exportName = nameSlice[3]
+			// delete me
+			// exportName = nameSlice[3]
+			// it can't be 3, it must be 2:
+			//
+			exportName = nameSlice[2]
 		}
 
 		builder, _ = sp.builderMap[exportName]
@@ -175,7 +179,7 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 
 		// reject non-string "keywords"
 		if keyNode.Tag != "!!str" {
-			errList.Push(sp.schemaError(*keyNode, "only string keys"))
+			errList.Push(sp.schemaError(*keyNode, "only string keys (lidy keywords)"))
 			continue
 		}
 
@@ -231,13 +235,13 @@ func (sp tSchemaParser) formRecognizer(node yaml.Node) (tExpression, []error) {
 
 // missingChecker (formRecognizer didn't detect a form)
 func missingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpression, []error) {
-	return nil, sp.schemaError(node, "a recognisable lidy form")
+	return nil, sp.schemaError(node, "a recognizable lidy form")
 }
 
 // Error
 func (sp tSchemaParser) schemaError(node yaml.Node, expected string) []error {
 	if node.Kind == yaml.Kind(0) {
-		return []error{fmt.Errorf("Tried to use uninitialised yaml node [node, expected: %s]; %s", expected, pleaseReport)}
+		return []error{fmt.Errorf("Tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
 	}
 
 	return []error{fmt.Errorf("error in schema with yaml node, kind #%d,, tag '%s', value '%s' at position %s:%s, where [%s] was expected", node.Kind, node.ShortTag(), node.Value, sp.name, getPosition(node), expected)}

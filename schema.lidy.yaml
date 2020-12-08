@@ -1,0 +1,167 @@
+# This lidy schema file specifies what a valid lidy schema is
+# As such, this is the generic lidy meta-schema
+
+# Note that lidy schema are not strong enough to be able to guarantee that a lidy schema is valid. The following aspects are not checked:
+# - There is no verification that the regexes are valid
+# - There is no verification that _min is non-negative and that _max is superior to _min
+# - There is no verification that the rule reference point to existing rules
+#   - Let alone checking for cyclic immediate references
+# - There is no verification that
+
+# In a rules declaration, an **immediate reference** is the use of a reference to a rule which will be applied to the same content node as the rule being declared.
+# See `expression` (/^expression:$/)
+
+# main
+#
+# the whole lidy schema as a YAML document
+main: document
+
+document:
+  _mapOf: { rule.cover: rule.parameter }
+
+# expression
+#
+# any valid lidy schema expression
+expression:
+  _oneOf:
+    - rule.name # (uses immediate reference)
+    - mapChecker # (`_merge` uses immediate reference)
+    - listChecker
+    - oneOf.checker # (uses immediate reference)
+    - in.checker
+    - regex.checker
+
+# rule
+#
+# - name: The name of a lidy rule, used to refer to it locally
+# - cover: The text in the key of the rule statement, composed of the local name, possibly an export indication, and possibly the export name
+# the name of a lidy rule
+rule.name:
+  _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*"
+
+rule.cover:
+  _regex: "[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*(:(:[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*))?)?"
+
+rule.parameter: expression
+
+# property
+#
+# a field name inside a map
+property: string
+
+# scalar
+#
+# a yaml scalar
+scalar:
+  _oneOf:
+    - timestamp
+    - nullType
+    - boolean
+    - binary
+    - float
+    - int
+    - string
+
+# sizingMixing
+#
+# _max can't be inferior to _min
+sizingMixin::
+  _oneOf:
+  - _mapFacultative:
+      "_min": int
+      "_max": int
+  - _mapFacultative:
+      "_nb": int
+
+###
+# checkers and parameters #
+#
+
+# - `_in` -> in.checker
+# - ...
+# - `_regex` -> regex.checker
+
+#
+# map and mapOf
+mapChecker:
+  _merge:
+    - mapForm
+    - sizingMixin
+
+mapForm:
+  _map: {}
+  _mapFacultative:
+    "_map": map.parameter
+    "_mapFacultative": map.parameter
+    "_mapOf": mapOf.parameter
+    "_merge": merge.parameter
+  _min: 1
+
+# map
+map.parameter:
+  _mapOf: { property: expression }
+
+# mapOf
+mapOf.parameter:
+  _nb: 1
+  _mapOf: { expression: expression }
+
+# merge.parameter
+# The merge targets must all solve to a list of mapCheckers only. This is checked by the merge.parameter builder.
+merge.parameter::
+  _listOf:
+    _oneOf:
+      - mapChecker
+      - oneOf.checker
+      - rule.name
+
+#
+# list and listOf
+listChecker:
+  _oneOf:
+    - listForm
+    - listFormWithListOf
+
+listForm:
+  _mapFacultative:
+    "_list": list.parameter
+    "_listFacultative": list.parameter
+  _min: 1
+
+listFormWithListOf:
+  _map:
+    "_listOf": listOf.parameter
+  _mapFacultative:
+    "_list": list.parameter
+    "_listFacultative": list.parameter
+  _merge:
+    - sizingMixin
+
+# list
+list.parameter:
+  _listOf: expression
+
+# listOf
+listOf.parameter: expression
+
+# in
+in.checker:
+  _map:
+    "_in": in.parameter
+
+in.parameter:
+  _listOf: scalar
+
+# oneOf
+oneOf.checker:
+  _map:
+    "_oneOf": oneOf.parameter
+
+oneOf.parameter:
+  _listOf: expression
+
+# regex
+# The string must be a valid regex. This is checked by the merge.parameter builder.
+regex.checker::
+  _map:
+    "_regex": string

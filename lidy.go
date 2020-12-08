@@ -116,11 +116,18 @@ type tParser struct {
 	// contentFile
 	// the Lidy file currently
 	contentFile tFile
+	// currentRule
+	// used only at schema parse time, empty afterward. The rule being parsed.
+	// This is used to track rule dependency and provide more helpful error
+	// reports to the user
+	currentRuleName string
 }
 
 type tWarning struct {
 	text string
 }
+
+var _ Error = &tError{}
 
 type tError struct {
 	text    string
@@ -179,6 +186,14 @@ func (*tWarning) zzWarning() {}
 // Error cannot be implemented by external libraries
 // This method must exist to validate the interface
 func (*tError) zzError() {}
+
+func (err *tError) GetContent() []error {
+	return err.content
+}
+
+func (err *tError) Error() string {
+	return err.text
+}
 
 //
 // Parser

@@ -43,7 +43,6 @@
           _merge:
             - _oneOf:
               - { _map: {} }
-              - { _mapOf: { string: string } }
               - { _merge: [] }
         '''
         { contain: "main" }

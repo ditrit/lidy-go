@@ -38,21 +38,13 @@ func (rule *tRule) match(content yaml.Node, parser *tParser) (tResult, []error) 
 }
 
 func (rule tRule) mergeMatch(mapResult MapData, utilizationTrackingList []bool, content yaml.Node, parser *tParser) []error {
-	return mergeMatchExpression(mapResult, utilizationTrackingList, content, rule.expression, parser)
-}
-
-// tExpression
-func mergeMatchExpression(mapResult MapData, utilizationTrackingList []bool, content yaml.Node, expression tExpression, parser *tParser) []error {
-	switch mergeable := expression.(type) {
-	case tMap:
-		return mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
-	case tOneOf:
+	if mergeable, ok := rule.expression.(tMergeableExpression); ok {
 		return mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
 	}
 
 	return parser.reportSchemaParserInternalError(
 		"_merge performed on  a non-mergeable in the schema -- ",
-		expression,
+		rule.expression,
 		content,
 	)
 }
@@ -293,6 +285,7 @@ func (oneOf tOneOf) mergeMatch(
 	for _, option := range oneOf.optionList {
 		if mergeable, ok := option.(tMergeableExpression); ok {
 			err := mergeable.mergeMatch(mapResult, utilizationTrackingList, content, parser)
+			// TODO
 
 			if len(err) == 0 {
 				return nil
@@ -394,7 +387,7 @@ func (parser *tParser) reportSchemaParserInternalError(context string, expressio
 
 func (parser *tParser) contentError(content yaml.Node, expected string) []error {
 	if content.Kind == yaml.Kind(0) {
-		return []error{fmt.Errorf("Tried to use uninitialised yaml node [node, expected: %s]; %s", expected, pleaseReport)}
+		return []error{fmt.Errorf("Tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
 	}
 
 	return []error{fmt.Errorf("error with content node, kind #%d, tag '%s', value '%s' at position %s:%s, where [%s] was expected", content.Kind, content.Tag, content.Value, parser.contentFile.name, getPosition(content), expected)}

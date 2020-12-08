@@ -78,15 +78,24 @@ func mapParameter(sp tSchemaParser, node yaml.Node, errList *errorlist.List) map
 	return result
 }
 
-func checkMergeable(sp tSchemaParser, node yaml.Node, expression tExpression) (tMergeableExpression, []error) {
-	if mergeable, ok := expression.(tMap); ok {
-		return mergeable, nil
+func checkMergeable(
+	sp tSchemaParser,
+	node yaml.Node,
+	expression tExpression,
+	listOfMergedRules *[]string,
+) (tMergeableExpression, []error) {
+	if mapping, ok := expression.(tMap); ok {
+		if mapping.form.mapOf.key == nil {
+			return mapping, nil
+		}
+		return nil, sp.schemaError(node, fmt.Sprintf("a mergeable expression but got a map checker with a _mapOf keyword, which is forbidden"))
 	}
 
 	if oneOf, ok := expression.(tOneOf); ok {
 		errList := errorlist.List{}
+
 		for _, option := range oneOf.optionList {
-			_, erl := checkMergeable(sp, node, option)
+			_, erl := checkMergeable(sp, node, option, listOfMergedRules)
 			errList.Push(erl)
 		}
 
@@ -94,7 +103,8 @@ func checkMergeable(sp tSchemaParser, node yaml.Node, expression tExpression) (t
 	}
 
 	if rule, ok := expression.(*tRule); ok {
-		return checkMergeable(sp, node, rule.expression)
+		*listOfMergedRules = append(*listOfMergedRules, rule.ruleName)
+		return rule, nil
 	}
 
 	return nil, sp.schemaError(node, fmt.Sprintf("a mergeable expression but got [%s]", expression.name()))
@@ -120,6 +130,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 	optionalMap := map[string]tExpression{}
 	mapOf := tKeyValueExpression{}
 	mergeList := []tMergeableExpression{}
+	listOfMergedRules := []string{}
 
 	if _map {
 		propertyMap = mapParameter(sp, propertyMapNode, &errList)
@@ -150,6 +161,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 			errList.Push(sp.schemaError(mergeNode, "a YAML sequence of mergeable expressions"))
 		} else {
 			mergeList := make([]tMergeableExpression, 0, len(mergeNode.Content))
+
 			for _, subNode := range mergeNode.Content {
 				expression, erl := sp.expression(*subNode)
 				errList.Push(erl)
@@ -157,7 +169,7 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 					continue
 				}
 
-				mergeable, erl := checkMergeable(sp, node, expression)
+				mergeable, erl := checkMergeable(sp, node, expression, &listOfMergedRules)
 				errList.Push(erl)
 				if len(erl) != 0 {
 					continue
@@ -168,11 +180,19 @@ func mapForm(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tMapForm, []er
 		}
 	}
 
+	for _, ruleName := range listOfMergedRules {
+		sp.schema.ruleMap[ruleName]._mergeList = append(
+			sp.schema.ruleMap[ruleName]._mergeList,
+			sp.currentRuleName,
+		)
+	}
+
 	return tMapForm{
-		propertyMap: propertyMap,
-		optionalMap: optionalMap,
-		mapOf:       mapOf,
-		mergeList:   mergeList,
+		propertyMap:     propertyMap,
+		optionalMap:     optionalMap,
+		mapOf:           mapOf,
+		mergeList:       mergeList,
+		_dependencyList: listOfMergedRules,
 	}, errList.ConcatError()
 }
 

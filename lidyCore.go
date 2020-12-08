@@ -64,7 +64,10 @@ func (p *tParser) parseSchema() []error {
 func (schemaParser *tSchemaParser) processRule(ruleName string) []error {
 	errList := errorlist.List{}
 
+	schemaParser.currentRuleName = ruleName
 	expression, erl := schemaParser.expression(schemaParser.schema.ruleMap[ruleName]._node)
+	schemaParser.currentRuleName = ""
+
 	if len(erl) == 0 && expression == nil {
 		node := schemaParser.schema.ruleMap[ruleName]._node
 		message := "unknown resolution error. This should not happen, " + pleaseReport

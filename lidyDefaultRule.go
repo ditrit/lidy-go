@@ -20,31 +20,32 @@ var regexBase64 = *regexp.MustCompile(regexBase64Source)
 
 var lidyDefaultRuleMatcherMap map[string]tLidyMatcher = map[string]tLidyMatcher{
 	"string": func(content yaml.Node, parser *tParser) (tResult, []error) {
-		if content.Tag != "!!str" {
-			return tResult{}, parser.contentError(content, "a YAML string")
+		if content.Tag == "!!str" {
+			return parser.wrap(content.Value, content), nil
 		}
-
-		return parser.wrap(content.Value, content), nil
+		return tResult{}, parser.contentError(content, "a YAML string")
 	},
 
 	"int": func(content yaml.Node, parser *tParser) (tResult, []error) {
-		if content.Tag != "!!int" {
-			return tResult{}, parser.contentError(content, "a YAML integer")
+		if content.Tag == "!!int" {
+			var result int
+			err := content.Decode(&result)
+			if err == nil {
+				return parser.wrap(result, content), nil
+			}
 		}
-
-		var result int
-		content.Decode(&result)
-		return parser.wrap(result, content), nil
+		return tResult{}, parser.contentError(content, "a YAML integer")
 	},
 
 	"float": func(content yaml.Node, parser *tParser) (tResult, []error) {
-		if content.Tag != "!!float" && content.Tag != "!!int" {
-			return tResult{}, parser.contentError(content, "a YAML float")
+		if content.Tag == "!!float" || content.Tag == "!!int" {
+			var result float64
+			err := content.Decode(&result)
+			if err == nil {
+				return parser.wrap(result, content), nil
+			}
 		}
-
-		var result float64
-		content.Decode(&result)
-		return parser.wrap(result, content), nil
+		return tResult{}, parser.contentError(content, "a YAML float")
 	},
 
 	"binary": func(content yaml.Node, parser *tParser) (tResult, []error) {
@@ -87,6 +88,10 @@ var lidyDefaultRuleMatcherMap map[string]tLidyMatcher = map[string]tLidyMatcher{
 			return tResult{}, parser.contentError(content, fmt.Sprintf("a YAML timestamp (an ISO 8601 datetime; got error [%s])", err.Error()))
 		}
 
+		return parser.wrap(content.Value, content), nil
+	},
+
+	"any": func(content yaml.Node, parser *tParser) (tResult, []error) {
 		return parser.wrap(content.Value, content), nil
 	},
 }

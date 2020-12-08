@@ -7,10 +7,11 @@
     }
 
     "accept one string": {
-       "[va, vb]": {}
+       "[va]": {}
     }
 
     "accept a lot of strings": {
+       "[va, vb]": {}
        "[va, vb, vc, vd, ve, vf]": {}
     }
 
