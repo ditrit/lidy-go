@@ -1,0 +1,9 @@
+_in:
+  accept:
+    present: {}
+  expression: '_in: [a, present, b, c]'
+  reject:
+    missing: {}
+_in empty:
+  expression: '_in: []'
+  reject everything: '@any'

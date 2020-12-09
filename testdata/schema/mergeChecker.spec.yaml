@@ -1,0 +1,95 @@
+_merge requires identifiers to refer to mapCheckers:
+  'PENDING (requires on-demand-rule-loading) accept if merging mapCheckers':
+  - - |-
+      main:
+        _merge: [animal, plant, shroom]
+      animal:
+        _map: { a: string }
+      plant:
+        _mapOf: { string: string }
+      shroom:
+        _map: { a: int }
+        _mapOf: { int: int }
+    - {}
+  accept merging _oneOf mapCheckers:
+  - - |-
+      main:
+        _merge:
+          - _oneOf:
+            - { _map: {} }
+            - { _merge: [] }
+    - contain: main
+  accept merging merges:
+  - - |-
+      main:
+        _merge:
+          - { _merge: [] }
+    - {}
+  accept the empty merge:
+  - - |-
+      main:
+        _merge: []
+    - {}
+  reject if not solving only to mapCheckers:
+  - - |-
+      main:
+        _merge:
+          - { _in: [] }
+    - contain: main
+  - - |-
+      main:
+        _merge:
+          - oneOf:
+            - _map: {}
+            - string
+    - contain: main
+  reject if not used with a sequence:
+  - - |-
+      main:
+        _merge: animal
+      animal:
+        - _map: {}
+    - contain: main
+detect invalid self-references in _merge expressions:
+  'PENDING (requires on-demand-rule-loading) accept if the self-reference is sufficiently indirect':
+  - - |-
+      main: a
+      aa:
+        _map:
+          ka: bb
+      bb:
+        _map:
+          kb: cc
+      cc:
+        _merge:
+          - aa
+          - bb
+          - { _map: { kc: dd } }
+      dd:
+        _merge:
+          - aa
+          - bb
+          - cc
+          - { _map: { kd: aa } }
+    - {}
+  PENDING reject if the self-reference is too direct:
+  - - 'main: { _merge: [main] }'
+    - contain: main
+  - - 'main: { _merge: [{ _merge: [main] }] }'
+    - contain: main
+  - - |-
+      main: animal
+      animal: { _merge: [animal] }
+    - contain: animal
+  - - |-
+      main: a
+      a: { _merge: [b] }
+      b: { _merge: [a] }
+    - contain: a
+  - - |-
+      main: a
+      a: { _merge: [b] }
+      b: { _merge: [c] }
+      c: { _merge: [a] }
+    - contain: a
+target: document

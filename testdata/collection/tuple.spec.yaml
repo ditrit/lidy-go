@@ -1,0 +1,25 @@
+_list with 0 entry:
+  accept the empty list:
+    '[]': {}
+  expression: '_list: []'
+  reject any non-empty list:
+    '[4]': {}
+    '[va]': {}
+  reject nodes that are not lists:
+    '{}': {}
+_list with 2 entries:
+  accept when all entries are present and valid:
+    '[va, 4]': {}
+  expression: '_list: [string, int]'
+  reject if an entry does not match:
+    '[12, 4]': {}
+    '[va, vb]': {}
+  reject lists with insufficiently many elements:
+    '[va, 4, extra]': {}
+  reject lists with too many elements:
+    '[va, 4, extra]': {}
+  reject nodes that are not a list:
+    '0': {}
+    a: {}
+    'true': {}
+    '{}': {}

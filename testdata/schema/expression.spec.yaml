@@ -1,0 +1,245 @@
+'check for in.checker':
+  accept valid forms:
+  - - '_in: []'
+    - {}
+  - - '_in: [aaa]'
+    - {}
+  - - '_in: [aaa, bbb]'
+    - {}
+  - - '_in: [true, bbb]'
+    - {}
+  - - '_in: [false, null, zz, 0.1]'
+    - {}
+  - - '_in: [aaa, 22, "22"]'
+    - {}
+  reject invalid forms:
+  - - '_in: [[]]'
+    - contain: _in
+  - - '_in: [{}]'
+    - contain: _in
+  - - '_in: [{ _map: {} }]'
+    - contain: _in
+  - - '_in: 22'
+    - contain: _in
+  - - '_in: {}'
+    - contain: _in
+  - - '_in: aa'
+    - contain: _in
+  - - '_in: .2'
+    - contain: _in
+  - - '_in: true'
+    - contain: _in
+  - - '_in: null'
+    - contain: _in
+check for listChecker:
+  accept if it is a valid form:
+  - - '_list: []'
+    - {}
+  - - |-
+      _list: []
+      _listFacultative: []
+    - {}
+  - - |-
+      _list: []
+      _listOf: int
+    - {}
+  - - |-
+      _list: []
+      _listFacultative: []
+      _listOf: int
+    - {}
+  - - |-
+      _list: []
+      _listFacultative: []
+      _listOf: int
+      _min: 1
+      _max: 2
+    - {}
+  - - |-
+      _list: []
+      _listFacultative: []
+      _listOf: int
+      _nb: 2
+    - {}
+  - - '_listOf: int'
+    - {}
+  'reject if is an invalid form:':
+  - - '_listOf: []'
+    - {}
+  - - '_list: string'
+    - {}
+  - - '_list: word'
+    - {}
+  - - 'list: string'
+    - {}
+  - - 'listOf: string'
+    - {}
+check for mapChecker:
+  accept if it is a valid form:
+  - - '_map: {}'
+    - {}
+  - - |-
+      _map: {}
+      _mapFacultative: {}
+    - {}
+  - - '_mapFacultative: {}'
+    - {}
+  - - |-
+      _map: {}
+      _mapOf: { string: string }
+    - {}
+  - - |-
+      _map: {}
+      _mapFacultative: {}
+      _mapOf: { string: string }
+    - {}
+  - - |-
+      _map: {}
+      _mapFacultative: {}
+      _mapOf: { string: string }
+      _min: 1
+      _max: 2
+    - {}
+  - - |-
+      _map: {}
+      _mapFacultative: {}
+      _mapOf: { string: string }
+      _nb: 2
+    - {}
+  - - '_mapOf: { string: string }'
+    - {}
+  'reject if is an invalid form:':
+  - - '_mapOf: [string]'
+    - {}
+  - - '_mapOf: string'
+    - {}
+  - - '_mapOf: []'
+    - {}
+  - - '_map: false'
+    - {}
+  - - '_map: true'
+    - {}
+  - - '_map: null'
+    - {}
+  - - '_map: string'
+    - {}
+  - - '_map: 1.1'
+    - {}
+  - - '_map: []'
+    - {}
+  - - '_map: 1'
+    - {}
+  - - 'map: {}'
+    - {}
+'check for min.checker, max.checker and nb.checker':
+  accept valid forms:
+  - - |-
+      _map: {}
+      _min: 2
+    - {}
+  - - |-
+      _map: {}
+      _max: 2
+    - {}
+  - - |-
+      _map: {}
+      _nb: 2
+    - {}
+  reject invalid forms:
+  - - |-
+      _map: {}
+      _min: []
+    - contain: _min
+  - - |-
+      _map: {}
+      _min: {}
+    - contain: _min
+  - - |-
+      _map: {}
+      _min: aa
+    - contain: _min
+  - - |-
+      _map: {}
+      _max: []
+    - contain: _max
+  - - |-
+      _map: {}
+      _max: {}
+    - contain: _max
+  - - |-
+      _map: {}
+      _max: bc
+    - contain: _max
+  - - |-
+      _map: {}
+      _nb: []
+    - contain: _nb
+  - - |-
+      _map: {}
+      _nb: {}
+    - contain: _nb
+  - - |-
+      _map: {}
+      _nb: z_
+    - contain: _nb
+'check for oneOf.checker':
+  accept valid forms:
+  - - '_oneOf: []'
+    - {}
+  - - '_oneOf: [string]'
+    - {}
+  - - '_oneOf: [string, int, { _map: {} }]'
+    - {}
+  reject invalid forms:
+  - - '_oneOf: 22'
+    - contain: _oneOf
+  - - '_oneOf: {}'
+    - contain: _oneOf
+  - - '_oneOf: aa'
+    - contain: _oneOf
+  - - '_oneOf: .2'
+    - contain: _oneOf
+  - - '_oneOf: true'
+    - contain: _oneOf
+  - - '_oneOf: null'
+    - contain: _oneOf
+check that checkers are used with the right signature:
+  reject:
+  - - '_map: word'
+    - {}
+  - - '_map: string'
+    - {}
+  - - '_map: 1'
+    - {}
+  - - '_map: 1.1'
+    - {}
+  - - '_map: true'
+    - {}
+  - - '_map: false'
+    - {}
+  - - '_map: null'
+    - {}
+  - - '_map: []'
+    - {}
+distinguish known and unknown identifiers:
+  accept if known:
+  - - timestamp
+    - {}
+  - - nullType
+    - {}
+  - - boolean
+    - {}
+  - - float
+    - {}
+  - - any
+    - {}
+  - - int
+    - {}
+  - - string
+    - {}
+  'reject if (rule is) unknown':
+  - - cat
+    - contain: cat
+  - - bar
+    - contain: bar
+target: expression

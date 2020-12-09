@@ -1,0 +1,19 @@
+_listOf:
+  accept a lot of strings:
+    '[va, vb, vc, vd, ve, vf]': {}
+    '[va, vb]': {}
+  accept one string:
+    '[va]': {}
+  accept the empty list:
+    '[]': {}
+  expression: '_listOf: string'
+  reject lists with non-matching elements:
+    '[2]': {}
+    '[3, 4]': {}
+    '[5, va]': {}
+    '[va, 4]': {}
+  reject non-lists:
+    '0': {}
+    a: {}
+    'true': {}
+    '{}': {}

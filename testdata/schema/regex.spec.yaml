@@ -1,0 +1,50 @@
+target: 'regex.checker'
+validate regexes:
+  'accept \0, which, after all, cannot be a reference':
+    'a\0': {}
+  accept empty group:
+    '()': {}
+  accept regexes:
+    '(a[bc])': {}
+    '.?': {}
+    '^$': {}
+    a: {}
+  accept silenced groups:
+    '(?:a)': {}
+  accept the empty regex:
+    '""': {}
+  'accept the use of {} and [] as litteral sequences':
+    '[[]': {}
+    '[]]': {}
+    ']': {}
+    'a{b}': {}
+    '{': {}
+    '{c}': {}
+    '}': {}
+  reject backreferences:
+    '(?:a)\1': {}
+    'a(b)(?:c)\2': {}
+    'a(b)\1': {}
+    'a(b)\2': {}
+    'a\1': {}
+    'a\1(a)': {}
+  reject empty class:
+    '[]': {}
+  reject lookaheads and lookbehinds, positive or negative:
+    '(?!a)': {}
+    '(?<!a)': {}
+    '(?<=a)': {}
+    '(?=a)': {}
+  reject misplaced quantifier:
+    '*': {}
+    '+': {}
+    '?': {}
+    '{2}': {}
+  reject unbalanced regexes:
+    '(': {}
+    '(()': {}
+    '())': {}
+    ')': {}
+    ')(': {}
+    ')]': {}
+    '[': {}

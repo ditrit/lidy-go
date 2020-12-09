@@ -1,0 +1,33 @@
+_mapOf basic:
+  accept dict with one matching-matching entry:
+    '{ va: 0 }': {}
+  accept dict with several matching-matching entries:
+    '{ va: 0, vb: 1, vc: 2 }': {}
+  accept the empty dict:
+    '{}': {}
+  expression: '_mapOf: { string: int }'
+  reject dict with non-matching keys:
+    '{ 0.1: 9 }': {}
+    '{ 2: 9 }': {}
+    '{ []: 9 }': {}
+    '{ true: 9 }': {}
+    '{ {}: 9 }': {}
+  reject dict with non-matching values:
+    '{ va: 0.1 }': {}
+    '{ va: 2020-06-17T10:13:46 }': {}
+    '{ va: [] }': {}
+    '{ va: true }': {}
+    '{ va: vz }': {}
+    '{ va: {} }': {}
+  reject non-dict:
+    '0': {}
+    '[]': {}
+    a: {}
+    'true': {}
+_mapOf more:
+  accept string-string:
+    '{ 0k: 0v }': {}
+    '{ ka: va }': {}
+    '{ ka: va, kb: vb }': {}
+    '{ ka: va, kb: vb, 0k: 0v }': {}
+  expression: '_mapOf: { string: string }'

@@ -1,0 +1,35 @@
+_regex email:
+  accept email:
+    'a.b.c@0.23.z': {}
+    'a@b.c': {}
+  expression: '_regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$"'
+  reject non-email:
+    '.a@b.c': {}
+    'a@b': {}
+_regex empty:
+  accept empty string:
+    '''''': {}
+  expression: '_regex: "^$"'
+  reject letter:
+    a: {}
+  reject space:
+    ''' ''': {}
+_regex non-empty word:
+  accept non-empty word:
+    a: {}
+    word: {}
+  expression: '_regex: "[a-z]+"'
+  reject if not a string:
+    '1': {}
+    '1.1': {}
+    '[]': {}
+    'null': {}
+    'true': {}
+    '{}': {}
+  reject if not a string -- void:
+    ? ''
+    : {}
+  reject if not a string null:
+    'null': {}
+  reject the empty string:
+    '''''': {}

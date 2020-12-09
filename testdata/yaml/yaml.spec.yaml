@@ -1,0 +1,22 @@
+validate that the yaml is valid:
+  'accept ... this? (what is this!?)':
+    '?': {}
+    '??': {}
+    '???': {}
+    '??_': {}
+  accept maps with empty values:
+    'a:': {}
+  accept strings, because it sees strings everywhere:
+    0 b 9: {}
+    a b: {}
+  expression: any
+  reject misuse of tags:
+    '!!!aha!': {}
+    '!!!eh': {}
+    '!!oh': {}
+  reject the empty document:
+    ? ''
+    : {}
+  reject unknown tags:
+    '!!uh _': {}
+    '!ih _': {}

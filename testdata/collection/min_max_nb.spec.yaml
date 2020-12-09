@@ -1,0 +1,30 @@
+PENDING _min_max_nb for _listOf, accept:
+  accept when there's the right number:
+    '[a b]': {}
+  checkerList:
+  - '_min: 2'
+  - '_max: 2'
+  - '_nb: 2'
+  expressionTemplate: |-
+    _listOf: any
+    ${checker}
+PENDING _min_max_nb for _mapOf, accept:
+  accept when there's the right number:
+    '{ ka: va, kb: vb }': {}
+  checkerList:
+  - '_min: 2'
+  - '_max: 2'
+  - '_nb: 2'
+  expressionTemplate: |-
+    _mapOf: any
+    ${checker}
+PENDING _min_max_nb for _mapOf, reject:
+  checkerList:
+  - '_min: 3'
+  - '_max: 1'
+  - '_nb: 3'
+  expressionTemplate: |-
+    _mapOf: any
+    ${checker}
+  reject when the number requirement isn't met:
+    '{ ka: va, kb: vb }': {}
