@@ -53,8 +53,7 @@ var testFileList TestFileList
 
 var _ = Describe("init", func() {
 	// Loading test data files
-	var err error
-	testFileList, err = GetTestFileList()
+	err := GetTestFileList(&testFileList)
 	if err != nil {
 		panic(err)
 	}
@@ -92,7 +91,6 @@ var _ = Describe("schema tests", func() {
 			group.runSchemaTest()
 		}
 	}
-
 })
 
 // Running content tests
