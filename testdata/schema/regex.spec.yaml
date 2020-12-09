@@ -13,7 +13,7 @@ validate regexes:
     '(?:a)': {}
   accept the empty regex:
     '""': {}
-  'accept the use of {} and [] as litteral sequences':
+  'accept the use of {} and [] as literal sequences':
     '[[]': {}
     '[]]': {}
     ']': {}
