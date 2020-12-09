@@ -1,16 +1,16 @@
 _list with 0 entry:
+  expression: '_list: []'
   accept the empty list:
     '[]': {}
-  expression: '_list: []'
   reject any non-empty list:
     '[4]': {}
     '[va]': {}
   reject nodes that are not lists:
     '{}': {}
 _list with 2 entries:
+  expression: '_list: [string, int]'
   accept when all entries are present and valid:
     '[va, 4]': {}
-  expression: '_list: [string, int]'
   reject if an entry does not match:
     '[12, 4]': {}
     '[va, vb]': {}

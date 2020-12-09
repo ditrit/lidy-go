@@ -8,24 +8,15 @@ target: expression
     '_in: [false, null, zz, 0.1]': {}
     '_in: [true, bbb]': {}
   reject invalid forms:
-    '_in: .2':
-      contain: _in
-    '_in: 22':
-      contain: _in
-    '_in: [[]]':
-      contain: _in
-    '_in: [{ _map: {} }]':
-      contain: _in
-    '_in: [{}]':
-      contain: _in
-    '_in: aa':
-      contain: _in
-    '_in: null':
-      contain: _in
-    '_in: true':
-      contain: _in
-    '_in: {}':
-      contain: _in
+    '_in: .2': { contain: _in }
+    '_in: 22': { contain: _in }
+    '_in: [[]]': { contain: _in }
+    '_in: [{ _map: {} }]': { contain: _in }
+    '_in: [{}]': { contain: _in }
+    '_in: aa': { contain: _in }
+    '_in: null': { contain: _in }
+    '_in: true': { contain: _in }
+    '_in: {}': { contain: _in }
 check for listChecker:
   accept if it is a valid form:
     '_list: []': {}
@@ -162,18 +153,12 @@ check for mapChecker:
     '_oneOf: [string, int, { _map: {} }]': {}
     '_oneOf: [string]': {}
   reject invalid forms:
-    '_oneOf: .2':
-      contain: _oneOf
-    '_oneOf: 22':
-      contain: _oneOf
-    '_oneOf: aa':
-      contain: _oneOf
-    '_oneOf: null':
-      contain: _oneOf
-    '_oneOf: true':
-      contain: _oneOf
-    '_oneOf: {}':
-      contain: _oneOf
+    '_oneOf: .2': { contain: _oneOf }
+    '_oneOf: 22': { contain: _oneOf }
+    '_oneOf: aa': { contain: _oneOf }
+    '_oneOf: null': { contain: _oneOf }
+    '_oneOf: true': { contain: _oneOf }
+    '_oneOf: {}': { contain: _oneOf }
 check that checkers are used with the right signature:
   reject:
     '_map: 1': {}
@@ -194,7 +179,5 @@ distinguish known and unknown identifiers:
     string: {}
     timestamp: {}
   'reject if (rule is) unknown':
-    bar:
-      contain: bar
-    cat:
-      contain: cat
+    bar: { contain: bar }
+    cat: { contain: cat }

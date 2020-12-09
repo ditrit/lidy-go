@@ -75,21 +75,21 @@ detect invalid self-references in _merge expressions:
     : {}
   PENDING reject if the self-reference is too direct:
     ? |-
-      main: a
-      a: { _merge: [b] }
-      b: { _merge: [a] }
-    : contain: a
+      main: aaa
+      aaa: { _merge: [b] }
+      b: { _merge: [aaa] }
+    : contain: aaa
     ? |-
-      main: a
-      a: { _merge: [b] }
+      main: aaa
+      aaa: { _merge: [b] }
       b: { _merge: [c] }
-      c: { _merge: [a] }
-    : contain: a
+      c: { _merge: [aaa] }
+    : contain: aaa
     ? |-
       main: animal
       animal: { _merge: [animal] }
     : contain: animal
-    'main: { _merge: [main] }':
-      contain: main
-    'main: { _merge: [{ _merge: [main] }] }':
-      contain: main
+    ? 'main: { _merge: [main] }'
+    : contain: main
+    ? 'main: { _merge: [{ _merge: [main] }] }'
+    : contain: main

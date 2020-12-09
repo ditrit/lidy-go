@@ -91,7 +91,7 @@ tell valid documents from invalid documents:
   PENDING reject if a reference cannot be resolved:
     'main: animal':
       contain: animal
-  'PENDING reject if the target rule (main) is missing':
+  PENDING reject if the target rule (main) is missing:
     'animal: string':
       contain: main
   accept if valid:

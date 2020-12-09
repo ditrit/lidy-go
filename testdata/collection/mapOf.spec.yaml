@@ -1,11 +1,11 @@
 _mapOf basic:
+  expression: '_mapOf: { string: int }'
   accept dict with one matching-matching entry:
     '{ va: 0 }': {}
   accept dict with several matching-matching entries:
     '{ va: 0, vb: 1, vc: 2 }': {}
   accept the empty dict:
     '{}': {}
-  expression: '_mapOf: { string: int }'
   reject dict with non-matching keys:
     '{ 0.1: 9 }': {}
     '{ 2: 9 }': {}
@@ -25,9 +25,9 @@ _mapOf basic:
     a: {}
     'true': {}
 _mapOf more:
+  expression: '_mapOf: { string: string }'
   accept string-string:
     '{ 0k: 0v }': {}
     '{ ka: va }': {}
     '{ ka: va, kb: vb }': {}
     '{ ka: va, kb: vb, 0k: 0v }': {}
-  expression: '_mapOf: { string: string }'

@@ -1,4 +1,11 @@
 PENDING _merge 0 _mapFacultative 2 entries:
+  schema: |-
+    main:
+      _merge:
+        - _map: { a: string }
+          _mapFacultative: { b: int, c: boolean }
+        - _map: { c: int }
+          _mapFacultative: { a: int }
   accept a and b too:
     '{ a: 2, b: 3, c: 1 }': {}
   accept when only c is provided:
@@ -14,14 +21,20 @@ PENDING _merge 0 _mapFacultative 2 entries:
     '{ a: 1, b: 2 }': {}
     '{ b: 1 }': {}
     '{}': {}
+PENDING _merge _map override:
   schema: |-
     main:
       _merge:
-        - _map: { a: string }
-          _mapFacultative: { b: int, c: boolean }
-        - _map: { c: int }
-          _mapFacultative: { a: int }
-PENDING _merge _map override:
+        - boat
+        - car
+    boat:
+      _map:
+        id: int
+        capacity: float
+    car:
+      _map:
+        id: string
+        engine: string
   accept if all keys are present and matching:
     '{ id: a, capacity: 0, engine: 3KZ_bc }': {}
     '{ id: a, capacity: 2.1, engine: 3KZ_bc }': {}
@@ -43,20 +56,16 @@ PENDING _merge _map override:
   reject nodes that are not dictionaries:
     '[]':
       contain: type
+PENDING _merge _mapOf behaves like a _oneOf and does not override:
   schema: |-
     main:
       _merge:
-        - boat
-        - car
-    boat:
-      _map:
-        id: int
-        capacity: float
-    car:
-      _map:
-        id: string
-        engine: string
-PENDING _merge _mapOf behaves like a _oneOf and does not override:
+        - { _mapFacultative: { kkey: boolean } }
+        - _mapOf: { string: string }
+        - _mapOf: { { _list: [] }: int }
+        - _mapOf: { { _list: [] }: string }
+        - _mapOf: { { _list: [string] }: int }
+        - { _mapFacultative: { pkey: null } }
   accept if valid:
     '{ []: 2 }': {}
     '{ []: aa }': {}
@@ -77,16 +86,10 @@ PENDING _merge _mapOf behaves like a _oneOf and does not override:
     '0.1': {}
     '[]': {}
     'null': {}
+_merge empty:
   schema: |-
     main:
-      _merge:
-        - { _mapFacultative: { kkey: boolean } }
-        - _mapOf: { string: string }
-        - _mapOf: { { _list: [] }: int }
-        - _mapOf: { { _list: [] }: string }
-        - _mapOf: { { _list: [string] }: int }
-        - { _mapFacultative: { pkey: null } }
-_merge empty:
+      _merge: []
   accept if valid:
     '{}': {}
   reject any unknown entry:
@@ -96,6 +99,3 @@ _merge empty:
     '0.1': {}
     '[]': {}
     'null': {}
-  schema: |-
-    main:
-      _merge: []

@@ -1,12 +1,12 @@
 "PENDING _map 1 entry whose property is '${keyword}'":
-  accept dict with a matching entry:
-    '{ ${keyword}: 2 }': {}
   expressionTemplate: '_map: { "${keyword}": int }'
   keywordList:
   - _map
   - _mapOf
   - _list
   - _listOf
+  accept dict with a matching entry:
+    '{ ${keyword}: 2 }': {}
   reject dict with a non-matching entry:
     '{ ${keyword}: 1.1 }': {}
     '{ ${keyword}: a }': {}
@@ -24,6 +24,7 @@
     '{ a: 4 }': {}
     '{ b: va }': {}
 _map 0 _mapFacultative 2 entries:
+  expression: '_mapFacultative: { a: string, b: int }'
   accept the empty dict:
     '{}': {}
   accept when all entries are present and valid:
@@ -31,7 +32,6 @@ _map 0 _mapFacultative 2 entries:
   accept when only some entries are present:
     '{ a: va }': {}
     '{ b: 4 }': {}
-  expression: '_mapFacultative: { a: string, b: int }'
   reject extraneous unknown entries:
     '{ a: va, b: 4, z: 12 }': {}
   reject if an entry does not match:
@@ -44,19 +44,19 @@ _map 0 _mapFacultative 2 entries:
   reject single unknown entries:
     '{ z: 12 }': {}
 _map 0 entry:
+  expression: '_map: {}'
   accept the empty dict:
     '{}': {}
-  expression: '_map: {}'
   reject any unknown entry:
     '{ a: va }': {}
     '{ b: 4 }': {}
   reject nodes that are not dictionaries:
     '[]': {}
 _map 1 entry:
+  expression: '_map: { aa: float }'
   accept if valid:
     '{ aa: 0 }': {}
     '{ aa: 2.2 }': {}
-  expression: '_map: { aa: float }'
   reject any unknown entry:
     '{ a: va }': {}
     '{ b: 4 }': {}

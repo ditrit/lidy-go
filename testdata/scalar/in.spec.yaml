@@ -1,7 +1,7 @@
 _in:
+  expression: '_in: [a, present, b, c]'
   accept:
     present: {}
-  expression: '_in: [a, present, b, c]'
   reject:
     missing: {}
 _in empty:

@@ -1,24 +1,24 @@
 _regex email:
+  expression: '_regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$"'
   accept email:
     'a.b.c@0.23.z': {}
     'a@b.c': {}
-  expression: '_regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$"'
   reject non-email:
     '.a@b.c': {}
     'a@b': {}
 _regex empty:
+  expression: '_regex: "^$"'
   accept empty string:
     '''''': {}
-  expression: '_regex: "^$"'
   reject letter:
     a: {}
   reject space:
     ''' ''': {}
 _regex non-empty word:
+  expression: '_regex: "[a-z]+"'
   accept non-empty word:
     a: {}
     word: {}
-  expression: '_regex: "[a-z]+"'
   reject if not a string:
     '1': {}
     '1.1': {}
