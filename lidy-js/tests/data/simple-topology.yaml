@@ -1,0 +1,24 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+  # Exemple Topology extracted from the normative document TOSCA SImple Profile in YAML Version 1.2 
+description: Template for deploying a single server with predefined properties.
+
+topology_template:
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        # Host container properties
+        host:
+          properties:
+            num_cpus: 1
+            disk_size: 10 GB
+            mem_size: 4096 MB
+        # Guest Operating System properties
+        os:
+          properties:
+            # host Operating System image properties
+            architecture: x86_64
+            type: linux
+            distribution: rhel
+            version: 6.5
