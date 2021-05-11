@@ -31,7 +31,7 @@ export class TimestampNode extends LidyNode {
 
 export class Base64Node extends LidyNode {
   constructor(ctx, current) {
-    super(ctx, 'timestamp', current)
+    super(ctx, 'base64', current)
     if (isScalar(current)) {
       this.value = current.value
       if (typeof(this.value) != 'string') {
