@@ -4,14 +4,19 @@ import { isScalar  } from 'yaml'
 export class FloatNode extends LidyNode {
   constructor(ctx, current) {
     super(ctx, 'float', current)
-    if (isScalar(current)) {
-      let number = Number(current.value)
-      if (isNaN(number)) {
-        ctx.syntaxError(current, `Error: value '${current.value}' is not a number`)
-      } 
-      this.value = number
+    if (isScalar(current) && typeof(current.value == 'number')) {
+      this.value = current.value
     } else {
-      ctx.syntaxError(current, `Error: no float found as value`)
+      throw ctx.syntaxError(current, `Error: value '${current ? current.value : ""}' is not a number`)
     }
   }
 }
+
+export function newFloatNode(ctx, current) {
+  try {
+    return new IntNode(ctx, current)
+  } catch(error) {
+    return null
+  }
+}
+

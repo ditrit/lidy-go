@@ -2,27 +2,12 @@ import fs   from 'fs' // only for node
 import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
 import { RuleNode } from './rulenode.js'
-import { StringNode, Base64Node, IntNode, FloatNode, BooleanNode, NullNode, TimestampNode, AnyNode } from './scalars/scalars.js'
-import {
-    parseDocument,
-    isAlias, isCollection, isMap,
-    isNode, isPair, isScalar, isSeq,
-    Scalar, YAMLMap, YAMLSeq,
-    LineCounter
-  } from 'yaml'
-
-function parse_scalar(ctx, keyword, current) {
-  switch (keyword) {
-    case 'string': return new StringNode(ctx, current)
-    case 'base64' : return new Base64Node(ctx, current)
-    case 'timestamp': return new TimestampNode(ctx, current)
-    case 'int': return new IntNode(ctx, current)
-    case 'float': return new FloatNode(ctx, current)
-    case 'boolean': return new BooleanNode(ctx, current)
-    case 'null' : return new NullNode(ctx, current)
-    case 'any' : return new AnyNode(ctx, current)
-  }
-}
+import { parse_scalar } from './scalars/parse.js'
+import { parse_regexp } from './keywords/regexp.js'
+import { parse_oneof } from './keywords/oneof.js'
+import { parse_map } from './keywords/map.js'
+import { parse_list } from './keywords/list.js'
+import { parseDocument, isMap, isScalar, LineCounter } from 'yaml'
 
 export function parse_rule(ctx, rule_name, rule, current) {
   if (rule_name) { 
@@ -31,6 +16,20 @@ export function parse_rule(ctx, rule_name, rule, current) {
   if ( isScalar(rule) ) {
     return parse_scalar(ctx, rule.value, current)
   } 
+  if ( isMap(rule) ) {
+    if (rule.has('_map') || rule.has('_mapOf')) {
+      return parse_map(ctx, rule, current)
+    }
+    if (rule.hasIn('_list') || rule.has('_listOf')) {
+      return parse_list(ctx, rule, current)
+    }
+    if (rule.hasIn(['_oneOf'])) {
+      return parse_oneof(ctx, rule, current) 
+    }
+    if (rule.hasIn(['_regexp'])) {
+      return parse_regexp(ctx, rule, current)
+    }
+  }
   return null
 
 }

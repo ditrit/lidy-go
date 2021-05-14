@@ -8,7 +8,16 @@ export class AnyNode extends LidyNode {
     if (isScalar(current) || isCollection(current)) {
       this.value = current.toJSON()
     } else {
-      ctx.syntaxError(current, `Error: no value found for 'any'`)
+      throw ctx.syntaxError(current, `Error: no value found for 'any'`)
     }
   }
 }
+
+export function newAnyNode(ctx, current) {
+  try {
+    return new AnyNode(ctx, current)
+  } catch(error) {
+    return null
+  }
+}
+
