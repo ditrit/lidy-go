@@ -9,6 +9,7 @@ export class LidyNode {
     }
     getChild(nb) { return this.childs[nb]}
     getChildCount() { return this.childs.length }
+    getValue() { return this.value }
     toString() { return this.value }
   }
   

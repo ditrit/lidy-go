@@ -1,30 +1,20 @@
-import { LidyNode } from "./lidynode.js"
+import { LidyNode } from "../lidynode.js"
 import { isScalar  } from 'yaml'
-
-
-export class StringNode extends LidyNode {
-  constructor(ctx, current) {
-    super(ctx, 'string', current)
-    if (isScalar(current)) {
-      this.value = current.value
-      if (typeof(this.value) != 'string') {
-        ctx.syntaxError(current, `Error: value '${this.value}' is a '${typeof(this.value)}', not a string`)
-      }
-    } else {
-      ctx.syntaxError(current, `Error: no string found as value`)
-    }
-  }
-}
 
 export class TimestampNode extends LidyNode {
   constructor(ctx, current) {
     super(ctx, 'timestamp', current)
     this.value = null
-    try {
-          this.value = new Date(current.value) // lidy-js accepts as timestamp same date format as javascript (simplified ISO8601 format) 
-    } catch (error) { }
-    if (! (this.value instanceof Date)) {
+    let iso8601regex=/\d{4}-\d{2}-\d{2}|\d{4}-\d{2}?-\d{2}?([Tt]|[ \t]+)\d{2}?:\d{2}:\d{2}(\.\d*)?(([ \t]*)Z|[-+]\d\d?(:\d{2})?)?/
+    if (current == null || ! iso8601regex.test(current.value)) {
       ctx.syntaxError(current, `Error: value '${(current) ? current.value : ""}' is not a timestamp in ISO9601 format`)
+    } else {
+      try {
+            this.value = new Date(current.value) // lidy-js accepts as timestamp same date format as javascript (simplified ISO8601 format) 
+      } catch (error) { }
+      if (! (this.value instanceof Date)) {
+        ctx.syntaxError(current, `Error: value '${(current) ? current.value : ""}' cannot be parsed as a timestamp`)
+      }
     }
   }
 }

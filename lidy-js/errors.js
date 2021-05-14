@@ -3,7 +3,7 @@ import { YAMLError } from 'yaml'
 export class LidyError extends YAMLError {
     constructor(name, pos, message) {
         super(name, pos, 'IMPOSSIBLE', message);
-        this.lidyCode = name
+        this.name = name
     }
 
     pretty(ctx) {

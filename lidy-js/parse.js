@@ -2,7 +2,7 @@ import fs   from 'fs' // only for node
 import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
 import { RuleNode } from './rulenode.js'
-import { StringNode, IntNode, FloatNode, BooleanNode, NullNode } from './scalars.js'
+import { StringNode, Base64Node, IntNode, FloatNode, BooleanNode, NullNode, TimestampNode, AnyNode } from './scalars/scalars.js'
 import {
     parseDocument,
     isAlias, isCollection, isMap,
@@ -14,10 +14,13 @@ import {
 function parse_scalar(ctx, keyword, current) {
   switch (keyword) {
     case 'string': return new StringNode(ctx, current)
+    case 'base64' : return new Base64Node(ctx, current)
+    case 'timestamp': return new TimestampNode(ctx, current)
     case 'int': return new IntNode(ctx, current)
     case 'float': return new FloatNode(ctx, current)
     case 'boolean': return new BooleanNode(ctx, current)
     case 'null' : return new NullNode(ctx, current)
+    case 'any' : return new AnyNode(ctx, current)
   }
 }
 
@@ -106,9 +109,5 @@ export function parse(input) {
   return ctx
 }
 
-/*let ctx = parse({src_data: "10", dsl_data: "main: string"})
-console.log(ctx)
-console.log(ctx.errors)
-*/
-let res = parse({src_data: "tagada", dsl_data: "main: string"})
-console.log(res.contents.getChild(0).value)
+//let res =  parse({src_data: "2021-02-12", dsl_data: "main: timestamp"})
+//console.log(res.contents.getChild(0).value)
