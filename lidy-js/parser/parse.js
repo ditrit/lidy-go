@@ -14,20 +14,23 @@ export function parse_rule(ctx, rule_name, rule, current) {
     return RuleParser.parse(ctx, rule_name, rule, current)
   }
   if ( isScalar(rule) ) {
+    if (rule.value == null) {
+      rule.value = "null"
+    }
     return ScalarParser.parse(ctx, rule.value, current)
   } 
   if ( isMap(rule) ) {
     if (rule.has('_map') || rule.has('_mapOf') || rule.has('_mapFacultative')) {
       return MapParser.parse(ctx, rule, current)
     }
-    if (rule.hasIn('_list') || rule.has('_listOf') || rule.has('_listFacultative')) {
+    if (rule.has('_list') || rule.has('_listOf') || rule.has('_listFacultative')) {
       return ListParser.parse(ctx, rule, current)
     }
-    if (rule.hasIn(['_oneOf'])) {
+    if (rule.has('_oneOf')) {
       return OneOfParser.parse(ctx, rule, current) 
     }
-    if (rule.hasIn(['_regex'])) {
-      return RegexParser.parse(ctx, current)
+    if (rule.has('_regex')) {
+      return RegexParser.parse(ctx, rule, current)
     }
   }
   return null

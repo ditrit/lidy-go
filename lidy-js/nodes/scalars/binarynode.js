@@ -13,12 +13,12 @@ export class BinaryNode extends ScalarNode {
   }
 
   static checkCurrent(current) {
-    return isScalar(current) && (typeof(current.value) == 'string') && /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/.test(this.value)
+    return isScalar(current) && (typeof(current.value) == 'string') && /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/.test(current.value)
   }
 
   static parse(ctx, current) {
     try {
-      return new Base64Node(ctx, current)
+      return new BinaryNode(ctx, current)
     } catch (error) {
     return null
     }

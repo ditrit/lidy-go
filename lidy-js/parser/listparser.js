@@ -18,12 +18,12 @@ export class ListParser {
     }
     
     // get values for llist keywords 
-    let listNode = rule.get('_list')
-    let listOfNode = rule.get('_listOf')
-    let listFacultativeNode = rule.get('_listFacultative')
+    let listNode = rule.get('_list', true)
+    let listOfNode = rule.get('_listOf', true)
+    let listFacultativeNode = rule.get('_listFacultative', true)
     
     // values for keywords are lists if not null
-    if ((listNode != null && !isSeq(listNode)) || (listOfNode != null && !isSeq(listOfNode)) || (listFacultativeNode != null && !isSeq(listFacultativeNode))) {
+    if ((listNode != null && !isSeq(listNode)) || (listFacultativeNode != null && !isSeq(listFacultativeNode))) {
       ctx.grammarError(current, `Error : error in list value definition`)
       return null
     }
@@ -34,7 +34,7 @@ export class ListParser {
 
     // parse mandatory items 
     if (listNode) {
-      listNode.items.for(lidyItem => { 
+      listNode.items.forEach(lidyItem => { 
         if (idx < nbItems) {
           let newEle = parse_rule(ctx, null, lidyItem, current.items[idx])
           if (newEle == null) {
@@ -55,7 +55,7 @@ export class ListParser {
     let tmpErrors = [].concat(ctx.errors)
     let tmpWarnings = [].concat(ctx.warnings)
     if (listFacultativeNode) {
-      listFacultativeNode.items.for(lidyItem => {
+      listFacultativeNode.items.forEach(lidyItem => {
         if (idx < nbItems) {
           let newEle = parse_rule(ctx, null, lidyItem, current.items[idx])
           if (newEle != null) {
@@ -68,7 +68,7 @@ export class ListParser {
     
     // parse listOf elements
     if (listOfNode != null) {
-      for (; idx < nbItems; i++) {
+      for (; idx < nbItems; idx++) {
         let newEle = parse_rule(ctx, null, listOfNode, current.items[idx])
         if (newEle == null) {
           ctx.syntaxError(current, `Error : wrong type for an element in a list`)

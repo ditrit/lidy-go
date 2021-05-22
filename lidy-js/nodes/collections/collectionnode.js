@@ -1,13 +1,13 @@
-import { isMap, isScalar  } from 'yaml'
+import { isMap, isScalar, isSeq  } from 'yaml'
 import { LidyNode } from '../lidynode.js'
 
 function isPositiveInt(nbNode) {
-    return isScalar(nbNode) && nbNode.value instanceof 'number' && nbNode.value == Math.floor(nbNode.value) && nbNode.value > 0 
+    return isScalar(nbNode) && typeof(nbNode.value) == 'number' && nbNode.value == Math.floor(nbNode.value) && nbNode.value > 0 
 }
 
 function collectionChecker(ctx, op, nbNode, current) {
     if (isPositiveInt(nbNode)) {
-        if (isMap(current)) {
+        if (isMap(current) || isSeq(current)) {
             switch (op) {
                 case '_nb':   return current.items.length == nbNode.value
                 case '_min':  return current.items.length >= nbNode.value
@@ -28,19 +28,19 @@ export class CollectionNode extends LidyNode {
   }
 
   static collectionCheckers(ctx, rule, current) {
-    let nbNode = rule.get('_nb')
-    if (nbNode != null && !collectionChecker('_nb', nbNode, current)) { 
+    let nbNode = rule.get('_nb', true)
+    if (nbNode != null && !collectionChecker(ctx, '_nb', nbNode, current)) { 
       ctx.syntaxError(current, `Error : map expected with ${nbNode.value} elements but ${current.items.length} are provided`)
       return false 
     } 
-    let minNode = rule.get('_min')
-    if (minNode != null && !collectionChecker('_min', minNode, current)) { 
-      ctx.syntaxError(current, `Error : map expected with more than ${nbNode.value} elements but ${current.items.length} are provided`)
+    let minNode = rule.get('_min', true)
+    if (minNode != null && !collectionChecker(ctx, '_min', minNode, current)) { 
+      ctx.syntaxError(current, `Error : map expected with more than ${minNode.value} elements but ${current.items.length} are provided`)
       return false 
     } 
-    let maxNode = rule.get('_max')
-    if (minNode != null && !collectionChecker('_max', maxNode, current)) { 
-      ctx.syntaxError(current, `Error : map expected with more than ${nbNode.value} elements but ${current.items.length} are provided`)
+    let maxNode = rule.get('_max', true)
+    if (maxNode != null && !collectionChecker(ctx, '_max', maxNode, current)) { 
+      ctx.syntaxError(current, `Error : map expected with more than ${maxNode.value} elements but ${current.items.length} are provided`)
       return false 
     }
     return true

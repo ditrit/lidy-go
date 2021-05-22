@@ -12,7 +12,7 @@ export class RegexParser {
     }
 
     // rule syntax is ok ('_regex' is the only one keyword)
-    let ruleValue = rule.get('_regexp')
+    let ruleValue = rule.get('_regex', true)
     if (ruleValue == null || rule.items.length != 1) {
       ctx.grammarError(`Error : regep rule must have only one key named '_regex'`)
       return null
@@ -32,7 +32,7 @@ export class RegexParser {
 
     // string value matches the regex pattern
     if (! regex.test(current.value)) {
-      ctx.syntaxError(current, `Error: value '${current.value}' does not match the regular expression '${regexp}'`)
+      ctx.syntaxError(current, `Error: value '${current.value}' does not match the regular expression '${regex}'`)
     return null
    } 
 
