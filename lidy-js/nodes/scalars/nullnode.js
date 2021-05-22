@@ -15,8 +15,10 @@ export class NullNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (NullNode.checkCurrent(current)) { return new NullNode(ctx, current) }
-    return null
+    try { return new NullNode(ctx, current) 
+    } catch (error) {
+      return null
+    }
 
   }
 

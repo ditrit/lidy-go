@@ -10,8 +10,11 @@ describe("Lidy scalars ->", function() {
         it("A number value",
             function() { expect( parse({src_data: "12.5", dsl_data: "main: any"}).contents.getChild(0).value).toEqual(12.5)})
 
-        it("A boolean value",
-            function() { expect( parse({src_data: "true", dsl_data: "main: any"}).contents.getChild(0).value).toEqual(true)})
+        it("A boolean value, normative notation",
+            function() { expect( parse({src_data: "false", dsl_data: "main: any"}).contents.getChild(0).value).toEqual(false)})
+
+        it("A boolean value, permissive notation",
+        function() { expect( parse({src_data: "True", dsl_data: "main: any"}).contents.getChild(0).value).toEqual(true)})
 
         it("A map value",
             function() { expect( parse({src_data: "{ un: 1, deux: 2 }", dsl_data: "main: any"}).contents.getChild(0).value["un"].value).toEqual(1)})

@@ -17,8 +17,9 @@ export class BooleanNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (BooleanNode.checkCurrent(current)) { return new BooleanNode(ctx, current) }
-    return null
-
+    try { return new BooleanNode(ctx, current) 
+    } catch (error) {
+      return null
+    }
   }
 }

@@ -5,7 +5,13 @@ import { isMap, isScalar  } from 'yaml'
 export class MapNode extends CollectionNode {
   constructor(ctx, current, parsedMap) {
     super(ctx, 'map', current)
+    if (typeof(parsedMap) != 'object' || parsedMap instanceof Array) {
+      throw ctx.syntaxError(current, 'Erorr : MapNode must be initialized with a parsed map. This should not happen.')
+    }
     this.value = parsedMap
+    for (const element in parsedMap) {
+      this.childs.push(parsedMap[element])
+    };
   }
 
   static checkCurrent(current) {

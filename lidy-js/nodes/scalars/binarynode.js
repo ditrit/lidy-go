@@ -17,8 +17,11 @@ export class BinaryNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (BinaryNode.checkCurrent(current)) { return new Base64Node(ctx, current) }
+    try {
+      return new Base64Node(ctx, current)
+    } catch (error) {
     return null
+    }
   }
 
 }

@@ -12,12 +12,14 @@ export class IntNode extends ScalarNode {
   }
 
   static checkCurrent(current) {
-    return isScalar(current) && (typeof(current.value)) == 'number' && (current.value == Math.floor(current.value))
+    return isScalar(current) && (typeof(current.value) == 'number') && (current.value == Math.floor(current.value))
   }
 
   static parse(ctx, current) {
-    if (IntNode.checkCurrent(current)) { return new IntNode(ctx, current) }
-    return null
+    try { return new IntNode(ctx, current) 
+    } catch (error) {
+      return null
+    }
 
   }
 

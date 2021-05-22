@@ -12,12 +12,14 @@ export class FloatNode extends ScalarNode {
   }
 
   static checkCurrent(current) {
-    return isScalar(current) && typeof(current.value == 'number')
+    return isScalar(current) && typeof(current.value) == 'number'
   }
 
   static parse(ctx, current) {
-    if (FloatNode.checkCurrent(current)) { return new FloatNode(ctx, current) }
-    return null
+    try { return new FloatNode(ctx, current) 
+    } catch (error) {
+      return null
+    }
 
   }
 

@@ -17,9 +17,10 @@ export class StringNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (StringNode.checkCurrent(current)) { return new StringNode(ctx, current) }
-    ctx.syntaxError(current, `Error : value '${(current) ? current.value : ""}' is not a string`)
-    return null
+    try { return new StringNode(ctx, current) 
+    } catch (error) {
+      return null
+    }
 
   }
 

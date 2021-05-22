@@ -17,7 +17,7 @@ export class ScalarParser {
       case 'string': return StringNode.parse(ctx, current)
       case 'binary' : return BinaryNode.parse(ctx, current)
       case 'timestamp': return TimestampNode.parse(ctx, current)
-      case 'int': return IntNode.parse(ctx, current)
+      case 'integer': return IntNode.parse(ctx, current)
       case 'float': return FloatNode.parse(ctx, current)
       case 'boolean': return BooleanNode.parse(ctx, current)
       case 'null' : return NullNode.parse(ctx, current)

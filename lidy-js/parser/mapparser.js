@@ -2,6 +2,7 @@ import { MapNode } from "../nodes/collections/mapnode.js"
 import { ScalarParser } from "./scalarparser.js"
 import { parse_rule } from './parse.js'
 import { isMap, isScalar  } from 'yaml'
+import { StringNode } from "../nodes/scalars/stringnode.js"
 
 export class MapParser {
 
@@ -67,6 +68,8 @@ export class MapParser {
         ctx.SyntaxError(value, `Error : bad value '${value}'found for '${key}'`)
         return null
       }
+      let parsedKey = new StringNode(ctx, pair.key)
+      parsedValue.key = parsedKey
       parsedMap[key] = parsedValue
     })
 
@@ -91,6 +94,8 @@ export class MapParser {
         ctx.SyntaxError(value, `Error : bad value '${value}'found for '${key}'`)
         return null
       }
+      let parsedKey = new StringNode(ctx, pair.key)
+      parsedValue.key = parsedKey
       parsedMap[key] = parsedValue
     })
 

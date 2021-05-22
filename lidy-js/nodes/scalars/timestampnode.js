@@ -25,8 +25,10 @@ export class TimestampNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (TimestampNode.checkCurrent(current)) { return new TimestampNode(ctx, current) }
-    return null
+    try { return new TimestampNode(ctx, current) 
+    } catch (error) {
+      return null
+    }
 
   }
 
