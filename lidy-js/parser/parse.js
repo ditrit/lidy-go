@@ -1,11 +1,11 @@
 import fs   from 'fs' // only for node
 import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
-import { LidyNode } from './lidynode.js'
-import { RuleNode } from './rulenode.js'
-import { ScalarNode } from './scalars/scalarnode.js'
-import { MapNode } from './keywords/mapnode.js'
-import { ListNode } from './keywords/listnode.js'
+import { LidyNode } from '../nodes/lidynode.js'
+import { RuleNode } from '../nodes/rulenode.js'
+import { ScalarNode } from '../nodes/scalars/scalarnode.js'
+import { MapNode } from '../nodes/collections/mapnode.js'
+import { ListNode } from '../nodes/collections/listnode.js'
 import { parseDocument, isMap, isScalar, LineCounter } from 'yaml'
 
 export function parse_rule(ctx, rule_name, rule, current) {
@@ -31,6 +31,7 @@ export function parse_rule(ctx, rule_name, rule, current) {
   }
   return null
 
+  // TODO : _in , _merge
 }
 
 function parse_lidy(ctx, rule_name, current) {      // dsl parsing of the source code

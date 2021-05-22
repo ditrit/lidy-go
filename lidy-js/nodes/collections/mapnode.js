@@ -1,7 +1,7 @@
 import { CollectionNode } from "./collectionnode.js"
 import { isMap, isScalar  } from 'yaml'
-import { parse_any } from "../scalars/map.js"
-import { parse_rule } from '../parse.js'
+import { parse_any } from "../nodes/scalars/map.js.js"
+import { parse_rule } from '../../parser/parse.js'
 
 
 export class MapNode extends CollectionNode {
@@ -79,7 +79,7 @@ export class MapNode extends CollectionNode {
       }
       parsedKeys[key] = parsedValue
     })
-    
+
     // everything is ok
     return new MapNode(ctx, current, parsedKeys)
   }

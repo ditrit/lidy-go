@@ -1,6 +1,6 @@
 import { isSeq  } from 'yaml'
 import { CollectionNode } from "./collectionnode.js"
-import { parse_rule } from '../../parser/parse.js'
+import { parse_rule } from '../../parse.js'
   
 export class ListNode extends CollectionNode {
   constructor(ctx, current) {

@@ -1,5 +1,5 @@
 import { LidyNode } from "./lidynode.js"
-import { parse_rule } from "./parse.js"
+import { parse_rule } from "../parser/parse.js"
 
 export class RuleNode extends LidyNode {
     constructor(ctx, rule_name, rule, current) {

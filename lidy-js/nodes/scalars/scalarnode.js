@@ -6,8 +6,8 @@ import { BooleanNode } from './booleannode.js'
 import { NullNode } from './nullnode.js'
 import { TimestampNode } from './timestampnode.js'
 import { isMap, isScalar } from 'yaml'
-import { MapNode } from '../keywords/mapnode.js'
-import { ListNode } from '../keywords/listnode.js'
+import { MapNode } from '../collections/mapnode.js'
+import { ListNode } from '../collections/listnode.js'
 
 
 export class ScalarNode extends  LidyNode {

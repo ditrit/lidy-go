@@ -1,5 +1,5 @@
 import { isMap, isSeq  } from 'yaml'
-import { parse_rule } from '../parse.js'
+import { parse_rule } from '../parser/parse.js'
 
 export class LidyNode {
   constructor(ctx, node_type, current) {
