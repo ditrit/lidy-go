@@ -1,11 +1,11 @@
-import { ScalarNode } from "../scalarnode.js"
+import { ScalarNode } from "./scalarnode.js"
 import { isScalar  } from 'yaml'
 
 export class NullNode extends ScalarNode {
   constructor(ctx, current) {
     super(ctx, 'null', current)
     this.value = null
-    if (!checkCurrent(current)) {
+    if (!NullNode.checkCurrent(current)) {
       throw ctx.syntaxError(current, `Error: value '${current ? current.value : "" }' is not the null value`)
     }
   }
@@ -15,7 +15,7 @@ export class NullNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (checkCurrent(current)) { return new NullNode(ctx, current) }
+    if (NullNode.checkCurrent(current)) { return new NullNode(ctx, current) }
     return null
 
   }

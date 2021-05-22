@@ -1,4 +1,5 @@
 import { isMap, isScalar  } from 'yaml'
+import { LidyNode } from '../lidynode.js'
 
 function isPositiveInt(nbNode) {
     return isScalar(nbNode) && nbNode.value instanceof 'number' && nbNode.value == Math.floor(nbNode.value) && nbNode.value > 0 

@@ -1,32 +1,33 @@
 import fs   from 'fs' // only for node
 import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
-import { LidyNode } from '../nodes/lidynode.js'
-import { RuleNode } from '../nodes/rulenode.js'
-import { ScalarNode } from '../nodes/scalars/scalarnode.js'
-import { MapNode } from '../nodes/collections/mapnode.js'
-import { ListNode } from '../nodes/collections/listnode.js'
+import { ScalarParser } from './scalarparser.js'
+import { OneOfParser } from './oneofparser.js'
+import { RegexParser } from './regexparser.js'
+import { MapParser } from './mapparser.js'
+import { ListParser } from './listparser.js'
 import { parseDocument, isMap, isScalar, LineCounter } from 'yaml'
+import { RuleParser } from './ruleparser.js'
 
 export function parse_rule(ctx, rule_name, rule, current) {
   if (rule_name) { 
-    return new RuleNode(ctx, rule_name, rule, current)
+    return RuleParser.parse(ctx, rule_name, rule, current)
   }
   if ( isScalar(rule) ) {
-    return ScalarNode.parse(ctx, rule.value, current)
+    return ScalarParser.parse(ctx, rule.value, current)
   } 
   if ( isMap(rule) ) {
-    if (rule.has('_map') || rule.has('_mapOf')) {
-      return MapNode.parse(ctx, rule, current)
+    if (rule.has('_map') || rule.has('_mapOf') || rule.has('_mapFacultative')) {
+      return MapParser.parse(ctx, rule, current)
     }
-    if (rule.hasIn('_list') || rule.has('_listOf')) {
-      return ListNode.parse(ctx, rule, current)
+    if (rule.hasIn('_list') || rule.has('_listOf') || rule.has('_listFacultative')) {
+      return ListParser.parse(ctx, rule, current)
     }
     if (rule.hasIn(['_oneOf'])) {
-      return LidyNode.parse_oneof(ctx, rule, current) 
+      return OneOfParser.parse(ctx, rule, current) 
     }
     if (rule.hasIn(['_regex'])) {
-      return String.parse_regex(ctx, current)
+      return RegexParser.parse(ctx, current)
     }
   }
   return null
@@ -34,7 +35,7 @@ export function parse_rule(ctx, rule_name, rule, current) {
   // TODO : _in , _merge
 }
 
-function parse_lidy(ctx, rule_name, current) {      // dsl parsing of the source code
+export function parse_lidy(ctx, rule_name, current) {      // dsl parsing of the source code
   let lidyNode
   // 'ctx' is the context of Lidy
   // 'rule_name' is the name of the grammar rule to be used
@@ -108,5 +109,3 @@ export function parse(input) {
   return ctx
 }
 
-//let res =  parse({src_data: "2021-02-12", dsl_data: "main: timestamp"})
-//console.log(res.contents.getChild(0).value)

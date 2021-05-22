@@ -1,10 +1,10 @@
-import { ScalarNode } from "../scalarnode.js"
+import { ScalarNode } from "./scalarnode.js"
 import { isScalar  } from 'yaml'
 
 export class IntNode extends ScalarNode {
   constructor(ctx, current) {
     super(ctx, 'int', current)
-    if (checkCurrent(current)) {
+    if (IntNode.checkCurrent(current)) {
         this.value = current.value
     } else {
       throw ctx.syntaxError(current, `Error: value '${current ? current.value : ""}' is not a number`)
@@ -16,7 +16,7 @@ export class IntNode extends ScalarNode {
   }
 
   static parse(ctx, current) {
-    if (checkCurrent(current)) { return new IntNode(ctx, current) }
+    if (IntNode.checkCurrent(current)) { return new IntNode(ctx, current) }
     return null
 
   }

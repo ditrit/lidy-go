@@ -1,4 +1,4 @@
-import { parse } from '../../parse.js'
+import { parse } from '../../parser/parse.js'
 
 describe("Lidy scalars ->", function() {
 
