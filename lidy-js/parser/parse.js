@@ -1,12 +1,11 @@
 import fs   from 'fs' // only for node
 import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
+import { LidyNode } from './lidynode.js'
 import { RuleNode } from './rulenode.js'
-import { parse_scalar } from './scalars/parse.js'
-import { parse_regexp } from './keywords/regexp.js'
-import { parse_oneof } from './keywords/oneof.js'
-import { parse_map } from './keywords/map.js'
-import { parse_list } from './keywords/list.js'
+import { ScalarNode } from './scalars/scalarnode.js'
+import { MapNode } from './keywords/mapnode.js'
+import { ListNode } from './keywords/listnode.js'
 import { parseDocument, isMap, isScalar, LineCounter } from 'yaml'
 
 export function parse_rule(ctx, rule_name, rule, current) {
@@ -14,20 +13,20 @@ export function parse_rule(ctx, rule_name, rule, current) {
     return new RuleNode(ctx, rule_name, rule, current)
   }
   if ( isScalar(rule) ) {
-    return parse_scalar(ctx, rule.value, current)
+    return ScalarNode.parse(ctx, rule.value, current)
   } 
   if ( isMap(rule) ) {
     if (rule.has('_map') || rule.has('_mapOf')) {
-      return parse_map(ctx, rule, current)
+      return MapNode.parse(ctx, rule, current)
     }
     if (rule.hasIn('_list') || rule.has('_listOf')) {
-      return parse_list(ctx, rule, current)
+      return ListNode.parse(ctx, rule, current)
     }
     if (rule.hasIn(['_oneOf'])) {
-      return parse_oneof(ctx, rule, current) 
+      return LidyNode.parse_oneof(ctx, rule, current) 
     }
-    if (rule.hasIn(['_regexp'])) {
-      return parse_regexp(ctx, rule, current)
+    if (rule.hasIn(['_regex'])) {
+      return String.parse_regex(ctx, current)
     }
   }
   return null

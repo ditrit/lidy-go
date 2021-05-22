@@ -21,7 +21,12 @@ function collectionChecker(ctx, op, nbNode, current) {
     return false
 }
 
-export function collectionCheckers(ctx, rule, current) {
+export class CollectionNode extends LidyNode {
+  constructor(ctx, collectionType, current) {
+    super(ctx, collectionType, current)
+  }
+
+  static collectionCheckers(ctx, rule, current) {
     let nbNode = rule.get('_nb')
     if (nbNode != null && !collectionChecker('_nb', nbNode, current)) { 
       ctx.syntaxError(current, `Error : map expected with ${nbNode.value} elements but ${current.items.length} are provided`)
@@ -38,4 +43,5 @@ export function collectionCheckers(ctx, rule, current) {
       return false 
     }
     return true
+  }
 }
