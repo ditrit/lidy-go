@@ -9,7 +9,7 @@ export class OneOfParser {
       ctx.grammarError(current, `Error: oneof rule must have one and only one key name '_oneof'`)
     }
 
-    let ruleValue = rule.get('_oneof')
+    let ruleValue = rule.get('_oneof', true)
     if (! isSeq(ruleValue)) {
       ctx.grammarError(current, `Error: _oneof rules expects a sequence of alternatives`)
     } else {

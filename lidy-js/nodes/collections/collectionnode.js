@@ -27,6 +27,13 @@ export class CollectionNode extends LidyNode {
     super(ctx, collectionType, current)
   }
 
+  length() {
+    return this.childs.length
+  }
+  isEmpty() {
+    return this.length() == 0
+  }
+
   static collectionCheckers(ctx, rule, current) {
     let nbNode = rule.get('_nb', true)
     if (nbNode != null && !collectionChecker(ctx, '_nb', nbNode, current)) { 

@@ -49,4 +49,15 @@ export class Ctx {
         return e
     }
 
+    fails() {
+        return this.errors.length > 0
+    }
+
+    success() {
+        return this.errors.length == 0 && this.warnings.length == 0
+    }
+
+    result() {
+        return this.contents.getChild(0)
+    }
 }
