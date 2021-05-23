@@ -16,7 +16,7 @@ describe("Lidy scalars ->", function() {
         it("variant",
             function() { expect( parse({src_data: "True", dsl_data: "main: boolean"}).result().value).toEqual(true)})
 
-        it("integer is not boolean",
+        it("int is not boolean",
             function() { expect( parse({src_data: "0", dsl_data: "main: boolean"}).fails()).toEqual(true)})
 
         it("string is not a boolean",

@@ -7,7 +7,7 @@ export class IntNode extends ScalarNode {
     if (IntNode.checkCurrent(current)) {
         this.value = current.value
     } else {
-      throw ctx.syntaxError(current, `Error: value '${current ? current.value : ""}' is not a number`)
+      throw ctx.syntaxError(current, `Error: value '${current ? current.value : ""}' is not an integer`)
     }
   }
 

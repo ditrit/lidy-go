@@ -36,7 +36,7 @@ describe("Regular expressions ->", function() {
         it("accept non-empty word 2",
             function() { expect( parse({src_data: "word", dsl_data: 'main: { _regex: "[a-z]+" }'}).result().value).toEqual("word")})
 
-        it("reject if not a string : integer",
+        it("reject if not a string : int",
             function() { expect( parse({src_data: "123", dsl_data: 'main: { _regex: "[a-z]+" }'}).fails()).toEqual(true)})
 
         it("reject if not a string : float",

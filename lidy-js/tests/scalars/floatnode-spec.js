@@ -2,7 +2,7 @@ import { parse } from '../../parser/parse.js'
 
 describe("Lidy scalars ->", function() {
 
-    describe("integer scalar : ", function() {
+    describe("int scalar : ", function() {
         
         it("positive float",
             function() { expect( parse({src_data: "212.334453", dsl_data: "main: float"}).result().value).toEqual(212.334453)})
@@ -19,7 +19,7 @@ describe("Lidy scalars ->", function() {
         it("string is not a float",
             function() { expect( parse({src_data: "70.10 F", dsl_data: "main: float"}).fails()).toEqual(true)})
 
-        it("an integer is a float", 
+        it("an int is a float", 
             function() { expect( parse({src_data: "7.000", dsl_data: "main: float"}).result().value).toEqual(7)})
 
         it("a list is not a negative float...",

@@ -10,7 +10,7 @@ describe("Lidy scalars ->", function() {
         it("null value",
             function() { expect( parse({src_data: "null", dsl_data: "main: null"}).result().value).toEqual(null)})
 
-        it("integer is not null",
+        it("int is not null",
             function() { expect( parse({src_data: "0", dsl_data: "main: null"}).fails()).toEqual(true)})
 
         it("string is not null",

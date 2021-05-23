@@ -21,8 +21,8 @@ describe("Lidy scalars ->", function() {
         it("float is not a timestamp",
             function() { expect( parse({src_data: "2001.12", dsl_data: "main: timestamp"}).errors[0].name).toEqual('SYNTAX_ERROR')})
 
-        it("string is not an integer (if not respecting iso8601 format)",
-            function() { expect( parse({src_data: "2001/12/15", dsl_data: "main: integer"}).errors[0].name).toEqual('SYNTAX_ERROR')})
+        it("string is not an int (if not respecting iso8601 format)",
+            function() { expect( parse({src_data: "2001/12/15", dsl_data: "main: int"}).errors[0].name).toEqual('SYNTAX_ERROR')})
 
     })
 })

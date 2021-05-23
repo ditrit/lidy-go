@@ -58,6 +58,6 @@ export class Ctx {
     }
 
     result() {
-        return this.contents.getChild(0)
+        return this.contents
     }
 }

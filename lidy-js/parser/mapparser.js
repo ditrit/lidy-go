@@ -46,10 +46,11 @@ export class MapParser {
   
     let parsedMap = {}
     // for every (key, value) in current, key is in _map or _mapFacultative and value matches definition, if not, value matches defnition of _mapOf 
-    current.items.forEach(pair => {
+    for (let pair of current.items) {
       let key = pair.key.value
       let value = pair.value
       let parsedValue = null
+
       if (mapNode && mapNode.has(key)) {
         parsedValue = parse_rule(ctx, null, mapNode.get(key, true), value)
       } else {
@@ -72,9 +73,10 @@ export class MapParser {
       parsedValue.key = parsedKey
       if (parsedMap[key] != null) {
         ctx.syntaxError(value, `Error : more than one value provided in the map for the key '${key}'`)
+        return null
       }
       parsedMap[key] = parsedValue
-    })
+    }
 
     // everything is ok
     return new MapNode(ctx, current, parsedMap)
@@ -99,6 +101,9 @@ export class MapParser {
       }
       let parsedKey = new StringNode(ctx, pair.key)
       parsedValue.key = parsedKey
+      if (parsedMap[key] != null) {
+        ctx.syntaxError(value, `Error : more than one value provided in the map for the key '${key}'`)
+      }
       parsedMap[key] = parsedValue
     })
 
