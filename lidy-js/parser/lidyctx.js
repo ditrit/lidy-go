@@ -10,6 +10,7 @@ export class Ctx {
         this.warnings = []
         this.yaml_ok  = false
         this.contents = null
+        this.listener = null
     }
 
     errors(newErrors) {
