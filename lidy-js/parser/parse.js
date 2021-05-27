@@ -20,7 +20,7 @@ export function parse_rule(ctx, rule_name, rule, current) {
     return ScalarParser.parse(ctx, rule.value, current)
   } 
   if ( isMap(rule) ) {
-    if (rule.has('_map') || rule.has('_mapOf') || rule.has('_mapFacultative')) {
+    if (rule.has('_map') || rule.has('_mapOf') || rule.has('_mapFacultative') || rule.has('_merge')) {
       return MapParser.parse(ctx, rule, current)
     }
     if (rule.has('_list') || rule.has('_listOf') || rule.has('_listFacultative')) {
@@ -38,22 +38,27 @@ export function parse_rule(ctx, rule_name, rule, current) {
   // TODO : _in , _merge
 }
 
-export function parse_lidy(ctx, rule_name, current) {      // dsl parsing of the source code
-  let lidyNode
+export function parse_rule_name(ctx, rule_name, current) {
   // 'ctx' is the context of Lidy
   // 'rule_name' is the name of the grammar rule to be used
   let rule = ctx.rules.get(rule_name, true)
   if (rule === undefined) { 
     ctx.grammarError(ctx.src, `no rule named ${rule_name} found.`)
   } else {
-    lidyNode = parse_rule(ctx, rule_name, rule, current)
+    return parse_rule(ctx, rule_name, rule, current)
   }
+  return null
+}
+
+function parse_lidy(ctx, rule_name, current) {      // dsl parsing of the source code
+  let lidyNode = parse_rule_name(ctx, rule_name, current)
 
   // insert position and complete messages into errors and warnings
   ctx.errors.filter(x => x instanceof LidyError).forEach(x => x.pretty(ctx))
   ctx.warnings.filter(x => x instanceof LidyError).forEach(x => x.pretty(ctx))
 
   ctx.contents = lidyNode
+  return ctx
 }
 
 // Parsing of grammar rules
@@ -65,6 +70,7 @@ function parse_dsl(ctx, dsl_data, top_rule) {
   if ( ! dsl_doc ) throw Error("ERROR : can not parse dsl ")
   if (dsl_doc.errors.length > 0 || dsl_doc.warnings.lentgh > 0) throw Error("ERROR : errors parsing dsl")
   if (!isMap(dsl_doc.contents)) throw Error("ERROR : no grammar rules found")
+  ctx.dsl_doc = dsl_doc
   ctx.rules = dsl_doc.contents
   if (! ctx.rules.has(top_rule)) throw Error("ERROR : no rule labeled '" + top_rule + "' in the grammar")
 }
@@ -107,8 +113,7 @@ export function parse(input) {
 
   parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
   parse_src(ctx, input.src_data)                // yaml parsing of the source code 
-  parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
+  return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
 
-  return ctx
 }
 

@@ -8,7 +8,7 @@ import { TimestampNode } from '../nodes/scalars/timestampnode.js'
 import { isMap, isSeq, isScalar } from 'yaml'
 import { MapParser } from './mapparser.js'
 import { ListParser } from './listparser.js'
-import { parse_lidy } from './parse.js'
+import { parse_rule_name } from './parse.js'
 
 export class ScalarParser {
 
@@ -22,7 +22,7 @@ export class ScalarParser {
       case 'boolean': return BooleanNode.parse(ctx, current)
       case 'null' : return NullNode.parse(ctx, current)
       case 'any' : return ScalarParser.parse_any(ctx, current)
-      default : return parse_lidy(ctx, keyword, current)
+      default : return parse_rule_name(ctx, keyword, current)
     }
   }
 

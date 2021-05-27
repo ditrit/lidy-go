@@ -11,6 +11,7 @@ export class RuleParser {
       return null
     }
 
+    console.log(`rule '${rule_name}' called\n`)
     //call enter listener if it exists
     let fenter = "enter_" + rule_name
     if (ctx.listener && ctx.listener[fenter]) {

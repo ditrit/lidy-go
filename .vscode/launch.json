@@ -11,7 +11,8 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/lidy-js/index.js"
+            "program": "${file}",
+            "cwd": "${fileDirname}"
         }
     ]
 }
