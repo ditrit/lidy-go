@@ -3,6 +3,7 @@ import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
 import { ScalarParser } from './scalarparser.js'
 import { OneOfParser } from './oneofparser.js'
+import { InParser } from './inparser.js'
 import { RegexParser } from './regexparser.js'
 import { MapParser } from './mapparser.js'
 import { ListParser } from './listparser.js'
@@ -32,7 +33,11 @@ export function parse_rule(ctx, rule_name, rule, current) {
     if (rule.has('_regex')) {
       return RegexParser.parse(ctx, rule, current)
     }
+    if (rule.has('_in')) {
+      return InParser.parse(ctx, rule, current)
+    }
   }
+  ctx.grammarError(current, `Error : grammar error : no valid keyword found`)
   return null
 
   // TODO : _in , _merge

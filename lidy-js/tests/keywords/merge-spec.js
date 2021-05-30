@@ -15,6 +15,16 @@ describe("Merge expressions ->", function() {
 
         it("merge with oneOf",
             function() { expect( parse({src_data: "{ a: 2, b: 3, c: true }", dsl_data: "main: { _map: { a: int, b: int}, _merge: [ {_oneOf: [{_map: { c: int}}, {_map: { c: boolean}} ] } ] }"}).result().value["c"].value).toEqual(true)})
+
+        it("merge through a rule-name",
+            function() { expect( parse({src_data: "{ r: 5 }", dsl_data: "{ main: { _merge: [ reference ] }, reference: { _map: {r: int} } }"}).result().value["r"].value).toEqual(5)})
+
+        it("merge through a rule-name applied on a map",
+            function() { expect( parse({src_data: "{ r: 5, a: true}", dsl_data: "{ main: { _map: { a: boolean }, _merge: [ reference ] }, reference: { _map: {r: int} } }"}).result().value["r"].value).toEqual(5)})
+
+        it("merge through a rule-name and oneOf applied on a map",
+            function() { expect( parse({src_data: "{ r: 5, a: true, c: 1.2 }", dsl_data: "{ main: { _map: { a: boolean }, _merge: [ reference, { _oneOf: [ _mapOf: { string: string }, { _map: { c: float } } ] } ] }, reference: { _map: {r: int} } }"}).result().value["r"].value).toEqual(5)})
+
     })
 })
 
