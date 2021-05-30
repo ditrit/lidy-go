@@ -1,4 +1,4 @@
 import { parse } from './parser/parse.js'
 
-let res4 = parse({src_file: "../schema.lidy.yaml", dsl_file: '../schema.lidy.yaml'})
-console.log(res4)
+let res = parse({src_data: "{ a: 2, b: 3, c: true }", dsl_data: "main: { _map: { a: int, b: int}, _merge: [ {_oneOf: [{_map: { c: int}}, {_map: { c: boolean}} ] } ] }"})
+console.log(res)

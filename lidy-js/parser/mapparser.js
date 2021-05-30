@@ -20,7 +20,7 @@ export class MapParser {
     if (rule.has('_merge')) {
       rule = MergeParser.parse(ctx, rule)
       if (rule.has('_oneOf')) { 
-        return !OneOfParser.parse(ctx, rule, current)
+        return OneOfParser.parse(ctx, rule, current)
       }
     }
 
@@ -30,7 +30,7 @@ export class MapParser {
   
     // values for keywords are well formed
     if ((mapNode != null && !isMap(mapNode)) || 
-        ((mapOfNode != null && !(isMap(mapOfNode) && mapOfNode.items.length == 1))) || 
+        ((mapOfNode != null && !(isMap(mapOfNode) && mapOfNode.items.length <= 1))) || 
         (mapFacultativeNode != null && !isMap(mapFacultativeNode))) {
       ctx.grammarError(current, `Error : error in map value definition`)
       return null
@@ -57,8 +57,12 @@ export class MapParser {
     }
   
     // pair definition for _mapOf 
-    let mapOfKey = (mapOfNode) ? mapOfNode.items[0].key : null
-    let mapOfValue =  (mapOfNode) ? mapOfNode.items[0].value : null
+    let mapOfKey = null
+    let mapOfValue = null
+    if (mapOfNode && mapOfNode.items.length == 1) {
+      mapOfKey = mapOfNode.items[0].key
+      mapOfValue = mapOfNode.items[0].value
+    }
 
     let parsedMap = {}
 
@@ -74,7 +78,7 @@ export class MapParser {
         if (mapFacultativeNode && mapFacultativeNode.has(key)) {
           parsedValue = parse_rule(ctx, null, mapFacultativeNode.get(key, true), value)
         } else {
-          if (mapOfNode) {
+          if (mapOfKey && mapOfValue) {
             let parsedKey = parse_rule(ctx, null, mapOfKey, pair.key)
             parsedValue = parse_rule(ctx, null, mapOfValue, value)
             if (parsedKey != key) {
