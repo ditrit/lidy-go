@@ -103,7 +103,7 @@ export class ListParser {
     current.items.forEach(item => {
       let parsedValue = ScalarParser.parse_any(ctx, item)
       if (parsedValue == null) {
-        ctx.SyntaxError(value, `Error : bad value '${value}'found for '${key}'`)
+        ctx.SyntaxError(value, `Error : bad value '${value}' found for '${key}' (listparser.parse_any)`)
         return null
       }
       parsedList.push(parsedValue)

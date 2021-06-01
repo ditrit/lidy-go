@@ -81,7 +81,7 @@ export class MapParser {
           if (mapOfKey && mapOfValue) {
             let parsedKey = parse_rule(ctx, null, mapOfKey, pair.key)
             parsedValue = parse_rule(ctx, null, mapOfValue, value)
-            if (parsedKey != key) {
+            if (parsedKey.value != key) {
               ctx.syntaxError(key, `Error : '${key}' does not match expected '${mapOfNode.key}' type`)
               return null
             }
@@ -92,7 +92,7 @@ export class MapParser {
         }
       }
       if (parsedValue == null) {
-        ctx.syntaxError(value, `Error : bad value '${value}'found for '${key}'`)
+        ctx.syntaxError(value, `Error : bad value '${value}'found for '${key}' (mapparser.parse)`)
         return null
       }
       let parsedKey = new StringNode(ctx, pair.key)
@@ -122,7 +122,7 @@ export class MapParser {
       let value = pair.value
       let parsedValue = ScalarParser.parse_any(ctx, value)
       if (parsedValue == null) {
-        ctx.syntaxError(value, `Error : bad value '${value}'found for '${key}'`)
+        ctx.syntaxError(value, `Error : bad value '${value}' found for '${key}' (mapparser.parse_any)`)
         return null
       }
       let parsedKey = new StringNode(ctx, pair.key)

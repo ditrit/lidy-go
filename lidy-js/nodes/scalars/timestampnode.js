@@ -29,7 +29,14 @@ export class TimestampNode extends ScalarNode {
     } catch (error) {
       return null
     }
+  }
 
+  equals(other) {
+    if (other instanceof TimestampNode) {
+      return this.value.getTime() == other.value.getTime()
+    } else {
+      return this.ctx.syntaxError('Error : can not compare a timestamp with something else')
+    }
   }
 
 }

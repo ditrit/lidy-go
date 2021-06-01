@@ -1,5 +1,5 @@
 import { isMap, isScalar, isSeq  } from 'yaml'
-import { parse_rule } from './parse.js'
+import { ScalarParser } from '../parser/scalarparser.js'
 
 export class InParser {
 
@@ -14,7 +14,7 @@ export class InParser {
       ctx.grammarError(current, `Error: _in rules expects a sequence of alternatives`)
       return null
     }
-    for (ele of ruleValue.items) {
+    for (let ele of ruleValue.items) {
       if (!isScalar(ele)) {
         ctx.grammarError(current, `Error: _in rules expects each alternative to be a scalar`)
         return null
@@ -25,23 +25,29 @@ export class InParser {
       return null
     }
 
-    // errors for non matching alternatives will be ignored in case of success
-    let tmpErrors = [].concat(ctx.errors)
-    let tmpWarnings = [].concat(ctx.warnings)
-    // find the first alternative that can be parsed
-    let nbErrors = ctx.errors.length
-    for(let alternative of ruleValue.items) {
-      let res = (alternative.equals(current)) ? current : null
-      if (nbErrors == ctx.errors.length) {
-        ctx.errors = tmpErrors
-        ctx.warnings = tmpWarnings
-        return res
-      } else {
-        nbErrors = ctx.errors.length
+    let parsedCurrent = ScalarParser.parse_any(ctx, current)
+    let parsedInItems = ruleValue.items.map( (ele) => ScalarParser.parse_any(ctx, ele))
+
+    if (parsedCurrent) {
+      // errors for non matching alternatives will be ignored in case of success
+      let tmpErrors = [].concat(ctx.errors)
+      let tmpWarnings = [].concat(ctx.warnings)
+      // find the first alternative that can be parsed
+      let nbErrors = ctx.errors.length
+      for(let alternative of parsedInItems) {
+        if (alternative) {
+          let res = (alternative.equals(parsedCurrent)) ? parsedCurrent : null
+          if (res != null) {
+            ctx.errors = tmpErrors
+            ctx.warnings = tmpWarnings
+            return res
+          } else {
+            nbErrors = ctx.errors.length
+          }
+        }
       }
     }
     ctx.syntaxError(current, `Syntax Error : no valid alternative for '_in' rule found during parsing`)      
     return null
-    
   }
 }

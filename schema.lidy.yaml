@@ -65,7 +65,7 @@ scalar:
 # sizingMixing
 #
 # _max can't be inferior to _min
-sizingMixin::
+sizingMixin:
   _oneOf:
   - _mapFacultative:
       "_min": int
@@ -89,7 +89,6 @@ mapChecker:
     - sizingMixin
 
 mapForm:
-  _map: {}
   _mapFacultative:
     "_map": map.parameter
     "_mapFacultative": map.parameter
@@ -108,7 +107,7 @@ mapOf.parameter:
 
 # merge.parameter
 # The merge targets must all solve to a list of mapCheckers only. This is checked by the merge.parameter builder.
-merge.parameter::
+merge.parameter:
   _listOf:
     _oneOf:
       - mapChecker
@@ -157,11 +156,12 @@ oneOf.checker:
   _map:
     "_oneOf": oneOf.parameter
 
+# regex
+# The string must be a valid regex. This is checked by the merge.parameter builder.
+regex.checker:
+  _map:
+    "_regex": string
+
 oneOf.parameter:
   _listOf: expression
 
-# regex
-# The string must be a valid regex. This is checked by the merge.parameter builder.
-regex.checker::
-  _map:
-    "_regex": string

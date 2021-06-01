@@ -12,6 +12,12 @@ export class RuleParser {
     }
 
     console.log(`rule '${rule_name}' called\n`)
+    if (rule_name == 'in.checker') {
+      console.log(`ici! : ${rule_name} : in.checker`)
+    }
+    if (rule_name == 'regex.checker') {
+      console.log(`ici! : ${rule_name} regex.checker`)
+    }
     //call enter listener if it exists
     let fenter = "enter_" + rule_name
     if (ctx.listener && ctx.listener[fenter]) {
