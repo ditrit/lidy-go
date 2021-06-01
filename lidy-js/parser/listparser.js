@@ -2,6 +2,7 @@ import { isSeq  } from 'yaml'
 import { ListNode } from "../nodes/collections/listnode.js"
 import { ScalarParser } from "./scalarparser.js"
 import { parse_rule } from './parse.js'
+import { CollectionParser } from "./collectionparser.js"
   
 export class ListParser {
 
@@ -13,17 +14,18 @@ export class ListParser {
     }
   
     // quantity checkers are verified
-    if (!ListNode.collectionCheckers(ctx, rule, current)) {
+    if (!CollectionParser.sizeCheckers(ctx, rule, current)) {
       return null
     }
     
     // get values for llist keywords 
-    let listNode = rule.get('_list', true)
-    let listOfNode = rule.get('_listOf', true)
-    let listFacultativeNode = rule.get('_listFacultative', true)
+    let listNode = rule._list
+    let listOfNode = rule._listOf
+    let listFacultativeNode = rule._listFacultative
     
     // values for keywords are lists if not null
-    if ((listNode != null && !isSeq(listNode)) || (listFacultativeNode != null && !isSeq(listFacultativeNode))) {
+    if ((listNode != null && !(listNode instanceof Array)) || 
+        (listFacultativeNode != null && !(listFacultativeNode instanceof Array))) {
       ctx.grammarError(current, `Error : error in list value definition`)
       return null
     }
@@ -34,7 +36,7 @@ export class ListParser {
 
     // parse mandatory items 
     if (listNode) {
-      listNode.items.forEach(lidyItem => { 
+      listNode.forEach(lidyItem => { 
         if (idx < nbItems) {
           let newEle = parse_rule(ctx, null, lidyItem, current.items[idx])
           if (newEle == null) {
@@ -55,7 +57,7 @@ export class ListParser {
     let tmpErrors = [].concat(ctx.errors)
     let tmpWarnings = [].concat(ctx.warnings)
     if (listFacultativeNode) {
-      listFacultativeNode.items.forEach(lidyItem => {
+      listFacultativeNode.forEach(lidyItem => {
         if (idx < nbItems) {
           let newEle = parse_rule(ctx, null, lidyItem, current.items[idx])
           if (newEle != null) {
@@ -81,7 +83,7 @@ export class ListParser {
 
     // every element of the current list should have been parsed
     if (idx < nbItems) {
-      ctx.syntaxError(current, `Error : too more elements in the list`)
+      ctx.syntaxError(current, `Error : too much elements in the list`)
       return null
     }
 

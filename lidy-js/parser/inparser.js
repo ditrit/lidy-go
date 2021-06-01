@@ -1,21 +1,22 @@
-import { isMap, isScalar, isSeq  } from 'yaml'
+import { isScalar } from 'yaml'
 import { ScalarParser } from '../parser/scalarparser.js'
+import { isScalarType } from './utils.js'
 
 export class InParser {
 
   static parse(ctx, rule, current) {
     // check grammar for the rule
-    if (!(isMap(rule) && rule.items.length == 1)) {
-      ctx.grammarError(current, `Error: oneof rule must have one and only one key name '_in'`)
+    if (typeof(rule) != 'object' || !rule._in) {
+      ctx.grammarError(current, `Error:  can not parse _in rule'`)
     }
 
-    let ruleValue = rule.get('_in', true)
-    if (! isSeq(ruleValue)) {
+    let ruleValue = rule._in
+    if (! (ruleValue instanceof Array) ) {
       ctx.grammarError(current, `Error: _in rules expects a sequence of alternatives`)
       return null
     }
-    for (let ele of ruleValue.items) {
-      if (!isScalar(ele)) {
+    for (let ele of ruleValue) {
+      if (!isScalarType(ele)) {
         ctx.grammarError(current, `Error: _in rules expects each alternative to be a scalar`)
         return null
       }
@@ -26,7 +27,6 @@ export class InParser {
     }
 
     let parsedCurrent = ScalarParser.parse_any(ctx, current)
-    let parsedInItems = ruleValue.items.map( (ele) => ScalarParser.parse_any(ctx, ele))
 
     if (parsedCurrent) {
       // errors for non matching alternatives will be ignored in case of success
@@ -34,9 +34,11 @@ export class InParser {
       let tmpWarnings = [].concat(ctx.warnings)
       // find the first alternative that can be parsed
       let nbErrors = ctx.errors.length
-      for(let alternative of parsedInItems) {
+      let currentValue = parsedCurrent.value
+
+      for(let alternative of ruleValue) {
         if (alternative) {
-          let res = (alternative.equals(parsedCurrent)) ? parsedCurrent : null
+          let res = (alternative == currentValue) ? parsedCurrent : null
           if (res != null) {
             ctx.errors = tmpErrors
             ctx.warnings = tmpWarnings

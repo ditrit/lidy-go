@@ -1,16 +1,15 @@
-import { isMap, isSeq  } from 'yaml'
 import { parse_rule } from './parse.js'
 
 export class OneOfParser {
 
   static parse(ctx, rule, current) {
     // check grammar for the rule
-    if (!(isMap(rule) && rule.items.length == 1)) {
-      ctx.grammarError(current, `Error: oneof rule must have one and only one key name '_oneof'`)
+    if (!(typeof(rule) == 'object')) {
+      ctx.grammarError(current, `Error: oneof rule can not be parsed'`)
     }
 
-    let ruleValue = rule.get('_oneOf', true)
-    if (! isSeq(ruleValue)) {
+    let ruleValue = rule._oneOf
+    if (! (ruleValue instanceof Array)) {
       ctx.grammarError(current, `Error: _oneof rules expects a sequence of alternatives`)
     } else {
       // errors for non matching alternatives will be ignored in case of success
@@ -19,7 +18,7 @@ export class OneOfParser {
 
       // find the first alternative that can be parsed
       let nbErrors = ctx.errors.length
-      for(let alternative of ruleValue.items) {
+      for(let alternative of ruleValue) {
         let res = parse_rule(ctx, null, alternative, current) 
         if (nbErrors == ctx.errors.length) {
           ctx.errors = tmpErrors

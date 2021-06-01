@@ -12,19 +12,17 @@ export class RegexParser {
     }
 
     // rule syntax is ok ('_regex' is the only one keyword)
-    let ruleValue = rule.get('_regex', true)
-    if (ruleValue == null || rule.items.length != 1) {
-      ctx.grammarError(`Error : regep rule must have only one key named '_regex'`)
+    let ruleValue = rule._regex
+    if (ruleValue == null) {
+      ctx.grammarError(`Error : regep rule must have a value for key '_regex'`)
       return null
     }
 
     // regex pattern is ok (can be parsed as javascript regexp)
     let regex = null
-    if (isScalar(ruleValue)) {
-      try {
-        regex = new RegExp(ruleValue.value)
-      } catch (error) {}
-    }
+    try {
+      regex = new RegExp(ruleValue.value)
+    } catch (error) {}
     if (regex == null) {
       ctx.grammarError(current, `Error: value '${regex}' is not a valid regular expression`)
       return null
