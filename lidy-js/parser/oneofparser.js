@@ -5,12 +5,12 @@ export class OneOfParser {
   static parse(ctx, rule, current) {
     // check grammar for the rule
     if (!(typeof(rule) == 'object')) {
-      ctx.grammarError(current, `Error: oneof rule can not be parsed'`)
+      ctx.grammarError(`Error: oneof rule can not be parsed'`)
     }
 
     let ruleValue = rule._oneOf
     if (! (ruleValue instanceof Array)) {
-      ctx.grammarError(current, `Error: _oneof rules expects a sequence of alternatives`)
+      ctx.grammarError(`Error: _oneof rules expects a sequence of alternatives`)
     } else {
       // errors for non matching alternatives will be ignored in case of success
       let tmpErrors = [].concat(ctx.errors)

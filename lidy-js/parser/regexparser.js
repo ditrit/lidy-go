@@ -1,5 +1,4 @@
 import { StringNode } from "../nodes/scalars/stringnode.js"
-import { isScalar  } from 'yaml'
 
 
 export class RegexParser {
@@ -21,10 +20,10 @@ export class RegexParser {
     // regex pattern is ok (can be parsed as javascript regexp)
     let regex = null
     try {
-      regex = new RegExp(ruleValue.value)
+      regex = new RegExp(ruleValue)
     } catch (error) {}
     if (regex == null) {
-      ctx.grammarError(current, `Error: value '${regex}' is not a valid regular expression`)
+      ctx.grammarError(`Error: value '${regex}' is not a valid regular expression`)
       return null
     }
 

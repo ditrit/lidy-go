@@ -32,7 +32,7 @@ export class MapParser {
     if ((mapNode != null && !typeof(mapNode) == 'object') || 
         ((mapOfNode != null) && !(typeof(mapOfNode) == 'object')) || 
         ((mapFacultativeNode != null) && !(typeof(mapFacultativeNode) == 'object'))) {
-      ctx.grammarError(current, `Error : error in map value definition`)
+      ctx.grammarError(`Error : error in map value definition`)
       return null
     }
 
@@ -46,7 +46,7 @@ export class MapParser {
       for (let key in mapNode) { 
         // only maps with string entries are allowed
         if (!(typeof(key) == 'string')) {
-          ctx.grammarError(current, `Error : error in map definition`)
+          ctx.grammarError(`Error : error in map definition`)
           return null
         }
         if (! current.has(key)) {

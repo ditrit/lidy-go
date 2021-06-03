@@ -26,7 +26,7 @@ export class ListParser {
     // values for keywords are lists if not null
     if ((listNode != null && !(listNode instanceof Array)) || 
         (listFacultativeNode != null && !(listFacultativeNode instanceof Array))) {
-      ctx.grammarError(current, `Error : error in list value definition`)
+      ctx.grammarError(`Error : error in list value definition`)
       return null
     }
   

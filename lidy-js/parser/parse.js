@@ -35,7 +35,7 @@ export function parse_rule(ctx, rule_name, rule, current) {
       return InParser.parse(ctx, rule, current)
     }
   }
-  ctx.grammarError(current, `Error : grammar error : no valid keyword found`)
+  ctx.grammarError(`Error : grammar error : no valid keyword found`)
   return null
 
 }
@@ -45,7 +45,7 @@ export function parse_rule_name(ctx, rule_name, current) {
   // 'rule_name' is the name of the grammar rule to be used
   let rule = ctx.rules[rule_name]
   if (rule === undefined) { 
-    ctx.grammarError(ctx.src, `no rule named ${rule_name} found.`)
+    ctx.grammarError(`no rule named ${rule_name} found.`)
   } else {
     return parse_rule(ctx, rule_name, rule, current)
   }
@@ -117,7 +117,6 @@ export function parse(input) {
   let ctx = new Ctx() // initialise context
 
   parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
-  console.log(ctx.rules)
   parse_src(ctx, input.src_data)                // yaml parsing of the source code 
   return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
 

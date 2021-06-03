@@ -10,7 +10,7 @@ export class MergeParser {
       if (typeof(rule) == 'string' && ctx.rules[rule]) {
         return MergeParser.parse(ctx, ctx.rules[rule])
       } else {
-        ctx.grammarError(rule, `Error : No rule found named '${rule}'`)
+        ctx.grammarError(`Error : Provided rule name is not a string'`)
         return null
       }
     }
@@ -45,21 +45,22 @@ export class MergeParser {
         return rule
       }
 
+      let mergeValue = rule._merge
       // if rule is a _merge
-      if (rule._merge) {
-        if (!rule._merge instanceof Array) {
-          ctx.grammarError(rule, `Error : _merge value have to be a map`)
+      if (mergeValue) {
+        if (!(mergeValue instanceof Array)) {
+          ctx.grammarError(`Error : _merge value have to be a map`)
           return null
         }
-        let newMap = {}
-        let n = 0
-        [ '_map', '_mapFacultative', '_mapOf', '_nb', '_min','_max'].forEach(
-          (key) => { if (rule[key]) { newMap[key] = rule[key], n++ } })
-        let rule = { _merge: rule._merge }
-        if (n> 0) {
+
+        // embed external map as one of ele of merge
+        const {_merge, ...newMap} = rule
+        rule = { _merge: rule._merge }
+        if (Object.keys(newMap).length) {
           rule._merge.push(newMap)
         }
 
+        let idx
         // 1. recusively apply flat_merge on each ele
         rule._merge = rule._merge.map(mergeEle => MergeParser.parse(ctx, mergeEle))
         // 2. reduce nested merges
@@ -75,14 +76,14 @@ export class MergeParser {
         // 3. transform merge(oneOf) into oneOf(merge)
         let rootOneOf = {_oneOf:[]}
         do {
-          rule = [].concat(rule)
+          rule = {_merge: [].concat(rule._merge) }
           idx = rule._merge.findIndex((one) => one._oneOf)
           if (idx >= 0) {
-            let oneOfItems = one._oneOf
+            let oneOfItems = rule._merge[idx]._oneOf
             rule = {_merge: [].concat(rule._merge)}
             rule._merge.splice(idx,1)
             oneOfItems.forEach(ele => {
-              let newMergeNode = {_merge: [ele].concat(mergeNodeValue.items) }
+              let newMergeNode = {_merge: [ele].concat(rule._merge) }
               rootOneOf._oneOf.push(newMergeNode)
             })
           }
@@ -95,20 +96,32 @@ export class MergeParser {
         // 4. DO merge !
         //    Should be a simple flat map
         if (rule._merge.some(ele => ele._merge || ele._oneOf)) {
-          ctx.grammarError(rule, `Error : merge has not been processed successfully. This error should not occur.`)
+          ctx.grammarError(`Error : merge has not been processed successfully. This error should not occur.`)
         }
         let mapValue = {}
         let mapFacultativeValue = {}
         let mapOfValue = null
-        let nb = min = max = -1
+        let nb=-1, min=-1, max = -1
         rule._merge.forEach(item => {
-          if (item._map) { mapValue = mapValue.concat(item._map) } 
-          if (item._mapFacultative) { mapFacultativeValue = mapFacultativeValue.concat(item._mapFacultative) }
+          if (item._map) { 
+            mapValue = { ...mapValue }
+            for (let key in item._map) {
+              if (mapValue.key) {ctx.grammarError(`Error : can not merge two maps with some identical keys`)}
+              mapValue[key] = item._map[key]
+            } 
+          } 
+          if (item._mapFacultative) { 
+            mapFacultativeValue = { ...mapFacultativeValue }
+            for (let key in item._mapFacultative) {
+              if (mapFacultativeValue.key) {ctx.grammarError(`Error : can not merge two maps with some identical keys`)}
+              mapFacultativeValue[key] = item._mapFacultative[key]
+            }
+          }
           if (item._mapOf) { 
             if (mapOfValue == null) { 
               mapOfValue = item._mapOf 
             } else { 
-              ctx.grammarError(rule, `Error : only one '_mapOf' is allowed in a '_merge' clause`); return null 
+              ctx.grammarError(`Error : only one '_mapOf' is allowed in a '_merge' clause`); return null 
             }  
           } 
           if (item._nb) { if (nb < 0 || nb == item._nb) { nb = item._nb } else { ctx.grammarError(`Contradictory sizing in merge clause`) }}
@@ -119,15 +132,16 @@ export class MergeParser {
         if (nb >= 0) result._nb = nb
         if (min >= 0) result._min = min
         if (max >= 0) result._max = max
-        if (Object.entries(mapValue).length > 0) result._map = mapValue
-        if (Object.entries(mapFacultativeValue).length > 0) result._mapFacultative = mapFacultativeValue
+        if (Object.keys(mapValue).length > 0) result._map = mapValue
+        if (Object.keys(mapFacultativeValue)
+        .length > 0) result._mapFacultative = mapFacultativeValue
         if (mapOfValue != null) result._mapOf = mapOfValue
 
         return result
       }
 
       // This point should not be reached
-      ctx.grammarError(rule, `Error : malformed expression into a '_merge'`)
+      ctx.grammarError(`Error : malformed expression into a '_merge'`)
       return null
     }
   }

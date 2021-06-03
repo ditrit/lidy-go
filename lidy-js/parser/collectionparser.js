@@ -18,7 +18,7 @@ export class CollectionParser {
                 ctx.syntaxError(current, `Error : a map is expected`)
             }
         } else {
-            ctx.grammarError(current, `Error: the map checker '${op}' does not have a positive integer as value`)
+            ctx.grammarError(`Error: the map checker '${op}' does not have a positive integer as value`)
         }
         return false
     }
