@@ -87,7 +87,7 @@ export class MapParser {
               return null
             }
           } else {
-            ctx.syntaxError(value, `Error : '${key}' is not a valid key`)
+            ctx.syntaxError(value, `Error : '${key}' is not a valid key (in rule : ${JSON.stringify(rule)})` )
             return null
           }
         }
