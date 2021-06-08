@@ -1,125 +1,147 @@
-import { isMap, isScalar  } from 'yaml'
+import { isScalarType } from './utils.js'
 
 export class MergeParser {
 
   static parse(ctx, rule) {
 
     // If rule is a scalar
-    if (isScalar(rule)) {
+    if (isScalarType(rule)) {
       // In case it is a rule_name, return flat_merge on the rule body
-      if (typeof(rule.value) == 'string' && ctx.rules.has(rule.value)) {
-        return MergeParser.parse(ctx, ctx.rules.get(rule.value, true))
+      if (typeof(rule) == 'string' && ctx.rules[rule]) {
+        return MergeParser.parse(ctx, ctx.rules[rule])
       } else {
-        ctx.grammarError(rule, `Error : No rule found named '${rule.value}'`)
+        ctx.grammarError(`Error : Provided rule name is not a string'`)
         return null
       }
     }
 
     // If rule is a map
-    if (isMap(rule)) {
+    if (typeof(rule) == 'object') {
 
       // If rule is simple map (no _merge and no _oneOf inside) : nothing to do
-      if (!rule.has('_merge') && !rule.has('_oneOf')) {
+      if (!rule._merge && !rule._oneOf) {
         return rule
       }      
 
       // If rule is an alternative (_oneOf)
-      if (rule.has('_oneOf')) {
-        let oneOfNodeValue = rule.get('_oneOf', true) 
+      if (rule._oneOf) {
+        if (!rule._oneOf instanceof Array) {
+          ctx.grammarError(`Error : _oneof value have to be a list`)
+        }
         // 1. recusively apply flat_merge on each alternative
-        oneOfNodeValue.items = oneOfNodeValue.items.map(one => MergeParser.parse(ctx, one))
+        rule._oneOf = rule._oneOf.map(one => MergeParser.parse(ctx, one))
         // 2. reduce nested alternatives
         let idx
         do {
-          idx = oneOfNodeValue.items.findIndex((one) => one.has( '_oneOf'))
+          idx = rule._oneOf.findIndex((one) => one._oneOf)
           if (idx >= 0) {
-            let subItems = oneOfNodeValue.items[idx].items
-            oneOfNodeValue.items.splice(idx,1)
-            oneOfNodeValue.items = oneOfNodeValue.items.concat(subItems)
+            let subItems = rule._oneOf[idx]._oneOf
+            rule = {_oneOf: [].concat(rule._oneOf)}
+            rule._oneOf.splice(idx,1)
+            rule._oneOf = rule._oneOf.concat(subItems)
           }
         } while (idx >= 0)
 
         return rule
       }
 
+      let mergeValue = rule._merge
       // if rule is a _merge
-      if (rule.has('_merge')) {
-
-        let mergeNodeValue = rule.get('_merge', true)
-        let idx
-        // insert current map (_map, _mapFacultative and _mapOf) as one map of _merge
-        if (rule.has('_map') || rule.has('_mapFacultative') || rule.has('_oneOf')) {
-          let new_ele = ctx.dsl_doc.createNode({})
-          for (idx = 0; idx < rule.items.length; idx++) {
-            let ele = rule.items[idx]
-            if (ele.key.value != '_merge') { 
-              new_ele.items.push(ele)
-              rule.items.splice(idx,1)
-            }
-          }
-          mergeNodeValue.items.push(new_ele)
+      if (mergeValue) {
+        if (!(mergeValue instanceof Array)) {
+          ctx.grammarError(`Error : _merge value have to be a map`)
+          return null
         }
 
+        // embed external map as one of ele of merge
+        const {_merge, ...newMap} = rule
+        rule = { _merge: rule._merge }
+        if (Object.keys(newMap).length) {
+          rule._merge.push(newMap)
+        }
+
+        let idx
         // 1. recusively apply flat_merge on each ele
-        mergeNodeValue.items = mergeNodeValue.items.map(mergeEle => MergeParser.parse(ctx, mergeEle))
+        rule._merge = rule._merge.map(mergeEle => MergeParser.parse(ctx, mergeEle))
         // 2. reduce nested merges
         do {
-          idx = mergeNodeValue.items.findIndex((one) => one.has( '_merge'))
+          idx = rule._merge.findIndex((one) => one._merge)
           if (idx >= 0) {
-            let subItems = mergeNodeValue.items[idx].items
-            mergeNodeValue.items.splice(idx,1)
-            mergeNodeValue.items = mergeNodeValue.items.concat(subItems)
+            let subItems = rule.one._merge
+            rule = {_merge: [].concat(rule._merge)}
+            rule._merge.splice(idx,1)
+            rule._merge = rule._merge.concat(subItems)
           }
         } while (idx >= 0)
         // 3. transform merge(oneOf) into oneOf(merge)
-        let rootOneOf = ctx.dsl_doc.createNode({_oneOf:[]})
-        let rootOneOfValue = rootOneOf.items[0].value
+        let rootOneOf = {_oneOf:[]}
         do {
-          idx = mergeNodeValue.items.findIndex((one) => one.has('_oneOf'))
+          rule = {_merge: [].concat(rule._merge) }
+          idx = rule._merge.findIndex((one) => one._oneOf)
           if (idx >= 0) {
-            let oneOfItems = mergeNodeValue.items[idx].items[0].value.items
-            mergeNodeValue.items.splice(idx,1)
+            let oneOfItems = rule._merge[idx]._oneOf
+            rule = {_merge: [].concat(rule._merge)}
+            rule._merge.splice(idx,1)
             oneOfItems.forEach(ele => {
-              let newMergeNode = ctx.dsl_doc.createNode({_merge:[]})
-              let newMergeNodeValue = newMergeNode.items[0].value
-              newMergeNodeValue.items = [ele].concat(mergeNodeValue.items)
-              rootOneOfValue.items.push(newMergeNode)
+              let newMergeNode = {_merge: [ele].concat(rule._merge) }
+              rootOneOf._oneOf.push(newMergeNode)
             })
           }
         } while (idx >=0)
 
-        if (rootOneOfValue.items.length >= 1) {
+        if (rootOneOf._oneOf.length >= 1) {
           return MergeParser.parse(ctx, rootOneOf)
         }
 
         // 4. DO merge !
         //    Should be a simple flat map
-        if (mergeNodeValue.items.some(ele => !isMap(ele) || ele.has('_merge') || ele.has('_oneOf'))) {
-          ctx.grammarError(rule, `Error : merge has not been processed successfully. This error should not occur.`)
+        if (rule._merge.some(ele => ele._merge || ele._oneOf)) {
+          ctx.grammarError(`Error : merge has not been processed successfully. This error should not occur.`)
         }
-        let mapNode = ctx.dsl_doc.createNode({_map: {}, _mapFacultative: {}, _mapOf: {}})
-        let mapValue = mapNode.get('_map')
-        let mapFacultativeValue = mapNode.get('_mapFacultative')
-        let mapOfValue = mapNode.get('_mapOf')
-        mergeNodeValue.items.forEach(item => {
-          let itemNode = item.get('_map', true)
-          if (itemNode) { mapValue.items = mapValue.items.concat(itemNode.items) } 
-          itemNode = item.get('_mapFacultative', true)
-          if (itemNode) { mapFacultativeValue.items = mapFacultativeValue.items.concat(itemNode.items) }
-          itemNode = item.get('_mapOf', true) 
-          if (itemNode) { 
-            if (mapOfValue.items.length == 0) { 
-              mapOfValue.items = itemNode.items 
+        let mapValue = {}
+        let mapFacultativeValue = {}
+        let mapOfValue = null
+        let nb=-1, min=-1, max = -1
+        rule._merge.forEach(item => {
+          if (item._map) { 
+            mapValue = { ...mapValue }
+            for (let key in item._map) {
+              if (mapValue.key) {ctx.grammarError(`Error : can not merge two maps with some identical keys`)}
+              mapValue[key] = item._map[key]
+            } 
+          } 
+          if (item._mapFacultative) { 
+            mapFacultativeValue = { ...mapFacultativeValue }
+            for (let key in item._mapFacultative) {
+              if (mapFacultativeValue.key) {ctx.grammarError(`Error : can not merge two maps with some identical keys`)}
+              mapFacultativeValue[key] = item._mapFacultative[key]
+            }
+          }
+          if (item._mapOf) { 
+            if (mapOfValue == null) { 
+              mapOfValue = item._mapOf 
             } else { 
-              ctx.grammarError(rule, `Error : only one '_mapOf' is allowed in a '_merge' clause`); return null 
+              ctx.grammarError(`Error : only one '_mapOf' is allowed in a '_merge' clause`); return null 
             }  
           } 
+          if (item._nb) { if (nb < 0 || nb == item._nb) { nb = item._nb } else { ctx.grammarError(`Contradictory sizing in merge clause`) }}
+          if (item._min) { min = Math.max(item._min, min) }
+          if (item._max) { nax = (nb>0) ? Math.min(item._max, max) : item._max }
         })
-        return mapNode
+        let result = {}
+        if (nb >= 0) result._nb = nb
+        if (min >= 0) result._min = min
+        if (max >= 0) result._max = max
+        if (Object.keys(mapValue).length > 0) result._map = mapValue
+        if (Object.keys(mapFacultativeValue)
+        .length > 0) result._mapFacultative = mapFacultativeValue
+        if (mapOfValue != null) result._mapOf = mapOfValue
+
+        return result
       }
 
       // This point should not be reached
-      ctx.grammarError(rule, `Error : malformed expression into a '_merge'`)
+      ctx.grammarError(`Error : malformed expression into a '_merge'`)
       return null
     }
   }

@@ -39,13 +39,13 @@ export class Ctx {
         return e
     }
 
-    grammarError(current, message) {
-        let e = new LidyError('GRAMMAR_ERROR', (current.range) ? current.range[0] : 0, `GrammarError : ${message}`)
+    grammarError(message) {
+        let e = new LidyError('GRAMMAR_ERROR', 0, `GrammarError : ${message}`)
         this.errors.push(e)
     }
     
-    grammarWarning(current, message) {
-        let e = new LidyError('GRAMMAR_WARNING', (current.range) ? current.range[0] : 0, `GrammarWarning : ${message}`)
+    grammarWarning(message) {
+        let e = new LidyError('GRAMMAR_WARNING', 0, `GrammarWarning : ${message}`)
         this.warnings.push(e)
         return e
     }

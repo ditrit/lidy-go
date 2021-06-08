@@ -7,48 +7,45 @@ import { InParser } from './inparser.js'
 import { RegexParser } from './regexparser.js'
 import { MapParser } from './mapparser.js'
 import { ListParser } from './listparser.js'
-import { parseDocument, isMap, isScalar, LineCounter } from 'yaml'
+import { parse as yaml_parse, parseDocument, isMap, LineCounter } from 'yaml'
 import { RuleParser } from './ruleparser.js'
+import { isScalarType} from './utils.js'
 
 export function parse_rule(ctx, rule_name, rule, current) {
   if (rule_name) { 
     return RuleParser.parse(ctx, rule_name, rule, current)
   }
-  if ( isScalar(rule) ) {
-    if (rule.value == null) {
-      rule.value = "null"
-    }
-    return ScalarParser.parse(ctx, rule.value, current)
+  if ( isScalarType(rule) ) {
+    return ScalarParser.parse(ctx, rule, current)
   } 
-  if ( isMap(rule) ) {
-    if (rule.has('_map') || rule.has('_mapOf') || rule.has('_mapFacultative') || rule.has('_merge')) {
+  if ( typeof(rule) == 'object' ) {
+    if (rule._map || rule._mapOf || rule._mapFacultative || rule._merge) {
       return MapParser.parse(ctx, rule, current)
     }
-    if (rule.has('_list') || rule.has('_listOf') || rule.has('_listFacultative')) {
+    if (rule._list || rule._listOf || rule._listFacultative) {
       return ListParser.parse(ctx, rule, current)
     }
-    if (rule.has('_oneOf')) {
+    if (rule._oneOf) {
       return OneOfParser.parse(ctx, rule, current) 
     }
-    if (rule.has('_regex')) {
+    if (rule._regex) {
       return RegexParser.parse(ctx, rule, current)
     }
-    if (rule.has('_in')) {
+    if (rule._in) {
       return InParser.parse(ctx, rule, current)
     }
   }
-  ctx.grammarError(current, `Error : grammar error : no valid keyword found`)
+  ctx.grammarError(`Error : grammar error : no valid keyword found`)
   return null
 
-  // TODO : _in , _merge
 }
 
 export function parse_rule_name(ctx, rule_name, current) {
   // 'ctx' is the context of Lidy
   // 'rule_name' is the name of the grammar rule to be used
-  let rule = ctx.rules.get(rule_name, true)
+  let rule = ctx.rules[rule_name]
   if (rule === undefined) { 
-    ctx.grammarError(ctx.src, `no rule named ${rule_name} found.`)
+    ctx.grammarError(`no rule named ${rule_name} found.`)
   } else {
     return parse_rule(ctx, rule_name, rule, current)
   }
@@ -71,13 +68,16 @@ function parse_dsl(ctx, dsl_data, top_rule) {
   // 'ctx' is the context of Lidy
   // 'dsl_data' is the textual contents of the grammar (lidy rules in YAML format) 
   // 'top_rules is the label of top level rule to be used as entry point by Lidy 
-  let dsl_doc = parseDocument(dsl_data)
-  if ( ! dsl_doc ) throw Error("ERROR : can not parse dsl ")
-  if (dsl_doc.errors.length > 0 || dsl_doc.warnings.lentgh > 0) throw Error("ERROR : errors parsing dsl")
-  if (!isMap(dsl_doc.contents)) throw Error("ERROR : no grammar rules found")
-  ctx.dsl_doc = dsl_doc
-  ctx.rules = dsl_doc.contents
-  if (! ctx.rules.has(top_rule)) throw Error("ERROR : no rule labeled '" + top_rule + "' in the grammar")
+  try {
+    ctx.rules = yaml_parse(dsl_data)
+  } catch (error) {
+    ctx.errors.push(error)
+    throw ctx.grammarError("ERROR : can not parse dsl ")
+  }
+  if (!typeof(ctx.rules) == 'object') {
+    throw ctx.grammarError("ERROR : can not parse dsl ")
+  }
+  if (! ctx.rules[top_rule]) throw Error("ERROR : no rule labeled '" + top_rule + "' in the grammar")
 }
 
 // First step of parsing for the source code : only YAML pasing

@@ -19,7 +19,6 @@ export class NullNode extends ScalarNode {
     } catch (error) {
       return null
     }
-
   }
 
 }
