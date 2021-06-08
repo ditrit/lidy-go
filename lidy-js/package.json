@@ -1,0 +1,23 @@
+{
+  "type": "module",
+  "name": "lidy",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Xavier Talon",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "glob": "^7.1.6",
+    "jasmine": "^3.7.0",
+    "yaml": "^2.0.0-5"
+  },
+  "description": "js lidy version",
+  "keywords": [
+    "yaml",
+    "lidy",
+    "javascript",
+    "parser"
+  ]
+}

@@ -1,0 +1,12 @@
+property_mapping: 
+  _mapFacultative: 
+    value:
+      _oneOf: [string, { _listOf: string, _max: 3 }]
+    mapping: 
+      _oneOf: [string, boolean]
+
+#  _mapFacultative:
+#    mapping:
+#      _oneOf: [string, boolean ] //{ _max: 3, _listOf: string }]
+#    value:
+#      _oneOf: [string, boolean]
