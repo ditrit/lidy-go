@@ -10,11 +10,22 @@
 <h3 align="center">The YAML-YAML type-oriented schema validation tool</h3>
 <hr>
 
-Lidy is:
-
+Lidy is : 
+- A language parser dedicated for DSLs (Domain Specific Languages) encoded in YAML.
 - The Lidy schema-type language, a YAML language to specify how to check YAML files
 - An engine to run the Lidy schema on YAML files
 - A rich deserialisation tool (if you want it to)
+
+Currently, two versions have been developped :
+- A javascript version **lidy-js**
+- A golang version **lidy-go**
+
+Each version is available in its own directory at the root of the repository.
+Both versions fullly implement and respect the specification described in the documentation.
+
+However, currently the way to use the parser differs between the two versions:
+- lidy-go uses the concept of builder (see specific documentation)
+- lidy-js uses a similar interface (and in particular the principle of listeners) to that offered by the [antlr](https://www.antlr.org/) tool.
 
 ## Content
 
@@ -55,6 +66,7 @@ What's the point of Lidy, when there's already JSON schema?
 - **Algebriac data types**: Lidy schema are similar to Algebriac data types. They have union types (`_oneOf`), positional product types (`_list`), named product types (`_map`), and combined types (`_merge`). (N.B. parameterized types aren't yet there, but they are on our short list).
 - **Rich deserialisation**: Lidy provides support for rich deserialisation. It is a core use-case. This includes access to the source line numbers.
 - **Custom checkers**: Writing a custom value checker is also a core use-case. Actually, it's just as easy as writing a type deserialiser since Lidy handles the two through the same interface.
+- **Language Recognition**: Lidy is a lexical and grammar parser that can build and walk parse trees. It is completely equivalent to a tool like **antlr** for DSLs encoded in YAML.  The point is **antlr** does not allow to manage languages built on top of YAML.
 
 ### About lidy's refs
 
