@@ -9,10 +9,10 @@ describe("Regular expressions ->", function() {
         it("accept email 2",
             function() { expect( parse({src_data: "a@o.de", dsl_data: 'main: { _regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$" }'}).result().value).toEqual("a@o.de")})
 
-        it("reject email 1",
+        it("reject email 3",
             function() { expect( parse({src_data: ".a.b@0.com.de", dsl_data: 'main: { _regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$" }'}).fails()).toEqual(true)})
 
-        it("reject email 2",
+        it("reject email 4",
             function() { expect( parse({src_data: "a@de", dsl_data: 'main: { _regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$" }'}).fails()).toEqual(true)})
     })
 

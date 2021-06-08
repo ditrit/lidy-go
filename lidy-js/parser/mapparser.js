@@ -1,10 +1,10 @@
 import { MapNode } from "../nodes/collections/mapnode.js"
 import { ScalarParser } from "./scalarparser.js"
 import { parse_rule } from './parse.js'
-import { isPair, isMap, isScalar  } from 'yaml'
 import { StringNode } from "../nodes/scalars/stringnode.js"
 import { OneOfParser } from "./oneofparser.js"
 import { MergeParser } from "./mergeparser.js"
+import { CollectionParser } from "./collectionparser.js"
 
 
 export class MapParser {
@@ -17,51 +17,52 @@ export class MapParser {
     }
 
     // get values for map _merge keywords 
-    if (rule.has('_merge')) {
+    if (rule._merge) {
       rule = MergeParser.parse(ctx, rule)
-      if (rule.has('_oneOf')) { 
+      if (rule._oneOf) { 
         return OneOfParser.parse(ctx, rule, current)
       }
     }
 
-    let mapNode = rule.get('_map', true)
-    let mapOfNode = rule.get('_mapOf', true)
-    let mapFacultativeNode = rule.get('_mapFacultative', true)
+    let mapNode = rule._map
+    let mapOfNode = rule._mapOf
+    let mapFacultativeNode = rule._mapFacultative
   
     // values for keywords are well formed
-    if ((mapNode != null && !isMap(mapNode)) || 
-        ((mapOfNode != null && !(isMap(mapOfNode) && mapOfNode.items.length <= 1))) || 
-        (mapFacultativeNode != null && !isMap(mapFacultativeNode))) {
-      ctx.grammarError(current, `Error : error in map value definition`)
+    if ((mapNode != null && !typeof(mapNode) == 'object') || 
+        ((mapOfNode != null) && !(typeof(mapOfNode) == 'object')) || 
+        ((mapFacultativeNode != null) && !(typeof(mapFacultativeNode) == 'object'))) {
+      ctx.grammarError(`Error : error in map value definition`)
       return null
     }
 
     // quantity checkers are verified
-    if (!MapNode.collectionCheckers(ctx, rule, current)) {
+    if (!CollectionParser.sizeCheckers(ctx, rule, current)) {
       return null
     }
 
     // every mandatory key (defined for the '_map' keyword) exists
     if (mapNode != null) {
-      for (let pair of mapNode.items) { 
+      for (let key in mapNode) { 
         // only maps with string entries are allowed
-        if (!((isPair(pair) && isScalar(pair.key) && (typeof(pair.key.value) == 'string')))) {
-          ctx.grammarError(current, `Error : error in map definition`)
+        if (!(typeof(key) == 'string')) {
+          ctx.grammarError(`Error : error in map definition`)
           return null
         }
-        if (! current.has(pair.key.value)) {
-          ctx.syntaxError(current, `Error : key '${pair.key.value}' not found in current value`)
+        if (! current.has(key)) {
+          ctx.syntaxError(current, `Error : key '${key}' not found in current value`) 
           return null
         }
       }
     }
   
     // pair definition for _mapOf 
-    let mapOfKey = null
-    let mapOfValue = null
-    if (mapOfNode && mapOfNode.items.length == 1) {
-      mapOfKey = mapOfNode.items[0].key
-      mapOfValue = mapOfNode.items[0].value
+    let mapOfKey, mapOfValue = null
+    if (mapOfNode) {
+      let mapOfEntries = Object.entries(mapOfNode)
+      if (mapOfEntries.length == 1) {
+        [[mapOfKey, mapOfValue]] = mapOfEntries
+      }
     }
 
     let parsedMap = {}
@@ -72,21 +73,21 @@ export class MapParser {
       let value = pair.value
       let parsedValue = null
 
-      if (mapNode && mapNode.has(key)) {
-        parsedValue = parse_rule(ctx, null, mapNode.get(key, true), value)
+      if (mapNode && mapNode[key]) {
+        parsedValue = parse_rule(ctx, null, mapNode[key], value)
       } else {
-        if (mapFacultativeNode && mapFacultativeNode.has(key)) {
-          parsedValue = parse_rule(ctx, null, mapFacultativeNode.get(key, true), value)
+        if (mapFacultativeNode && mapFacultativeNode[key]) {
+          parsedValue = parse_rule(ctx, null, mapFacultativeNode[key], value)
         } else {
           if (mapOfKey && mapOfValue) {
             let parsedKey = parse_rule(ctx, null, mapOfKey, pair.key)
             parsedValue = parse_rule(ctx, null, mapOfValue, value)
             if (parsedKey.value != key) {
-              ctx.syntaxError(key, `Error : '${key}' does not match expected '${mapOfNode.key}' type`)
+              ctx.syntaxError(key, `Error : '${key}' does not match expected '${mapOfKey}' type`)
               return null
             }
           } else {
-            ctx.syntaxError(value, `Error : '${key}' is not a valid key`)
+            ctx.syntaxError(value, `Error : '${key}' is not a valid key (in rule : ${JSON.stringify(rule)})` )
             return null
           }
         }
