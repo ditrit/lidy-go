@@ -4,24 +4,8 @@ export class MergeParser {
 
   static parse(ctx, rule) {
 
-    // If rule is a scalar
-    if (isScalarType(rule)) {
-      // In case it is a rule_name, return flat_merge on the rule body
-      if (typeof(rule) == 'string' && ctx.rules[rule]) {
-        return MergeParser.parse(ctx, ctx.rules[rule])
-      } else {
-        ctx.grammarError(`Error : Provided rule name is not a string'`)
-        return null
-      }
-    }
-
     // If rule is a map
     if (typeof(rule) == 'object') {
-
-      // If rule is simple map (no _merge and no _oneOf inside) : nothing to do
-      if (!rule._merge && !rule._oneOf) {
-        return rule
-      }      
 
       // If rule is an alternative (_oneOf)
       if (rule._oneOf) {
@@ -45,10 +29,9 @@ export class MergeParser {
         return rule
       }
 
-      let mergeValue = rule._merge
       // if rule is a _merge
-      if (mergeValue) {
-        if (!(mergeValue instanceof Array)) {
+      if (rule._merge) {
+        if (!(rule._merge instanceof Array)) {
           ctx.grammarError(`Error : _merge value have to be a map`)
           return null
         }
@@ -59,6 +42,9 @@ export class MergeParser {
         if (Object.keys(newMap).length) {
           rule._merge.push(newMap)
         }
+
+        // if rule_name in _merge eles, substitute it
+        rule._merge = rule._merge.map(ele => (isScalarType(ele) && ctx.rules[ele]) ? ctx.rules[ele] : ele )
 
         let idx
         // 1. recusively apply flat_merge on each ele
@@ -140,10 +126,49 @@ export class MergeParser {
         return result
       }
 
-      // This point should not be reached
-      ctx.grammarError(`Error : malformed expression into a '_merge'`)
-      return null
+      if (rule._map) {
+        let newMap = {}
+        for (const key in rule._map) {
+          newMap[key] = MergeParser.parse(ctx, rule._map[key])
+        }
+        rule._map = newMap 
+      }
+
+      if (rule._mapFacultative) {
+        let newMap = {}
+        for (const key in rule._mapFacultative) {
+          newMap[key] = MergeParser.parse(ctx, rule._mapFacultative[key])
+        }
+        rule._mapFacultative = newMap 
+      }
+
+      if (rule._mapOf) {
+        let newMap = {}
+        for (const keyExpr in rule._mapOf) {
+          let key = MergeParser.parse(ctx, keyExpr)
+          let val = MergeParser.parse(ctx, rule._mapOf[keyExpr])
+          newMap[key] = val
+        }
+        rule._mapOf = newMap 
+      }
+
+      if (rule._list) {
+        rule._list = rule._list.map(ele => MergeParser.parse(ctx, ele))
+      }
+
+      if (rule._listFacultative) {
+        rule._listFacultative = rule._listFacultative.map(ele => MergeParser.parse(ctx, ele))
+      }
+
+      if (rule._listOf) {
+        rule._listOf = MergeParser.parse(ctx, rule._listOf)
+      }
+
     }
+    return rule
+
   }
 
 }
+
+

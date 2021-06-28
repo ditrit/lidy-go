@@ -1,4 +1,4 @@
-import { parse } from '../../parser/parse.js'
+import { parse } from '../../parser/node_parse.js'
 
 describe("Test real grammars ->", function() {
 

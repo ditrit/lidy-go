@@ -1,7 +1,5 @@
-import { parse } from './parser/parse.js'
+import { grammar_compile, parse } from './parser/node_parse.js'
 
-let res = parse({src_file: '../schemas/schema.tosca.yaml', dsl_file: '../schemas/schema.lidy.yaml'})
+let res = grammar_compile({dsl_file: "../schemas/schema.tosca.yaml"})
 //let res = parse({src_file: './tests/test.yaml', dsl_file: '../schemas/schema.lidy.yaml'})
-console.log(res)
-console.log('ERRORS :') 
-console.log(res.errors)
+console.log(JSON.stringify(res, null, 2))

@@ -1,4 +1,3 @@
-import fs   from 'fs' // only for node
 import { Ctx } from './lidyctx.js'
 import { LidyError } from './errors.js'
 import { ScalarParser } from './scalarparser.js'
@@ -7,7 +6,7 @@ import { InParser } from './inparser.js'
 import { RegexParser } from './regexparser.js'
 import { MapParser } from './mapparser.js'
 import { ListParser } from './listparser.js'
-import { parse as yaml_parse, parseDocument, isMap, LineCounter } from 'yaml'
+import { parse as parse_yaml, parseDocument, isMap, LineCounter } from 'yaml'
 import { RuleParser } from './ruleparser.js'
 import { isScalarType} from './utils.js'
 
@@ -64,12 +63,12 @@ function parse_lidy(ctx, rule_name, current) {      // dsl parsing of the source
 }
 
 // Parsing of grammar rules
-function parse_dsl(ctx, dsl_data, top_rule) {
+export function parse_dsl(ctx, dsl_data, top_rule) {
   // 'ctx' is the context of Lidy
   // 'dsl_data' is the textual contents of the grammar (lidy rules in YAML format) 
   // 'top_rules is the label of top level rule to be used as entry point by Lidy 
   try {
-    ctx.rules = yaml_parse(dsl_data)
+    ctx.rules = parse_yaml(dsl_data)
   } catch (error) {
     ctx.errors.push(error)
     throw ctx.grammarError("ERROR : can not parse dsl ")
@@ -96,29 +95,25 @@ function parse_src(ctx, src_data) {
 
 // main lidy function to parse source code using lidy grammar
 export function parse(input) { 
-  // input is an object with two attributes :
-  //  - one to provide the source code to code, 
-  //    among 'src_file' and 'src_data' depending on whether you want to indicate a file or a text.
-  //  - one to provide the lidy grammar to use,  
-  //    among 'dsl_file' and 'dsl_data' depending on whether you want to indicate a file or a text.
-  // if a both filename and data are provided, content of the file is used rather than data
-  if (input.dsl_file != null) {
-    input.dsl_data = fs.readFileSync(input.dsl_file, 'utf8')
-  } else { input.dsl_file = 'stdin' }
-  if (input.dsl_data == null) { throw Error("No dsl definition found from provided input") }
+  // input is an object with three attributes :
+  //  - one 'src_data' to provide the source code to parse,
+  //  - one 'dsl_data' to provide the lidy grammar to use,
+  //  - one 'keyword'  to define the entry point keyword in the grammar  
 
-  if (input.src_file != null) {
-    input.src_data = fs.readFileSync(input.src_file, 'utf8')
-  } else { input.src_file = 'stdin' }
-  if (input.dsl_data == null) { throw Error("No source code found from provided input") }
-
-  if (!input.keyword) input.keyword = 'main' // use 'top' rule of the grammat as entry point if none is provided
-
+  if (!input.keyword) input.keyword = 'main' // use 'top' rule of the grammar as entry point if none is provided
   let ctx = new Ctx() // initialise context
-
   parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
   parse_src(ctx, input.src_data)                // yaml parsing of the source code 
   return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
-
 }
 
+
+
+// dynamic mmodule loading
+//
+// try {
+//  return await import(modulePath)
+//} catch (e) {
+//  throw new ImportError(`Unable to import module ${modulePath}`)
+//}
+//
