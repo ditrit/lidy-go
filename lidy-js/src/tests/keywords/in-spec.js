@@ -4,7 +4,9 @@ describe("Possible values (_in) ->", function() {
 
     describe("simple alternative : ", function() {
         it("int or string",
-            function() { expect( parse({src_data: "5", dsl_data: 'main: { _in: [ 3, 5, 7 ] }'}).result().value).toEqual(5)})
+            async function() { 
+                const res = 
+                expect( (await parse({src_data: "5", dsl_data: 'main: { _in: [ 3, 5, 7 ] }'})).result().value).toEqual(5)})
 
         it("multiple type of alternatives",
             function() { expect(  parse({src_data: "45", dsl_data: "main: { _in: [ 12, abcd, true, 45 ] }"}).result().value).toEqual(45)})

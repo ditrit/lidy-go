@@ -95,25 +95,19 @@ function parse_src(ctx, src_data) {
 
 // main lidy function to parse source code using lidy grammar
 export function parse(input) { 
-  // input is an object with three attributes :
-  //  - one 'src_data' to provide the source code to parse,
-  //  - one 'dsl_data' to provide the lidy grammar to use,
-  //  - one 'keyword'  to define the entry point keyword in the grammar  
+  // input is an object with attributes :
+  //  - 'src_data' to provide the source code to parse,
+  //  - 'dsl_data' to provide the lidy grammar to use,
+  //  - 'keyword'  to define the entry point keyword in the grammar  
+  //  - 'rules'    to provide preprocessed dsl rules
 
   if (!input.keyword) input.keyword = 'main' // use 'top' rule of the grammar as entry point if none is provided
   let ctx = new Ctx() // initialise context
-  parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
+  if (!input.rules) { 
+    parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
+  } else {
+    ctx.rules = input.rules
+  }
   parse_src(ctx, input.src_data)                // yaml parsing of the source code 
   return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
 }
-
-
-
-// dynamic mmodule loading
-//
-// try {
-//  return await import(modulePath)
-//} catch (e) {
-//  throw new ImportError(`Unable to import module ${modulePath}`)
-//}
-//
