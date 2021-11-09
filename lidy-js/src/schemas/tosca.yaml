@@ -1,3 +1,4 @@
+main: service_template
 
 unbounded:
   _in: ["unbounded"]
@@ -886,3 +887,4 @@ service_template:
     group_types: group_types
     policy_types: policy_types
     topology_template: topology_template
+

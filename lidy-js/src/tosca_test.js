@@ -1,7 +1,6 @@
-import { parse } from './schemas/tosca.js'
+import { parse as parse_tosca } from './schemas/tosca.js'
 
-console.log("on commence")
-let res = parse({src_data: "tosca_definitions_version: tosca_1.2", keyword: "service_template"})
-console.log("resultat : " + res + ".")
-console.log(" res : " + res + " !")
-console.log("on a fini")
+export function parse(src) { 
+    let res = parse_tosca({src_data: src})
+    return res
+}
