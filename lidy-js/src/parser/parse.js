@@ -108,6 +108,7 @@ export function parse(input) {
   } else {
     ctx.rules = input.rules
   }
+  ctx.listener = input.listener
   parse_src(ctx, input.src_data)                // yaml parsing of the source code 
   return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
 }

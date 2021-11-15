@@ -1,0 +1,28 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+description: Template for deploying a Nextcloud server using a DB server. 
+
+
+node_types:
+  Compute: 
+    derived_from: tosca.nodes.Root
+
+
+  Software: 
+    derived_from: tosca.nodes.Root
+
+
+  DBMS: 
+    derived_from: Software
+
+  Mysql: 
+    derived_from: DBMS
+
+
+  VM: 
+    derived_from: Compute
+
+
+  Docker: 
+    derived_from: Compute
+

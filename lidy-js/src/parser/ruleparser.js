@@ -13,6 +13,7 @@ export class RuleParser {
 
     //call enter listener if it exists
     let fenter = "enter_" + rule_name
+    current.ctx = ctx
     if (ctx.listener && ctx.listener[fenter]) {
       ctx.listener[fenter](current)
     }
@@ -22,6 +23,9 @@ export class RuleParser {
     
     //call exit listener if it exists
     let fexit = "exit_" + rule_name
+    if (rule_name == 'node_template') {
+      console.log("Sortie de node_template");
+    }
     if (parsedRule && ctx.listener && ctx.listener[fexit] ) {
       ctx.listener[fexit](parsedRule)
     }
