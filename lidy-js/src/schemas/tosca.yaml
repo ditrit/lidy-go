@@ -126,10 +126,7 @@ value_expression.get_artifact:
 import:
     _oneOf:
       - string
-      - _nb: 1
-        _mapOf: { string: string }
-      - _nb: 1
-        _mapOf: { string: import.target }
+      - import.target
  
 import.target:
   _map:
@@ -262,7 +259,7 @@ repository:
             user: string
 
 repositories:
-  _mapOf: { string: output_parameter }
+  _mapOf: { string: repository }
 
 artifact_def:
   _oneOf:
