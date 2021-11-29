@@ -13,10 +13,10 @@ metadata:
   template_name: My service template
 
 imports:
-  - relative_path/my_defns/my_typesdefs_1.yaml
-  - file: my_defns/my_typesdefs_n.yaml
-    repository: my_company_repo
-    namespace_prefix: mycompany
+  - ./my_typedefs_1.yaml
+  # - file: my_defns/my_typesdefs_n.yaml
+  #   repository: my_company_repo
+  #   namespace_prefix: mycompany
 
 ############################
 ##### TOSCA REPOSITORY #####

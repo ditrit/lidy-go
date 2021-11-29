@@ -9,6 +9,7 @@ import { ListParser } from './listparser.js'
 import { parse as parse_yaml, parseDocument, isMap, LineCounter } from 'yaml'
 import { RuleParser } from './ruleparser.js'
 import { isScalarType} from './utils.js'
+import { ToscaProg } from '../tosca/prog.js'
 
 export function parse_rule(ctx, rule_name, rule, current) {
   if (rule_name) { 
@@ -103,12 +104,17 @@ export function parse(input) {
 
   if (!input.keyword) input.keyword = 'main' // use 'top' rule of the grammar as entry point if none is provided
   let ctx = new Ctx() // initialise context
-  if (!input.rules) { 
-    parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
+  if(!input.prog) {
+    console.log('Fatal error : no prog object in parse_input');
   } else {
-    ctx.rules = input.rules
+    ctx.prog = input.prog
+    if (!input.rules) { 
+      parse_dsl(ctx, input.dsl_data, input.keyword) // yaml parsing of the grammar rules
+    } else {
+      ctx.rules = input.rules
+    }
+    ctx.listener = input.listener
+    parse_src(ctx, input.src_data)                // yaml parsing of the source code 
+    return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
   }
-  ctx.listener = input.listener
-  parse_src(ctx, input.src_data)                // yaml parsing of the source code 
-  return parse_lidy(ctx, input.keyword, ctx.src)       // dsl parsing of the source code
 }

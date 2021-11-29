@@ -1,157 +1,3 @@
-class ToscaProg {
-    constructor() {
-        this.tosca_definitions_version = ""
-        this.description = {}
-        this.metadata = {}
-        this.imports = []
-        this.repositories = {}
-        this.namespace = {}
-        this.node_types = {}
-        this.relationship_types = {}
-        this.data_types = {}
-        this.capability_types = {}
-        this.artifact_types = {}
-        this.group_types = {}
-        this.interface_types = {}
-        this.policy_types = {}
-        // topologies à voir
-    }
-
-    toStringType(attribute) {
-        let str = `\n ${attribute} : \n`
-        for (const key in this[attribute]) {
-            str += `    ${this[attribute][key]}\n`
-        }
-        return str
-    }
-
-    toString() {
-        let str = "prog: \n"
-        for (const key in this) {
-            if (key.endsWith("_types")) {
-                str += this.toStringType(key)
-            }
-        }
-        str += this.toStringType("metadata");
-        // str+= `  Tosca version: ${this.tosca_definitions_version}\n`
-
-        // str += "\n  Imports: \n"
-
-        // str += "\n  Repositories: \n"
-
-        // str += "\n  Description: \n"
-        // str += "  "
-
-        // str += "\n  Metadata: \n"
-        // for (const key in this.metadata) {
-        //     str += `    ${this.metadata[key]}\n`
-        // }
-        
-        // str += "\n  Namespace: \n"
-        
-        return str
-    }
-}
-class ToscaNode {
-    constructor(source) {
-        this.source = source
-    }
-}
-
-class ToscaType extends ToscaNode {
-    constructor(name, derived_from, version, metadata, description, source) {
-        super(source)
-        this.name = name
-        if (derived_from) { this.derived_from = derived_from.value }
-        if (version) { this.version = version.value }
-        if (metadata) { this.metadata = metadata }
-        if (description) { this.description = description.value }
-    }
-    toString() {
-        // let str = `${this.constructor._classname}: `
-        let str = `{name: ${this.name}, \n    Derived from: ${this.derived_from}, \n    Version : ${this.version}}\n`
-        return str;
-    }
-}
-
-
-
-// #######################
-// ##### TOSCA NODES #####
-// #######################
-class ToscaDescription extends ToscaNode {
-    constructor(value, source) {
-        super(source)
-        this.value = value
-    }
-    toString() {
-        return `${this.value}`
-    }
-}
-
-class ToscaMetadata extends ToscaNode {
-    constructor(name, value, source) {
-        super(source)
-        this.name = name
-        this.value = value.value
-    }
-    toString() {
-        return `${this.name}: ${this.value}`
-    }
-}
-
-class ToscaImport extends ToscaNode {
-    constructor(file, repository, namespace_prefix, namespace_uri, source) {
-        // super(source)
-        // this.file = file
-        
-        // if(repository) { this.repository = repository }
-        // if(namespace_prefix) { this.namespace_prefix = namespace_prefix }
-        // if(namespace_uri) { this.namespace_uri = namespace_uri }
-    }
-}
-
-class ToscaRepository extends ToscaNode {
-    constructor(name, source) {
-        super(source)
-        this.name = name
-    }
-    toString() {
-        return `${this.name}`
-    }
-}
-
-
-
-class ToscaNamespace extends ToscaNode {
-    constructor(value, source) {
-        super(source)
-        this.value = value
-    }
-    toString() {
-        return `${this.value}`
-    }
-}
-
-
-// #######################
-// ##### TOSCA TYPES #####
-// #######################
-
-class ToscaNodeType extends ToscaType {
-    constructor(name, derived_from, version, metadata, description, source) {
-        super(name, derived_from, version, metadata, description, source)
-    }
-    static _classname = "node_type"
-}
-
-class ToscaRelationshipType extends ToscaType {
-    constructor(name, derived_from, version, metadata, description, source) {
-        super(name, derived_from, version, metadata, description, source)
-    }
-    static _classname = "relationship_type"
-}
-
 class ToscaDataType extends ToscaType {
     constructor(name, derived_from, version, metadata, description, source) {
         super(name, derived_from, version, metadata, description, source)
@@ -204,14 +50,6 @@ class ToscaPolicyType extends ToscaType {
 // ##########################
 
 export default {
-    enter_main(current) {
-        current.ctx.prog = new ToscaProg()
-    },
-
-    exit_main(parsed_rule) {
-        parsed_rule.ctx.prog.tosca_definitions_version = parsed_rule.value.tosca_definitions_version.value
-        console.log("Fin de l'analyse");
-    },
 
     // #######################
     // ##### TOSCA NODES #####
@@ -230,28 +68,35 @@ export default {
     },
 
     exit_imports(parsed_rule) {
-        // for (const key in parsed_rule.value) {
-        //     let val = parsed_rule.value[key]
-
-        //     if (val.type == 'string') {
-        //         let newImport = new ToscaImport(val.value, null, null, null, parsed_rule)
-        //     } else {
-        //         let newImport = newImport(
-        //             val.value.file ? val.value.file : null,
-        //             val.value.repository ? val.value.repository : null,
-        //             val.value.namespace_prefix ? val.value.namespace_prefix : null,
-        //             val.value.namespace_uri ? val.value.namespace_uri : null
-        //         )
-        //     }
-        //     parsed_rule.ctx.prog.imports.push(newImport)
-        // }
+        parsed_rule.value.forEach(val => {
+            let newImport;
+            let file = (val.type == 'string') ? val.value : val.value.file
+            let repository = (val.value.repository) ? val.value.repository : ""
+            let namespace_prefix = (val.value.namespace_prefix) ? val.value.namespace_prefix : ""
+            let namespace_uri = (val.value.namespace_uri) ? val.value.namespace_uri : ""
+            
+            newImport = parsed_rule.ctx.prog.nodeFactory.newToscaImport({
+                file, 
+                repository, 
+                namespace_prefix, 
+                namespace_uri}, 
+                val)
+            // newImport = new ToscaImport({file,repository, namespace_prefix, namespace_uri}, val)
+            parsed_rule.ctx.prog.imports.push(newImport)
+        })
     },
 
-    exit_repositories(parsed_rule) {
-        for (const key in parsed_rule.value) {
-            parsed_rule.ctx.prog.repositories[key] = new ToscaRepository(key, parsed_rule.value[key])
-        }
-    }, 
+    // exit_repositories(parsed_rule) {
+    //     for (const key in parsed_rule.value) {
+            
+    //         if (val.type == 'string') {
+    //             repository
+    //         } else {
+                
+    //         }
+    //         parsed_rule.ctx.prog.repositories[key] = new ToscaRepository(key, parsed_rule.value[key])
+    //     }
+    // }, 
 
     exit_namespace(parsed_rule) {
         parsed_rule.ctx.prog.namespace = new ToscaNamespace(parsed_rule.value, parsed_rule)
