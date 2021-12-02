@@ -13,7 +13,9 @@ metadata:
   template_name: My service template
 
 imports:
-  - ./my_typedefs_1.yaml
+  # - ./my_typedefs_1.yaml
+  # - ./src/testFichierdistant.yaml
+  - https://raw.githubusercontent.com/ditrit/lidy/lidy-js/lidy-js/src/schemas/normative_types/tosca_types.yaml
   # - file: my_defns/my_typesdefs_n.yaml
   #   repository: my_company_repo
   #   namespace_prefix: mycompany
