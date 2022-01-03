@@ -104,6 +104,7 @@ export function parse(input) {
 
   if (!input.keyword) input.keyword = 'main' // use 'top' rule of the grammar as entry point if none is provided
   let ctx = new Ctx() // initialise context
+  ctx.file = input.file
   if(!input.prog) {
     console.log('Fatal error : no prog object in parse_input');
   } else {

@@ -24,7 +24,7 @@ export class ToscaProg {
         let str = `\n ${tosca_type} : \n`
         for (const key in this[tosca_type]) {
             let node_type = this[tosca_type][key]
-            str += `    ${key}: ${node_type.toString()}\n`
+            str += `    ${key}: ${node_type}\n`
         }
         return str
     }
@@ -63,6 +63,7 @@ export class ToscaProg {
 export class ToscaNode {
     constructor(source) {
         this.source = source
+        this.source.tosca = this
     }
 }
 
@@ -77,15 +78,26 @@ export class ToscaType extends ToscaNode {
     }
     toString() {
         // let str = `${this.constructor._classname}: `
-        let str = `{name: ${this.name}, \n    Derived from: ${this.derived_from}, \n    Version : ${this.version}}\n`
+        // let str = `{name: ${this.name}, \n
+        //     Derived from: ${this.derived_from}, \n
+        //     Version : ${this.version}}\n
+        //     ${(this.description) ? "Description: "+this.description : "" }`
+        let str
+        str += `{name: ${this.name}, \n    `
+        str += `    Derived_from: ${this.derived_from}, \n    `
+        if (this.version) {str += this.version}
+        if (this.description) {str += this.description}
+        if (this.metadata) { str += this.metadata }
+        // str += this.metadata
         return str;
     }
     static isValid(input, source) {
         if (typeof(input.name) != 'string' || input.name == "" ||
-            typeof(input.derived_from) != 'string' || 
-            typeof(input.version) != 'string' || 
-            typeof(input.metadata) != 'string' || 
-            typeof(input.description) != 'string') {
+            typeof(input.derived_from) != 'string' // || 
+            // typeof(input.version) != 'string' || 
+            // typeof(input.metadata) != 'string' || 
+            // typeof(input.description) != 'string'
+            ) {
             
             return false
         }

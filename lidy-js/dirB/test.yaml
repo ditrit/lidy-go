@@ -1,8 +1,19 @@
-tosca_definitions_version: tosca_simple_yaml_1_3
+tosca_definitions_version: tosca_simple_yaml_1_2
 
-description: TypeDef for test. 
+metadata:
+  template_name:    normative_types
+  template_author:  ditrit
+  template_version: 1.0
 
-node_types:
-  
-  B: 
-    derived_from: tosca.nodes.Root
+
+description: TOSCA 1.2 normative types
+
+imports:
+  - tosca_artifact_types:     artifacts.yaml
+  - tosca_data_types:         datatypes.yaml
+  - tosca_capability_types:   capabilities.yaml
+  - tosca_interfaces_types:   interfaces.yaml
+  - tosca_node_types:         nodes.yaml
+  - tosca_relationship_types: relationships.yaml
+  - tosca_group_types:        groups.yaml
+  - tosca_policy_types:       policies.yaml

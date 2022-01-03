@@ -11,7 +11,7 @@ export class ToscaNodeType extends ToscaType {
     static isValid(input, source) {
         if(!ToscaType.isValid(input, source)) {
             
-            source.ctx.grammarError('Incorrect input for NodeType')
+            source.ctx.typeError(source.current, 'Incorrect definition for NodeType')
             return false
         }
         return true

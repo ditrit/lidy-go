@@ -1,7 +1,7 @@
 main: service_template
 
 unbounded:
-  _in: ["unbounded"]
+  _in: ["unbounded", "UNBOUNDED"]
 
 namespace: string
 

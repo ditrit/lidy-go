@@ -4,21 +4,32 @@ import fs from "fs"
 import { ToscaProg } from './tosca/prog.js'
 import { newToscaImport, ToscaImport } from './tosca/imports.js'
 import { LidyError } from './parser/errors.js'
+import fetch from 'node-fetch';
+import request from'sync-request'
 
-export function parse_one(src, prog) { 
+export function parse_one(file, prog) { 
     let src_data
     let res
-    if (src instanceof ToscaImport) {
-        src_data = fs.readFileSync(src.file, 'utf8')
-            
-        prog.currentPath = src.pathDir
+    if (typeof(file) == 'string') {
+        if (file.slice(0,4) == 'http') {
+            src_data = request('GET', file).getBody().toString()
+        } else {
+            src_data = fs.readFileSync(file, 'utf8')
+        }
         prog.imports = []
-        res = parse_tosca({src_data, listener, prog})
-        prog.alreadyImported.push(src.path)
+        res = parse_tosca({src_data, listener, prog, file})
+        if (res.errors != []) {
+            res.errors.forEach(e => {
+                let err = e
+                err.originFile = file
+                prog.errors.push(err)
+            })   
+        }
+        prog.alreadyImported.push(file)
         
         prog.imports.forEach(fi => { 
             if (!prog.alreadyImported.includes(fi.path)) {
-                parse_one(fi, prog)
+                parse_one(fi.path, prog)
             } else { 
             console.log(`Fichier doublon !: ${fi.path}`);}
         });
@@ -32,8 +43,7 @@ export function parse_one(src, prog) {
 export function parse (src) {
     let prog = new ToscaProg()
     prog.alreadyImported = []
-    let srcAsImport = newToscaImport({file: src, currentPath: ".", repository: "", namespace_prefix: "", namespace_uri: ""}, {ctx : prog.ctx})
-    return parse_one(srcAsImport, prog)
+    return parse_one(src, prog)
 }
 // Path for debuger
 // let res2 = parse("./lidy-js/ToscaExample.yml")
@@ -41,8 +51,9 @@ export function parse (src) {
 // Path for terminal
 let res2 = parse("../ToscaExample.yml")
 
-if (res2.errors.length > 0) {
-    console.log("TOSCA ERROR : ", res2.errors);
+if (res2.prog.errors.length != 0) {
+    console.log("TOSCA ERROR : ");
+    res2.prog.errors.forEach(e => console.log(e))
 } else {
 
     console.log("alreadyImport: ", res2.prog.alreadyImported);

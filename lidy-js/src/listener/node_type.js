@@ -7,9 +7,9 @@ export default {
             let node_type;
             let name = key
             let derived_from = (val.value.derived_from) ? val.value.derived_from.value : ""
-            let version = (val.value.version) ? val.value.version : ""
-            let description = (val.value.description) ? val.value.description : ""
-            let metadata = (val.value.metadata) ? val.value.metadata : ""
+            let version = (val.value.version) ? val.value.version.tosca : null
+            let description = (val.value.description) ? val.value.description.tosca : null
+            let metadata = (val.value.metadata) ? val.value.metadata.tosca : ""
             
 
             node_type = newToscaNodeType({
@@ -17,7 +17,8 @@ export default {
                 derived_from, 
                 version, 
                 description, 
-                metadata}, 
+                metadata
+            }, 
                 val)
 
             parsed_rule.ctx.prog.node_types[key] = node_type

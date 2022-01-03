@@ -6,7 +6,7 @@ imports:
 - ./dirA/test.yaml
 - ./dirB/test.yaml
 - ./dirB/dirC/test.yaml
-- https://raw.githubusercontent.com/ditrit/leto/master/tosca_initial/tosca/tosca_simple_yaml_1_2/normative_types/datatypes.yaml
+# - https://raw.githubusercontent.com/ditrit/leto/master/tosca_initial/tosca/tosca_simple_yaml_1_2/normative_types/datatypes.yaml
 
 node_types:
   

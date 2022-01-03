@@ -1,13 +1,14 @@
 import { ToscaNode } from './prog.js'
 import path from 'path'
 
+
 export class ToscaImport extends ToscaNode {
     constructor(input, source) {
         super(source)
         this.file = input.file
-        this.currentPath = input.currentPath
-        this.path = this.getAbsolutePath()
-        this.pathDir = path.dirname(this.path)
+        this.currentPath = (input.currentPath) ? input.currentPath : ""
+        this.setAbsolutePath()
+        // this.pathDir = path.dirname(this.path)
         this.repository = input.repository 
         this.namespace_prefix = input.namespace_prefix 
         this.namespace_uri = input.namespace_uri 
@@ -30,23 +31,27 @@ export class ToscaImport extends ToscaNode {
         return true
     }
 
-    getAbsolutePath() {
-        let res = ""
+    setAbsolutePath() {
+        this.path  = ""
         if (this.repository && this.repository != "") {
-            res = this.source.ctx.prog.repositories[this.repository].getFullUrl()
-            let fullPath = path.resolve(this.file)
-            res += `:${fullPath}`
+            this.path = `${this.source.ctx.prog.repositories[this.repository].getFullUrl()}:`
         } else { 
-            if (this.file[0] == '.') {
-                this.file = this.currentPath + '/' + this.file
-            }
-            let fullPath = path.resolve(this.file)
-            res += `${fullPath}`
+            this.path = (!this.file.match(/^[a-zA-Z]*:\/\//) || !this.file[0] == '/') ? 
+                this.currentPath + '/' + this.file : 
+                this.file   
         }
-        console.log(`AbsolutePathResult: ${res}`);
-        return res
+        if (this.path.match(/^[a-zA-Z]*:\/\//)) {
+            // this.path = path.normalize(this.path)
+        } else {
+            this.path = path.resolve(this.path)
+        }
+        
+        this.currentPath = path.dirname(this.path)
+        this.source.ctx.prog.currentPath = this.currentPath
+        // console.log(`AbsolutePathResult: ${this.path}, (${this.currentPath}, ${this.file})`);
     }
 }
+// https://jeanluc:pass@orness.com/file.yaml
 
 export function newToscaImport(input, source) {
     let res
@@ -57,15 +62,3 @@ export function newToscaImport(input, source) {
     }
     return res
 }
-
-// export function getAbsolutePath(importObj, source) {
-//     let res
-//     if (importObj.repository) {
-//         res = source.ctx.prog.repositories[importObj.repository].getFullUrl()
-//         res += `:${importObj.file}`
-//     } else {
-//         res = importObj.file
-//     }
-//     return res
-// }
-// export default { ToscaImport, newToscaImport }

@@ -15,7 +15,8 @@ metadata:
 imports:
   # - ./my_typedefs_1.yaml
   # - ./src/testFichierdistant.yaml
-  - https://raw.githubusercontent.com/ditrit/lidy/lidy-js/lidy-js/src/schemas/normative_types/tosca_types.yaml
+  # - https://raw.githubusercontent.com/ditrit/lidy/lidy-js/lidy-js/src/schemas/normative_types/tosca_types.yaml
+  - http://127.0.0.1:8080/tosca_types.yaml
   # - file: my_defns/my_typesdefs_n.yaml
   #   repository: my_company_repo
   #   namespace_prefix: mycompany
@@ -38,9 +39,14 @@ node_types:
   
   Compute: 
     derived_from: tosca.nodes.Root
+    description: tagada
+    version: "1.0"
+    metadata:
+      liunx: love
 
   Software: 
     derived_from: tosca.nodes.Root
+    description: pouetpouet
 
   DBMS: 
     derived_from: Software
