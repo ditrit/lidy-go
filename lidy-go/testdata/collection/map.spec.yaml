@@ -1,68 +1,115 @@
-"PENDING _map 1 entry whose property is '${keyword}'":
-  expressionTemplate: '_map: { "${keyword}": int }'
-  keywordList:
-  - _map
-  - _mapOf
-  - _list
-  - _listOf
-  accept dict with a matching entry:
-    '{ ${keyword}: 2 }': {}
-  reject dict with a non-matching entry:
-    '{ ${keyword}: 1.1 }': {}
-    '{ ${keyword}: a }': {}
-    '{ ${keyword}: null }': {}
-    '{ ${keyword}: true }': {}
-    '{ ${keyword}: {} }': {}
-  reject if the entry is missing:
-    '{}': {}
-  reject if there are unknown entries:
-    '{ ${keyword}: 2, a: 4 }': {}
-    '{ ${keyword}: 2, b: va }': {}
-  reject nodes that are not dictionaries:
-    '[]': {}
-  reject unrelated maps:
-    '{ a: 4 }': {}
-    '{ b: va }': {}
-_map 0 _mapFacultative 2 entries:
-  expression: '_mapFacultative: { a: string, b: int }'
-  accept the empty dict:
-    '{}': {}
-  accept when all entries are present and valid:
-    '{ a: va, b: 4 }': {}
-  accept when only some entries are present:
-    '{ a: va }': {}
-    '{ b: 4 }': {}
-  reject extraneous unknown entries:
-    '{ a: va, b: 4, z: 12 }': {}
-  reject if an entry does not match:
-    '{ a: 12 }': {}
-  reject nodes that are not dictionaries:
-    '0': {}
-    '[]': {}
-    a: {}
-    'true': {}
-  reject single unknown entries:
-    '{ z: 12 }': {}
-_map 0 entry:
-  expression: '_map: {}'
-  accept the empty dict:
-    '{}': {}
-  reject any unknown entry:
-    '{ a: va }': {}
-    '{ b: 4 }': {}
-  reject nodes that are not dictionaries:
-    '[]': {}
-_map 1 entry:
-  expression: '_map: { aa: float }'
-  accept if valid:
-    '{ aa: 0 }': {}
-    '{ aa: 2.2 }': {}
-  reject any unknown entry:
-    '{ a: va }': {}
-    '{ b: 4 }': {}
-  reject missing entry:
-    '{}': {}
-  reject nodes that are not dictionaries:
-    '0.1': {}
-    '[]': {}
-    'null': {}
+name: _map 
+content:
+
+  - name: _map 1 entry validating the value
+    box: trial accept
+  - name: _map 0 entry
+    input:
+      expression: '_map'
+    content:
+      - box: trial ACCEPT
+        name: accept the empty dict
+        input: '{}'
+      - box: trial REJECT
+        content:
+          - name: any unknown entry
+            content:
+              - input: data: '{ a: va }'
+              - input: data: '{ b: 4 }'
+          - name: nodes that are not dictionaries
+            - input: data: '[]'
+
+  - name: _map 1 entry
+    input:
+      expression: '_map: { aa: float }'
+    content:
+      - box: trial ACCEPT
+        name: if valid
+        content:
+          - input: data: '{ aa: 0 }'
+          - input: data: '{ aa: 2.2 }'
+      - box: trial REJECT
+        content:
+          - name: any unknown entry
+            content:
+            - input: data: '{ a: va }'
+            - input: data: '{ b: 4 }'
+          - name: missing entry
+            input: data: '{}'
+          - name: nodes that are not dictionaries
+            content:
+            - input: data: '0.1'
+            - input: data: '[]'
+            - input: data: 'null'
+
+  - name: _map 0 _mapFacultative 2 entries
+    input:
+      expression: '_mapFacultative: { a: string, b: int }'
+    content:
+      - box: trial ACCEPT
+          - name: the empty dict
+            input: data: '{}'
+          - name: when all entries are present and valid
+            input: data:  '{ a: va, b: 4 }'
+          - name: when only some entries are present
+            content:
+              - input: data: '{ a: va }'
+              - input: data: '{ b: 4 }'
+
+      - box: trial REJECT
+        content:
+          - name: extraneous unknown entries
+            input: data: '{ a: va, b: 4, z: 12 }'
+          - name: if an entry does not match
+            input: data: '{ a: 12 }'
+          - name: nodes that are not dictionaries
+            content:
+              - input: data: '0'
+              - input: data: '[]'
+              - input: data: a
+              - input: data: 'true'
+          - name: single unknown entries
+              - input: data: '{ z: 12 }'
+
+  -
+    flag: SKIP
+    name: _map 1 entry whose property is a lidy keyword
+    matrix:
+      keywordValue:
+        - _map
+        - _mapOf
+        - _list
+        - _listOf
+    input:
+      expressionTemplate: '_map: { "${keyword}": int }'
+    content:
+      - name: dict with a matching entry
+        box: template trial ACCEPT
+        input:
+          - '{ ${keyword}: 2 }'
+      - name: rejection
+        box: template trial REJECT
+        content:
+        - name: dict with a non-matching key
+          content:
+            - input: data: '{ a: 3 }'
+            - input: data: '{ _b: 4 }'
+        - name: dict with a non-matching value
+          content:
+            - input: data: '{ ${keyword}: 1.1 }'
+            - input: data: '{ ${keyword}: a }'
+            - input: data: '{ ${keyword}: null }'
+            - input: data: '{ ${keyword}: true }'
+            - input: data: '{ ${keyword}: {} }'
+        - name: the entry is missing
+          input: data: '{}'
+        - name: there are unknown entries
+          content:
+            - input: data: '{ ${keyword}: 2, a: 4 }'
+            - input: data: '{ ${keyword}: 2, b: va }'
+        - name: nodes that are not dictionaries
+          input: data: '[]'
+        - name: unrelated maps
+          content:
+            - input: data: '{ a: 4 }'
+            - input: data: '{ b: va }'

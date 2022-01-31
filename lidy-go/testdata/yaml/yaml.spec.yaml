@@ -1,22 +1,30 @@
-validate that the yaml is valid:
+name: validate that the yaml is valid
+input:
   expression: any
-  'accept ... this? (what is this!?)':
-    '?': {}
-    '??': {}
-    '???': {}
-    '??_': {}
-  accept maps with empty values:
-    'a:': {}
-  accept strings, because it sees strings everywhere:
-    0 b 9: {}
-    a b: {}
-  reject misuse of tags:
-    '!!!aha!': {}
-    '!!!eh': {}
-    '!!oh': {}
-  reject the empty document:
-    ? ''
-    : {}
-  reject unknown tags:
-    '!!uh _': {}
-    '!ih _': {}
+content:
+  box: trial ACCEPT
+  content:
+    - content:
+      - input: data: '?'
+      - input: data: '??'
+      - input: data: '???'
+      - input: data: '??_'
+    - name: maps with empty values
+      input: data: 'a:'
+    - name: strings, because it sees strings everywhere
+      content:
+        - input: data: 0 b 9
+        - input: data: a b
+  box: trial REJECT
+  content:
+    - name: misuse of tags
+      content:
+        - '!!!aha!'
+        - '!!!eh'
+        - '!!oh'
+    - name: the empty document
+      input: ''
+    - name: unknown tags
+      content:
+      - input: data: '!!uh _'
+      - input: data: '!ih _'

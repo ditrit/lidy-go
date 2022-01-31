@@ -1,25 +1,42 @@
-_list with 0 entry:
-  expression: '_list: []'
-  accept the empty list:
-    '[]': {}
-  reject any non-empty list:
-    '[4]': {}
-    '[va]': {}
-  reject nodes that are not lists:
-    '{}': {}
-_list with 2 entries:
-  expression: '_list: [string, int]'
-  accept when all entries are present and valid:
-    '[va, 4]': {}
-  reject if an entry does not match:
-    '[12, 4]': {}
-    '[va, vb]': {}
-  reject lists with insufficiently many elements:
-    '[va, 4, extra]': {}
-  reject lists with too many elements:
-    '[va, 4, extra]': {}
-  reject nodes that are not a list:
-    '0': {}
-    a: {}
-    'true': {}
-    '{}': {}
+name: _list
+content:
+  - name: with 0 entry
+    expression: '_list: []'
+    content:
+      - name: the empty list
+        box: trial ACCEPT
+        input: data: '[]'
+      - box: trial REJECT
+        content:
+          - name: any non-empty list
+            content:
+              - input: data: '[4]'
+              - input: data: '[va]'
+              - input: data: '[a e i]'
+          - name: nodes that are not lists
+            content:
+              - input: data: '{}'
+              - input: data: '4'
+              - input: data: 've'
+  - name: with 2 entries
+      expression: '_list: [string, int]'
+      content:
+        - name: when all entries are present and valid
+          box: trial ACCEPT
+          input: data: '[va, 4]'
+        - box: trial REJECT
+          content:
+            - name: if an entry does not match
+              content:
+                - input: data: '[12, 4]'
+                - input: data: '[va, vb]'
+            - name: lists with insufficiently many elements
+              input: data: '[va]'
+            - name: lists with too many elements
+              input: data: '[va, 4, extra]'
+            - name: nodes that are not a list
+              content:
+                - input: data: '0'
+                - input: data: a
+                - input: data: 'true'
+                - input: data: '{}'

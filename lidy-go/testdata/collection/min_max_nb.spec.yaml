@@ -1,30 +1,35 @@
-PENDING _min_max_nb for _listOf, accept:
-  expressionTemplate: |-
-    _listOf: any
-    ${checker}
-  checkerList:
-  - '_min: 2'
-  - '_max: 2'
-  - '_nb: 2'
-  accept when there's the right number:
-    '[a b]': {}
-PENDING _min_max_nb for _mapOf, accept:
-  expressionTemplate: |-
-    _mapOf: any
-    ${checker}
-  checkerList:
-  - '_min: 2'
-  - '_max: 2'
-  - '_nb: 2'
-  accept when there's the right number:
-    '{ ka: va, kb: vb }': {}
-PENDING _min_max_nb for _mapOf, reject:
-  expressionTemplate: |-
-    _mapOf: any
-    ${checker}
-  checkerList:
-  - '_min: 3'
-  - '_max: 1'
-  - '_nb: 3'
-  reject when the number requirement isn't met:
-    '{ ka: va, kb: vb }': {}
+name: _min_max_nb
+content:
+
+  - name: for _listOf
+    box: template trial ACCEPT
+    matrix: &matrixCheckerValue222
+      checkerValue:
+        - '_min: 2'
+        - '_max: 2'
+        - '_nb: 2'
+    input:
+      expressionTemplate: |-
+        _listOf: any
+        ${checker}
+      data: '[a b]'
+
+  - name: for _mapOf
+    input:
+      expressionTemplate: |-
+        _mapOf: any
+        ${checker}
+      data: '{ ka: va, kb: vb }'
+    content:
+      - name: when there's the right number of entries
+        box: template trial ACCEPT
+        matrix: *matrixCheckerValue222
+        input: {}
+      - name: when the number of entries doesn't respect the requirements
+        box: template trial REJECT
+        matrix:
+          checkerValue:
+            - '_min: 4'
+            - '_max: 1'
+            - '_nb: 3'
+        input: data: '{}'

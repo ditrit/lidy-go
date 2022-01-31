@@ -1,33 +1,46 @@
-_mapOf basic:
-  expression: '_mapOf: { string: int }'
-  accept dict with one matching-matching entry:
-    '{ va: 0 }': {}
-  accept dict with several matching-matching entries:
-    '{ va: 0, vb: 1, vc: 2 }': {}
-  accept the empty dict:
-    '{}': {}
-  reject dict with non-matching keys:
-    '{ 0.1: 9 }': {}
-    '{ 2: 9 }': {}
-    '{ []: 9 }': {}
-    '{ true: 9 }': {}
-    '{ {}: 9 }': {}
-  reject dict with non-matching values:
-    '{ va: 0.1 }': {}
-    '{ va: 2020-06-17T10:13:46 }': {}
-    '{ va: [] }': {}
-    '{ va: true }': {}
-    '{ va: vz }': {}
-    '{ va: {} }': {}
-  reject non-dict:
-    '0': {}
-    '[]': {}
-    a: {}
-    'true': {}
+name: _mapOf
+content:
+  - name: basic
+    input:
+      expression: '_mapOf: { string: int }'
+    content:
+      - box: trial ACCEPT
+        content:
+          - name: dict with one matching-matching entry
+            input: data: '{ va: 0 }'
+          - name: dict with several matching-matching entries
+            input: data: '{ va: 0, vb: 1, vc: 2 }'
+          - name: the empty dict
+            input: data: '{}'
+      - box: trial REJECT
+        content:
+          - name: dict with non-matching keys
+            content:
+              - input: data: '{ 0.1: 9 }'
+              - input: data: '{ 2: 9 }'
+              - input: data: '{ []: 9 }'
+              - input: data: '{ true: 9 }'
+              - input: data: '{ {}: 9 }'
+          - name: dict with non-matching values
+            content:
+              - input: data: '{ va: 0.1 }'
+              - input: data: '{ va: 2020-06-17T10:13:46 }'
+              - input: data: '{ va: [] }'
+              - input: data: '{ va: true }'
+              - input: data: '{ va: vz }'
+              - input: data: '{ va: {} }'
+          - name: non-dict
+            content:
+              - input: data: '0'
+              - input: data: '[]'
+              - input: data: a
+              - input: data: 'true'
 _mapOf more:
+  name: string-string
   expression: '_mapOf: { string: string }'
-  accept string-string:
-    '{ 0k: 0v }': {}
-    '{ ka: va }': {}
-    '{ ka: va, kb: vb }': {}
-    '{ ka: va, kb: vb, 0k: 0v }': {}
+  box: trial ACCEPT
+  content:
+    - input: data: '{ 0k: 0v }'
+    - input: data: '{ ka: va }'
+    - input: data: '{ ka: va, kb: vb }'
+    - input: data: '{ ka: va, kb: vb, 0k: 0v }'

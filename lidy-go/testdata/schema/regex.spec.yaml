@@ -1,50 +1,41 @@
-target: 'regex.checker'
-validate regexes:
-  'accept \0, which, after all, cannot be a reference':
-    'a\0': {}
-  accept empty group:
-    '()': {}
-  accept regexes:
-    '(a[bc])': {}
-    '.?': {}
-    '^$': {}
-    a: {}
-  accept silenced groups:
-    '(?:a)': {}
-  accept the empty regex:
-    '""': {}
-  'accept the use of {} and [] as literal sequences':
-    '[[]': {}
-    '[]]': {}
-    ']': {}
-    'a{b}': {}
-    '{': {}
-    '{c}': {}
-    '}': {}
-  reject backreferences:
-    '(?:a)\1': {}
-    'a(b)(?:c)\2': {}
-    'a(b)\1': {}
-    'a(b)\2': {}
-    'a\1': {}
-    'a\1(a)': {}
-  reject empty class:
-    '[]': {}
-  reject lookaheads and lookbehinds, positive or negative:
-    '(?!a)': {}
-    '(?<!a)': {}
-    '(?<=a)': {}
-    '(?=a)': {}
-  reject misplaced quantifier:
-    '*': {}
-    '+': {}
-    '?': {}
-    '{2}': {}
-  reject unbalanced regexes:
-    '(': {}
-    '(()': {}
-    '())': {}
-    ')': {}
-    ')(': {}
-    ')]': {}
-    '[': {}
+name: regex checking
+content:
+  - box: regex trial ACCEPT
+    content:
+      - name: \0 cannot be a reference'
+        input: regex: 'a\0'
+      - name: the empty group
+        input: regex: '()'
+      - name: regexes
+        input: regex: '(a[bc])'
+        input: regex: '.?'
+        input: regex: '^$'
+        input: regex: a
+      - name: silenced groups
+        input: regex: '(?:a)'
+      - name: the empty regex
+        input: regex: '""'
+      - name: the use of {} and [] as literal sequences
+        matrix:
+          regex: ['[[]' '[]]' ']' 'a{b}' '{' '{c}' '}']
+        input: {}
+  - box: regex trial REJECT
+    content:
+      - name: backreferences
+        matrix:
+          regex: ['(?:a)\1' 'a(b)(?:c)\2' 'a(b)\1' 'a(b)\2' 'a\1' 'a\1(a)']
+        input:
+      - name: empty class
+        input: regex: '[]'
+      - name: lookaheads and lookbehinds, positive or negative
+        matrix:
+          regex: ['(?!a)' '(?<!a)' '(?<=a)' '(?=a)']
+        input: {}
+      - name: misplaced quantifier
+        matrix:
+          regex: ['*' '+' '?' '{2}']
+        input: {}
+      - name: unbalanced regexes
+        matrix:
+          regex: ['(' '(()' '())' ')' ')(' ')]' '[']
+        input: {}

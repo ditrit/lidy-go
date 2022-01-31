@@ -1,34 +1,47 @@
-_oneOf dict:
-  expression: '_oneOf: [{ "_mapOf": { "string": "string" } }]'
-  accept dict with matching-matching entries:
-    '{ 0k: 0v }': {}
-    '{ ka: va }': {}
-    '{ ka: va, kb: vb }': {}
-    '{ ka: va, kb: vb, 0k: 0v }': {}
-  accept the empty dict:
-    '{}': {}
-  reject non-dicts:
-    '0.1': {}
-    '[]': {}
-    vz: {}
-_oneOf empty:
-  expression: '_oneOf: []'
-  reject everything: '@any'
-_oneOf scalar:
-  expression: '_oneOf: [boolean, int]'
-  accept booleans:
-    'false': {}
-    'true': {}
-  accept integers:
-    '-0': {}
-    '-1': {}
-    '-99999': {}
-    '0': {}
-    '1': {}
-    '99999': {}
-  reject non-booleans non-integers:
-    '0.1': {}
-    '2020-06-17T10:13:46': {}
-    '[]': {}
-    vz: {}
-    '{}': {}
+name: _oneOf
+content:
+  - name: dict
+    expression: '_oneOf: [{ "_mapOf": { "string": "string" } }]'
+    box: trial ACCEPT
+    content:
+      - name: dict with matching-matching entries:
+        content:
+          - input: data: '{ 0k: 0v }'
+          - input: data: '{ ka: va }'
+          - input: data: '{ ka: va, kb: vb }'
+          - input: data: '{ ka: va, kb: vb, 0k: 0v }'
+      - name: the empty dict
+        input: data: {}
+
+  - name: empty
+    expression: '_oneOf: []'
+    box: trial REJECT
+    matrix:
+      data: matrix: ['0.2' '2' '[]' '[a]' 'a' 'null' 'true' '{ k: v }' '{}']
+    input: {}
+
+  - name: scalar
+    expression: '_oneOf: [boolean, int]'
+    content:
+      - box: trial ACCEPT
+        content:
+          - name: booleans
+            content:
+              - input: data: false
+              - input: data: true
+          - name: integers
+            content:
+              - input: data: 0
+              - input: data: -0
+              - input: data: 1
+              - input: data: -1
+              - input: data: 9999
+              - input: data: -9999
+      - box: trial REJECT
+        name: non-matching value type
+        content:
+          - input: data: 0.1
+          - input: data: 2020-06-17T10:13:46
+          - input: data: []
+          - input: data: vz
+          - input: data: {}
