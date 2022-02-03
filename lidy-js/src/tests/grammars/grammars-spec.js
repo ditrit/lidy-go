@@ -6,7 +6,7 @@ describe("Test real grammars ->", function() {
         function() { expect( parse({src_file: "../schemas/schema.lidy.yaml", dsl_file: '../schemas/schema.lidy.yaml'}).success()).toEqual(true)})
 
     it("check tosca grammar",
-        function() { expect( parse({src_file: '../schemas/schema.tosca.yaml', dsl_file: '../schemas/schema.lidy.yaml'}).success()).toEqual(true)})
+        function() { expect( parse({src_file: '../schemas/tosca.yaml', dsl_file: '../schemas/schema.lidy.yaml'}).success()).toEqual(true)})
     
     })
 

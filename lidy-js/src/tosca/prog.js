@@ -1,23 +1,11 @@
 export class ToscaProg {
     constructor() {
-        this.tosca_definitions_version = ""
-        this.description = {}
-        this.metadata = {}
-        this.imports = []
-        this.repositories = {}
-        this.namespace = {}
-        this.node_types = {}
-        this.relationship_types = {}
-        this.data_types = {}
-        this.capability_types = {}
-        this.artifact_types = {}
-        this.group_types = {}
-        this.interface_types = {}
-        this.policy_types = {}
-        // topologies à voir
-
         this.errors = []
         this.warnings = []
+        this.imports = []
+        this.alreadyImported = []
+        this.service_templates = []
+
     }
 
     toStringType(tosca_type) {
@@ -31,31 +19,10 @@ export class ToscaProg {
 
     toString() {
         let str = "prog: \n"
-        for (const key in this) {
-            if (key.endsWith("_types")) {
-                str += this.toStringType(key)
-            }
+        console.log("DEBUG: ",this.service_templates + "\n\n");        
+        for (const st in this.service_templates) {
+            str += st.toString()
         }
-        str += this.toStringType("metadata");
-        // str+= `  Tosca version: ${this.tosca_definitions_version}\n`
-
-        str += "\n  Imports: \n"
-        this.imports.forEach( e => str += e.toString())
-        
-        str += "\n  Repositories: \n    "
-        str += `${Object.entries(this.repositories)}` //.reduce( e => str += `${e.toString()}`)
-        str += "End repoditories"
-
-        str += "\n  Description: \n"
-        str += `  ${this.description}`
-
-        // str += "\n  Metadata: \n"
-        // for (const key in this.metadata) {
-        //     str += `    ${this.metadata[key]}\n`
-        // }
-        
-        // str += "\n  Namespace: \n"
-        
         return str
     }
 }
@@ -70,33 +37,27 @@ export class ToscaNode {
 export class ToscaType extends ToscaNode {
     constructor(input, source) {
         super(source)
-        this.name= input.name
-        if (input.derived_from) { this.derived_from = input.derived_from }
-        if (input.version) { this.version = input.version }
-        if (input.metadata) { this.metadata = input.metadata }
-        if (input.description) { this.description = input.description }
+        this.derived_from = input.derived_from
+        this.version = input.version
+        this.metadata = input.metadata
+        this.description = input.description
     }
+
+    setName(name) {
+        this.name= name
+    }
+
     toString() {
-        // let str = `${this.constructor._classname}: `
-        // let str = `{name: ${this.name}, \n
-        //     Derived from: ${this.derived_from}, \n
-        //     Version : ${this.version}}\n
-        //     ${(this.description) ? "Description: "+this.description : "" }`
         let str
         str += `{name: ${this.name}, \n    `
         str += `    Derived_from: ${this.derived_from}, \n    `
         if (this.version) {str += this.version}
         if (this.description) {str += this.description}
         if (this.metadata) { str += this.metadata }
-        // str += this.metadata
         return str;
     }
     static isValid(input, source) {
-        if (typeof(input.name) != 'string' || input.name == "" ||
-            typeof(input.derived_from) != 'string' // || 
-            // typeof(input.version) != 'string' || 
-            // typeof(input.metadata) != 'string' || 
-            // typeof(input.description) != 'string'
+        if (typeof(input.derived_from) != 'string' // || 
             ) {
             
             return false
@@ -114,5 +75,3 @@ export function newToscaType (input, source) {
     }
     return res
 }
-
-// export default { ToscaProg, ToscaNode, ToscaType }

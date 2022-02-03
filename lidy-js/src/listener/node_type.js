@@ -3,25 +3,20 @@ import { newToscaNodeType } from "../tosca/node_type.js";
 export default {
     exit_node_types(parsed_rule) {
         for (const key in parsed_rule.value) {
-            let val = parsed_rule.value[key]
-            let node_type;
-            let name = key
-            let derived_from = (val.value.derived_from) ? val.value.derived_from.value : ""
-            let version = (val.value.version) ? val.value.version.tosca : null
-            let description = (val.value.description) ? val.value.description.tosca : null
-            let metadata = (val.value.metadata) ? val.value.metadata.tosca : ""
+            let node_type = parsed_rule.value[key].tosca
+            // node_type.setName(key)
             
-
-            node_type = newToscaNodeType({
-                name, 
-                derived_from, 
-                version, 
-                description, 
-                metadata
-            }, 
-                val)
-
-            parsed_rule.ctx.prog.node_types[key] = node_type
+            parsed_rule.ctx.prog.current_service_template.node_types[key] = node_type
         }
+    },
+
+    exit_node_type(parsed_rule) {
+        newToscaNodeType({
+            derived_from: parsed_rule.value.derived_from?.value,
+            version: parsed_rule.value.version?.tosca,
+            description: parsed_rule.value.description?.tosca,
+            metadata: parsed_rule.value.metadata?.tosca,
+        }, 
+            parsed_rule)
     }
 }

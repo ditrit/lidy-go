@@ -8,14 +8,17 @@ export class ToscaImport extends ToscaNode {
         this.file = input.file
         this.currentPath = (input.currentPath) ? input.currentPath : ""
         this.setAbsolutePath()
-        // this.pathDir = path.dirname(this.path)
         this.repository = input.repository 
         this.namespace_prefix = input.namespace_prefix 
         this.namespace_uri = input.namespace_uri 
     }
+
+
     toString() {
         return `\n    {Path: ${this.path}, \n    Repository: ${this.repository}, \n    Namespace_prefix: ${this.namespace_prefix}, \n    Namespace_uri: ${this.namespace_uri}}\n`
     }
+
+
     static isValid(input, source) {
         if (typeof(input.file) != 'string' || input.file == "") {
             source.ctx.grammarError('Incorrect file input for import')
@@ -31,6 +34,7 @@ export class ToscaImport extends ToscaNode {
         return true
     }
 
+    
     setAbsolutePath() {
         this.path  = ""
         if (this.repository && this.repository != "") {
@@ -41,17 +45,14 @@ export class ToscaImport extends ToscaNode {
                 this.file   
         }
         if (this.path.match(/^[a-zA-Z]*:\/\//)) {
-            // this.path = path.normalize(this.path)
         } else {
             this.path = path.resolve(this.path)
         }
         
         this.currentPath = path.dirname(this.path)
         this.source.ctx.prog.currentPath = this.currentPath
-        // console.log(`AbsolutePathResult: ${this.path}, (${this.currentPath}, ${this.file})`);
     }
 }
-// https://jeanluc:pass@orness.com/file.yaml
 
 export function newToscaImport(input, source) {
     let res

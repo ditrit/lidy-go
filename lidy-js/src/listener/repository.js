@@ -21,7 +21,7 @@ function exit_repositories(parsed_rule) {
             token_type, 
             user}, 
             val)
-        parsed_rule.ctx.prog.repositories[key] = repository
+        parsed_rule.ctx.prog.current_service_template.repositories[key] = repository
     }
 }
 
