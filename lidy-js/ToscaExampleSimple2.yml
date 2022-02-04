@@ -48,8 +48,8 @@ node_types:
     derived_from: tosca.nodes.Root
     description: pouetpouet
 
-  # DBMS: 
-  #   derived_from: Software
+  DBMS: 
+    derived_from: Software
 
   # Mysql: 
   #   derived_from: DBMS

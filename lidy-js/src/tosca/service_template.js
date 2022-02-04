@@ -7,7 +7,7 @@ export class ToscaServiceTemplate {
         this.metadata = {}
         this.imports = []
         this.repositories = {}
-        this.namespace = {}
+        this.namespace = {value: ""}
         this.node_types = {}
         this.relationship_types = {}
         this.data_types = {}
@@ -20,6 +20,7 @@ export class ToscaServiceTemplate {
 
         this.errors = []
         this.warnings = []
+        this.tosca_types = []
     }
 
     toStringType(tosca_type) {

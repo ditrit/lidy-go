@@ -5,7 +5,6 @@ export class ToscaProg {
         this.imports = []
         this.alreadyImported = []
         this.service_templates = []
-
     }
 
     toStringType(tosca_type) {
@@ -45,6 +44,37 @@ export class ToscaType extends ToscaNode {
 
     setName(name) {
         this.name= name
+    }
+
+    getClassname() {
+        return this._classname
+    }
+
+    setId(name, parsed_rule) {
+        let current_st = parsed_rule.ctx.prog.current_service_template
+        let parent_st = parsed_rule.ctx.prog.current_parent_service_template
+            
+
+        this.import_id = current_st.ns_uri +
+        "|" + current_st.ns_prefix +
+        "|"+ this.getClassname() + "|" + name
+
+        this.id = current_st.namespace.value +
+        "||"+ this.getClassname() + "|" + name
+
+        console.log("Import_id : " + this.import_id);
+        console.log("ID : " + this.id);
+        console.log("Parent ids : " + parent_st?.tosca_types);
+        
+        if (parent_st?.tosca_types.includes(this.import_id)) {
+            parsed_rule.ctx.grammarError('Type collision : '+this.import_id)
+            console.log("Erreur de collision de type");
+        } else {
+            parent_st?.tosca_types.push(this.import_id)
+            current_st?.tosca_types.push(this.id)
+            current_st.tosca_types[name] = this
+            this.setName(name)
+        }
     }
 
     toString() {

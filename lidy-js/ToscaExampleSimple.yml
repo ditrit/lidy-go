@@ -46,9 +46,9 @@ node_types:
     metadata:
       liunx: love
 
-  # Software: 
-  #   derived_from: tosca.nodes.Root
-  #   description: pouetpouet
+  Software: 
+    derived_from: tosca.nodes.Root
+    description: pouetpouet
 
   # DBMS: 
   #   derived_from: Software

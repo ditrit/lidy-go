@@ -3,10 +3,7 @@ import { newToscaNodeType } from "../tosca/node_type.js";
 export default {
     exit_node_types(parsed_rule) {
         for (const key in parsed_rule.value) {
-            let node_type = parsed_rule.value[key].tosca
-            // node_type.setName(key)
-            
-            parsed_rule.ctx.prog.current_service_template.node_types[key] = node_type
+            parsed_rule.value[key].tosca.setId(key, parsed_rule)
         }
     },
 
