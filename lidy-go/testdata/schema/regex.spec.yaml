@@ -1,41 +1,49 @@
 name: regex checking
 content:
-  - box: regex trial ACCEPT
+  - box: regex trial REJECT
     content:
       - name: \0 cannot be a reference'
-        input: regex: 'a\0'
+        input:
+          regex: 'a\0'
       - name: the empty group
-        input: regex: '()'
+        input:
+          regex: '()'
       - name: regexes
-        input: regex: '(a[bc])'
-        input: regex: '.?'
-        input: regex: '^$'
-        input: regex: a
+        matrix:
+          regex:
+            - '(a[bc])'
+            - '.?'
+            - '^$'
+            - a
+        input: {}
       - name: silenced groups
-        input: regex: '(?:a)'
+        input:
+          regex: '(?:a)'
       - name: the empty regex
-        input: regex: '""'
+        input:
+          regex: '""'
       - name: the use of {} and [] as literal sequences
         matrix:
-          regex: ['[[]' '[]]' ']' 'a{b}' '{' '{c}' '}']
+          regex: ['[[]', '[]]', ']', 'a{b}', '{', '{c}', '}']
         input: {}
   - box: regex trial REJECT
     content:
       - name: backreferences
         matrix:
-          regex: ['(?:a)\1' 'a(b)(?:c)\2' 'a(b)\1' 'a(b)\2' 'a\1' 'a\1(a)']
-        input:
+          regex: ['(?:a)\1', 'a(b)(?:c)\2', 'a(b)\1', 'a(b)\2', 'a\1', 'a\1(a)']
+        input: {}
       - name: empty class
-        input: regex: '[]'
+        input:
+          regex: '[]'
       - name: lookaheads and lookbehinds, positive or negative
         matrix:
-          regex: ['(?!a)' '(?<!a)' '(?<=a)' '(?=a)']
+          regex: ['(?!a)', '(?<!a)', '(?<=a)', '(?=a)']
         input: {}
       - name: misplaced quantifier
         matrix:
-          regex: ['*' '+' '?' '{2}']
+          regex: ['*', '+', '?', '{2}']
         input: {}
       - name: unbalanced regexes
         matrix:
-          regex: ['(' '(()' '())' ')' ')(' ')]' '[']
+          regex: ['(', '(()', '())', ')', ')(', ')]', '[']
         input: {}

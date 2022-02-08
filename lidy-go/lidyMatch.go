@@ -276,7 +276,7 @@ func (oneOf tOneOf) mergeMatch(
 	content yaml.Node,
 	parser *tParser,
 ) []error {
-	const errorTemplate = "Lidy internal error -- " +
+	const errorTemplate = "lidy internal error -- " +
 		"_merge performed on a non-mergeable in _oneOf in the schema -- " +
 		"it should have been caught at schema parse time, please report it to https://github.com/ditrit/lidy/issues ." +
 		"\n  expression: [%s]" +
@@ -351,14 +351,14 @@ func positionFromYamlNode(filename string, node yaml.Node) tPosition {
 func getRoot(documentNode yaml.Node) (*yaml.Node, []error) {
 	if documentNode.Kind != yaml.DocumentNode {
 		return nil, []error{fmt.Errorf(
-			"Internal: Kind of root node is not document (e%d, g%d). %s",
+			"internal: Kind of root node is not document (e%d, g%d). %s",
 			yaml.DocumentNode, documentNode.Kind, pleaseReport,
 		)}
 	}
 
 	if len(documentNode.Content) != 1 {
 		return nil, []error{fmt.Errorf(
-			"Internal: Content length of root node is not 1, but %d. %s",
+			"internal: Content length of root node is not 1, but %d. %s",
 			len(documentNode.Content), pleaseReport,
 		)}
 	}
@@ -387,8 +387,8 @@ func (parser *tParser) reportSchemaParserInternalError(context string, expressio
 
 func (parser *tParser) contentError(content yaml.Node, expected string) []error {
 	if content.Kind == yaml.Kind(0) {
-		return []error{fmt.Errorf("Tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
+		return []error{fmt.Errorf("tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
 	}
 
-	return []error{fmt.Errorf("error with content node, kind #%d, tag '%s', value '%s' at position %s:%s, where [%s] was expected", content.Kind, content.Tag, content.Value, parser.contentFile.name, getPosition(content), expected)}
+	return []error{fmt.Errorf("error with content node, tag '%s', value '%s' at position %s:%s, where [%s] was expected", content.Tag, content.Value, parser.contentFile.name, getPosition(content), expected)}
 }

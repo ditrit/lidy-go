@@ -88,7 +88,7 @@ func checkMergeable(
 		if mapping.form.mapOf.key == nil {
 			return mapping, nil
 		}
-		return nil, sp.schemaError(node, fmt.Sprintf("a mergeable expression but got a map checker with a _mapOf keyword, which is forbidden"))
+		return nil, sp.schemaError(node, "a mergeable expression but got a map checker with a _mapOf keyword, which is forbidden")
 	}
 
 	if oneOf, ok := expression.(tOneOf); ok {

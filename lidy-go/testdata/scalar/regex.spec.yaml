@@ -5,32 +5,41 @@ content:
     content:
       - box: trial ACCEPT
         content:
-          - input: data: 'a.b.c@0.23.z'
-          - input: data: a@b.c
+          - input:
+              data: 'a.b.c@0.23.z'
+          - input:
+              data: a@b.c
       - name: non-email
         box: trial REJECT
         content:
-          - input: data: '.a@b.c'
-          - input: data: 'a@b'
+          - input:
+              data: '.a@b.c'
+          - input:
+              data: 'a@b'
   - name: empty
     expression: '_regex: "$^"'
     content:
       - name: the empty string
         box: trial ACCEPT
-        input: data: ""
+        input:
+          data: ""
       - box: trial REJECT
         content:
           - name: letter
-            input: data: a
+            input:
+              data: a
           - name: space
-            input: data: " "
+            input:
+              data: " "
   - name: word
     expression: '_regex: "[a-z]+"'
     content:
       - box: trial ACCEPT
         content:
-          - input: data: a
-          - input: data: word
+          - input:
+              data: a
+          - input:
+              data: word
       - box: trial REJECT
         content:
           - name: not a string
@@ -38,8 +47,11 @@ content:
               data: ['1', '1.1', '[]', 'null', 'true', '{}']
             input: {}
           - name: empty string
-            input: data: '""'
+            input:
+              data: '""'
           - name: void
-            input: data: ''
+            input:
+              data: ''
           - name: null value
-            input: data: 'null'
+            input:
+              data: 'null'

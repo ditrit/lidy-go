@@ -105,7 +105,7 @@ func (p *tParser) parseContent(file File) (tResult, []error) {
 	// Checking that the target rule is present
 	targetRule, ruleFound := p.schema.ruleMap[p.target]
 	if !ruleFound {
-		return tResult{}, []error{fmt.Errorf("Could not find target rule '%s' in grammar", p.target)}
+		return tResult{}, []error{fmt.Errorf("could not find target rule '%s' in grammar", p.target)}
 	}
 
 	// Parsing the content

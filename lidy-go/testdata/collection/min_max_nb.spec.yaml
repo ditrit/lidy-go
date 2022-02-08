@@ -9,22 +9,25 @@ content:
         - '_max: 2'
         - '_nb: 2'
     input:
-      expressionTemplate: |-
+      expression: |-
         _listOf: any
         ${checker}
-      data: '[a b]'
+      data: '[a, b]'
 
   - name: for _mapOf
     input:
-      expressionTemplate: |-
-        _mapOf: any
+      expression: |-
+        _mapOf: { string: any }
         ${checker}
       data: '{ ka: va, kb: vb }'
     content:
       - name: when there's the right number of entries
         box: template trial ACCEPT
         matrix: *matrixCheckerValue222
-        input: {}
+        input:
+          expression: |-
+            _mapOf: { string: any }
+            ${checker}
       - name: when the number of entries doesn't respect the requirements
         box: template trial REJECT
         matrix:
@@ -32,4 +35,4 @@ content:
             - '_min: 4'
             - '_max: 1'
             - '_nb: 3'
-        input: data: '{}'
+        input: {}

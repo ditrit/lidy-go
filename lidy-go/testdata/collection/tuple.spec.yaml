@@ -5,38 +5,38 @@ content:
     content:
       - name: the empty list
         box: trial ACCEPT
-        input: data: '[]'
+        input:
+          data: '[]'
       - box: trial REJECT
         content:
           - name: any non-empty list
-            content:
-              - input: data: '[4]'
-              - input: data: '[va]'
-              - input: data: '[a e i]'
+            matrix:
+              data: ['[4]', '[va]', '[a, e, i]']
+            input: {}
           - name: nodes that are not lists
-            content:
-              - input: data: '{}'
-              - input: data: '4'
-              - input: data: 've'
+            matrix:
+              data: ['{}', '4', 've']
+            input: {}
   - name: with 2 entries
-      expression: '_list: [string, int]'
-      content:
-        - name: when all entries are present and valid
-          box: trial ACCEPT
-          input: data: '[va, 4]'
-        - box: trial REJECT
-          content:
-            - name: if an entry does not match
-              content:
-                - input: data: '[12, 4]'
-                - input: data: '[va, vb]'
-            - name: lists with insufficiently many elements
-              input: data: '[va]'
-            - name: lists with too many elements
-              input: data: '[va, 4, extra]'
-            - name: nodes that are not a list
-              content:
-                - input: data: '0'
-                - input: data: a
-                - input: data: 'true'
-                - input: data: '{}'
+    expression: '_list: [string, int]'
+    content:
+      - name: when all entries are present and valid
+        box: trial ACCEPT
+        input:
+          data: '[va, 4]'
+      - box: trial REJECT
+        content:
+          - name: if an entry does not match
+            matrix:
+              data: ['[12, 4]', '[va, vb]']
+            input: {}
+          - name: lists with insufficiently many elements
+            input:
+              data: '[va]'
+          - name: lists with too many elements
+            input:
+              data: '[va, 4, extra]'
+          - name: nodes that are not a list
+            matrix:
+              data: ['0', a, 'true', '{}']
+            input: {}

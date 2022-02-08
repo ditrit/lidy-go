@@ -72,7 +72,7 @@ func getSize(content yaml.Node) (int, []error) {
 	case yaml.MappingNode:
 		return len(content.Content) / 2, nil
 	default:
-		const errorTemplate = "Lidy internal error -- " +
+		const errorTemplate = "lidy internal error -- " +
 			"getSize() was called on a non-map non-sequence YAML value -- " +
 			"this should not happen, please report it to " +
 			"https://github.com/ditrit/lidy/issues ." +

@@ -241,8 +241,8 @@ func missingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpres
 // Error
 func (sp tSchemaParser) schemaError(node yaml.Node, expected string) []error {
 	if node.Kind == yaml.Kind(0) {
-		return []error{fmt.Errorf("Tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
+		return []error{fmt.Errorf("tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
 	}
 
-	return []error{fmt.Errorf("error in schema with yaml node, kind #%d,, tag '%s', value '%s' at position %s:%s, where [%s] was expected", node.Kind, node.ShortTag(), node.Value, sp.name, getPosition(node), expected)}
+	return []error{fmt.Errorf("error in schema with yaml node, tag '%s', value '%s' at position %s:%s, where [%s] was expected", node.ShortTag(), node.Value, sp.name, getPosition(node), expected)}
 }

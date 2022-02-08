@@ -3,12 +3,14 @@ content:
   - expression: '_in: [a, b, c, d]'
     content:
       - box: trial ACCEPT
-        input: data: 'c'
+        input:
+          data: 'c'
       - box: trial REJECT
-        input: data: 'z'
+        input:
+          data: 'z'
   - name: empty
     expression: '_in: []'
     box: trial REJECT
     matrix:
-      data: ['0.2' '2' '[]' '[a]' 'a' 'null' 'true' '{ k: v }' '{}']
+      data: ['0.2', '2', '[]', '[a]', 'a', 'null', 'true', '{ k: v }', '{}']
     input: {}

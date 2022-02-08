@@ -1,101 +1,127 @@
-target: document
-detect invalid self-references in documents:
-  PENDING reject if the self-reference is too direct:
-    ? |-
-      main:
-        _oneOf:
-          - piece
-          - plant
-      piece:
-        _in: [grass, leaf, branch, tree]
-      plant:
-        _oneOf:
-          - plant
-          - piece
-    : contain: plant
-    ? |-
-      main: aa
-      aa: { _merge: [bb] }
-      bb: { _oneOf: [aa, cc] }
-      cc: string
-    : contain: aa
-    ? |-
-      main: animal
-      animal: animal
-    : contain: animal
-    'main: main':
-      contain: main
-    ? |-
-      main: weather
-      weather:
-        _merge: [rain, cloud]
-      rain:
-        _merge: [water, cloud]
-      cloud:
-        _merge: [water, rain]
-      water:
-        _map:
-          temperature: float
-    : contain: cloud
-  accept if the self-reference is sufficiently indirect:
-    ? |-
-      main:
-        _listFacultative: [main]
-    : {}
-    ? |-
-      main:
-        _mapFacultative: { content: main }
-    : {}
-    ? |-
-      main: animal
-      animal:
-        _map:
-          name: string
-          age: string
-          eat: edible
-      edible:
-        _oneOf:
-          - _in: [grass, leaves]
-          - animal
-    : {}
-    ? |-
-      main: person
-      person:
-        _map:
-          name: string
-          mother: person
-          father: person
-    : {}
-  accept indirect even if no finite schema can be matched:
-    ? |-
-      main:
-        _list: [main]
-    : {}
-    ? |-
-      main:
-        _listOf: main
-    : {}
-    ? |-
-      main:
-        _map: { content: main }
-    : {}
-    ? |-
-      main:
-        _mapOf: { main: main }
-    : {}
-    ? |-
-      main:
-        _mapOf: { string: main }
-    : {}
-tell valid documents from invalid documents:
-  PENDING reject if a reference cannot be resolved:
-    'main: animal':
-      contain: animal
-  PENDING reject if the target rule (main) is missing:
-    'animal: string':
-      contain: main
-  accept if valid:
-    ? |-
-      main: animal
-      animal: string
-    : {}
+name: document
+box: make lidy parser
+content:
+  - name: detect invalid self-references in documents
+    content:
+      - name: reject if the self-reference is too direct
+        flag: SKIP
+        input:
+          outcome: reject
+        content:
+          - input:
+              schema: |-
+                main:
+                  _oneOf:
+                    - piece
+                    - plant
+                piece:
+                  _in: [grass, leaf, branch, tree]
+                plant:
+                  _oneOf:
+                    - plant
+                    - piece
+              contain: plant
+          - input:
+              schema: |-
+                main: aa
+                aa: { _merge: [bb] }
+                bb: { _oneOf: [aa, cc] }
+                cc: string
+              contain: aa
+          - input:
+              schema: |-
+                main: animal
+                animal: animal
+              contain: animal
+          - input:
+              schema: |-
+                main: main
+              contain: main
+          - input:
+              schema: |-
+                main: weather
+                weather:
+                  _merge: [rain, cloud]
+                rain:
+                  _merge: [water, cloud]
+                cloud:
+                  _merge: [water, rain]
+                water:
+                  _map:
+                    temperature: float
+              contain: cloud
+      - name: accept if the self-reference is sufficiently indirect
+        input:
+          outcome: accept
+        content:
+          - input:
+              schema: |-
+                main:
+                  _listFacultative: [main]
+          - input:
+              schema: |-
+                main:
+                  _mapFacultative: { string: main }
+          - input:
+              schema: |-
+                main: animal
+                animal:
+                  _map:
+                    name: string
+                    age: string
+                    eat: edible
+                edible:
+                  _oneOf:
+                    - _in: [grass, leaves]
+                    - animal
+          - input:
+              schema: |-
+                main: person
+                person:
+                  _map:
+                    name: string
+                    mother: person
+                    father: person
+      - name: accept indirect even if no finite schema can be matched
+        input:
+          outcome: accept
+        content:
+          - input:
+              schema: |-
+                main:
+                  _list: [main]
+          - input:
+              schema: |-
+                main:
+                  _listOf: main
+          - input:
+              schema: |-
+                main:
+                  _map: { content: main }
+          - input:
+              schema: |-
+                main:
+                  _mapOf: { main: main }
+          - input:
+              schema: |-
+                main:
+                  _mapOf: { string: main }
+  - name: tell valid documents from invalid documents
+    content:
+      - name: reject if a reference cannot be resolved
+        input:
+          outcome: reject
+          schema: 'main: animal'
+          contain: animal
+      - name: reject if the target rule -main- is missing
+        flag: SKIP
+        input:
+          outcome: reject
+          schema: 'animal: string'
+          contain: main
+      - name: accept if valid
+        input:
+          outcome: accept
+          schema: |-
+            main: animal
+            animal: string
