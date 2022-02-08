@@ -3,8 +3,15 @@ import { ToscaNode, ToscaType } from './prog.js'
 export class ToscaNodeType extends ToscaType {
     constructor(input, source) {
         super(input, source)
+        // this.classname = 'node_type'
     }
-    static _classname = "node_type"
+
+    static _classname = 'node_type'
+    
+    getClassname() {
+        return ToscaNodeType._classname
+    }
+
     toString() {
         return super.toString()
     }

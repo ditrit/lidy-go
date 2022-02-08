@@ -6,6 +6,7 @@ import { ToscaServiceTemplate } from './tosca/service_template.js'
 import { LidyError } from './parser/errors.js'
 import request from'sync-request'
 import path from 'path'
+import { execPath, kill } from 'process'
 
 export function parse_one(file, namespace_uri, namespace_prefix, parent_service_template, prog) { 
     let src_data, res
@@ -18,13 +19,16 @@ export function parse_one(file, namespace_uri, namespace_prefix, parent_service_
         
         let current_path = path.dirname(file)
 
+        
+        let current_service_template = new ToscaServiceTemplate()
+        current_service_template.origin_file = file
+        current_service_template.ns_uri = (namespace_uri) ? namespace_uri : ""
+        current_service_template.ns_prefix = (namespace_prefix) ? namespace_prefix : ""
+        
         prog.current_parent_service_template = parent_service_template
-        prog.current_service_template = new ToscaServiceTemplate()
-        prog.current_service_template.ns_uri = (namespace_uri) ? namespace_uri : ""
-        prog.current_service_template.ns_prefix = (namespace_prefix) ? namespace_prefix : ""
-
+        prog.current_service_template = current_service_template
         res = parse_tosca({src_data, listener, prog, file})
-        prog.service_templates.push(prog.current_service_template)
+        prog.service_templates.push(current_service_template)
        
         prog.alreadyImported.push(file)
 
@@ -35,11 +39,11 @@ export function parse_one(file, namespace_uri, namespace_prefix, parent_service_
                 prog.errors.push(err)
             })   
         } else {
-            prog.current_service_template.imports.forEach(fi => { 
+            current_service_template.imports.forEach(fi => { 
                 let absPath = getAbsolutePath(current_path, fi, prog)
 
                 // if (!prog.alreadyImported.includes(fi.path)) {
-                parse_one(absPath, fi.namespace_uri, fi.namespace_prefix, prog.current_service_template, prog)
+                parse_one(absPath, fi.namespace_uri, fi.namespace_prefix, current_service_template, prog)
             //     } else { 
             //     console.log(`Fichier doublon !: ${fi.path}`);}
             }); 
@@ -74,8 +78,9 @@ function getAbsolutePath(current_path, current_import, prog) {
     current_import.fullPath = res
     return res
 }
+console.log(process.cwd());
 
-let res2 = parse("../ToscaExampleSimple.yml")
+let res2 = parse("./A.yml")
 
 if (res2.prog.errors.length != 0) {
     console.log("TOSCA ERROR : ");
@@ -87,6 +92,13 @@ if (res2.prog.errors.length != 0) {
     // console.log("Node_types: ", res2.prog.node_types);
     // console.log("service_templates: ", res2.prog.service_templates);
     // console.log("\n\nTosca_types : "+res2.prog.tosca_types.toString()+"\n\n");
-    console.log(res2.prog.service_templates.toString());
+    res2.prog.service_templates.forEach(st => {
+        console.log("\n-------" + st.origin_file + " -------------------------------------");
+        for (const key in st.node_types) {
+                console.log("key = "+key.toString());
+            }
+        }
+    );
+    // console.log(res2.prog.service_templates.toString());
 
 }
