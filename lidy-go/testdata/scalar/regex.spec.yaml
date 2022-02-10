@@ -1,7 +1,8 @@
 name: _regex
 content:
   - name: email
-    expression: '_regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$"'
+    input:
+      expression: '_regex: "^[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)+$"'
     content:
       - box: trial ACCEPT
         content:
@@ -17,12 +18,13 @@ content:
           - input:
               data: 'a@b'
   - name: empty
-    expression: '_regex: "$^"'
+    input:
+      expression: '_regex: "$^"'
     content:
       - name: the empty string
         box: trial ACCEPT
         input:
-          data: ""
+          data: "''"
       - box: trial REJECT
         content:
           - name: letter
@@ -32,7 +34,8 @@ content:
             input:
               data: " "
   - name: word
-    expression: '_regex: "[a-z]+"'
+    input:
+      expression: '_regex: "[a-z]+"'
     content:
       - box: trial ACCEPT
         content:

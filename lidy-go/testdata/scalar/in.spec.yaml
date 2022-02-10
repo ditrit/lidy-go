@@ -1,6 +1,8 @@
 name: _in
 content:
-  - expression: '_in: [a, b, c, d]'
+  - name: generic
+    input:
+      expression: '_in: [a, b, c, d]'
     content:
       - box: trial ACCEPT
         input:
@@ -9,7 +11,8 @@ content:
         input:
           data: 'z'
   - name: empty
-    expression: '_in: []'
+    input:
+      expression: '_in: []'
     box: trial REJECT
     matrix:
       data: ['0.2', '2', '[]', '[a]', 'a', 'null', 'true', '{ k: v }', '{}']

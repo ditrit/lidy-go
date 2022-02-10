@@ -1,7 +1,8 @@
 name: _oneOf
 content:
   - name: dict
-    expression: '_oneOf: [{ _mapOf: { string: string } }]'
+    input:
+      expression: '_oneOf: [{ _mapOf: { string: string } }]'
     box: trial ACCEPT
     content:
       - name: dict with matching-matching entries
@@ -17,28 +18,29 @@ content:
           data: '{}'
 
   - name: empty
-    expression: '_oneOf: []'
+    input:
+      expression: '_oneOf: []'
     box: trial REJECT
     matrix:
       data: ['0.2', '2', '[]', '[a]', 'a', 'null', 'true', '{ k: v }', '{}']
     input: {}
 
   - name: scalar
-    expression: '_oneOf: [boolean, int]'
+    input:
+      expression: '_oneOf: [boolean, int]'
     content:
       - box: trial ACCEPT
         content:
           - name: booleans
             matrix:
-              data:
-                - false
-                - true
+              data: ["false", "true"]
             input: {}
           - name: integers
             matrix:
-              data: [0, -0, 1, -1, 9999, -9999]
+              data: ["0", "-0", "1", "-1", "9999", "-9999"]
             input: {}
       - box: trial REJECT
         name: non-matching value type
         matrix:
-          data: ['0.1', '202', '[]', 'vz', '{}']
+          data: ['0.1', 'null', '[]', 'vz', '{}']
+        input: {}

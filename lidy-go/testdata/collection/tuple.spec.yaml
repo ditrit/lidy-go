@@ -1,7 +1,8 @@
 name: _list
 content:
   - name: with 0 entry
-    expression: '_list: []'
+    input:
+      expression: '_list: []'
     content:
       - name: the empty list
         box: trial ACCEPT
@@ -18,7 +19,8 @@ content:
               data: ['{}', '4', 've']
             input: {}
   - name: with 2 entries
-    expression: '_list: [string, int]'
+    input:
+      expression: '_list: [string, int]'
     content:
       - name: when all entries are present and valid
         box: trial ACCEPT

@@ -1,95 +1,117 @@
-target: document
-_merge requires identifiers to refer to mapCheckers:
-  'PENDING (requires on-demand-rule-loading) accept if merging mapCheckers':
-    ? |-
-      main:
-        _merge: [animal, plant, shroom]
-      animal:
-        _map: { a: string }
-      plant:
-        _mapOf: { string: string }
-      shroom:
-        _map: { a: int }
-        _mapOf: { int: int }
-    : {}
-  accept merging _oneOf mapCheckers:
-    ? |-
-      main:
-        _merge:
-          - _oneOf:
-            - { _map: {} }
-            - { _merge: [] }
-    : contain: main
-  accept merging merges:
-    ? |-
-      main:
-        _merge:
-          - { _merge: [] }
-    : {}
-  accept the empty merge:
-    ? |-
-      main:
-        _merge: []
-    : {}
-  reject if not solving only to mapCheckers:
-    ? |-
-      main:
-        _merge:
-          - oneOf:
-            - _map: {}
-            - string
-    : contain: main
-    ? |-
-      main:
-        _merge:
-          - { _in: [] }
-    : contain: main
-  reject if not used with a sequence:
-    ? |-
-      main:
-        _merge: animal
-      animal:
-        - _map: {}
-    : contain: main
-detect invalid self-references in _merge expressions:
-  'PENDING (requires on-demand-rule-loading) accept if the self-reference is sufficiently indirect':
-    ? |-
-      main: a
-      aa:
-        _map:
-          ka: bb
-      bb:
-        _map:
-          kb: cc
-      cc:
-        _merge:
-          - aa
-          - bb
-          - { _map: { kc: dd } }
-      dd:
-        _merge:
-          - aa
-          - bb
-          - cc
-          - { _map: { kd: aa } }
-    : {}
-  PENDING reject if the self-reference is too direct:
-    ? |-
-      main: aaa
-      aaa: { _merge: [b] }
-      b: { _merge: [aaa] }
-    : contain: aaa
-    ? |-
-      main: aaa
-      aaa: { _merge: [b] }
-      b: { _merge: [c] }
-      c: { _merge: [aaa] }
-    : contain: aaa
-    ? |-
-      main: animal
-      animal: { _merge: [animal] }
-    : contain: animal
-    ? 'main: { _merge: [main] }'
-    : contain: main
-    ? 'main: { _merge: [{ _merge: [main] }] }'
-    : contain: main
+name: document
+box: make lidy parser
+content:
+  - name: _merge requires identifiers to refer to mapCheckers
+    flag: SKIP # (requires on-demand-rule-loading)
+    input:
+      outcome: accept
+    content:
+      - name: merging mapCheckers
+        input:
+          schema: |-
+            main:
+              _merge: [animal, plant, shroom]
+            animal:
+              _map: { a: string }
+            plant:
+              _mapOf: { string: string }
+            shroom:
+              _map: { a: int }
+              _mapOf: { int: int }
+      - name: merging _oneOf mapCheckers
+        input:
+          schema: |-
+            main:
+              _merge:
+                - _oneOf:
+                  - { _map: {} }
+                  - { _merge: [] }
+      - name: merging merges
+        input:
+          schema: |-
+            main:
+              _merge:
+                - { _merge: [] }
+      - name: the empty merge
+        input:
+          schema: |-
+            main:
+              _merge: []
+  - name: rejection
+    input:
+      outcome: reject
+    content:
+      - name: not resolving only to mapCheckers
+        input:
+          schema: |-
+            main:
+              _merge:
+                - oneOf:
+                  - _map: {}
+                  - string
+          contain: main
+      - name: resolving to _in checker
+        input:
+          schema: |-
+            main:
+              _merge:
+                - { _in: [] }
+          contain: main
+      - name: not used with a sequence
+        input:
+          schema: |-
+            main:
+              _merge: animal
+            animal:
+              - _map: {}
+          contain: main
+  - name: detect invalid self-references in _merge expressions
+    content:
+      - name: accept if the self-reference is sufficiently indirect
+        flag: SKIP # (requires on-demand-rule-loading)
+        input:
+          schema: |-
+            main: a
+            aa:
+              _map:
+                ka: bb
+            bb:
+              _map:
+                kb: cc
+            cc:
+              _merge:
+                - aa
+                - bb
+                - { _map: { kc: dd } }
+            dd:
+              _merge:
+                - aa
+                - bb
+                - cc
+                - { _map: { kd: aa } }
+      - name: reject if the self-reference is too direct
+        content:
+          - input:
+              schema: |-
+                main: aaa
+                aaa: { _merge: [b] }
+                b: { _merge: [aaa] }
+              contain: aaa
+          - input:
+              schema: |-
+                main: aaa
+                aaa: { _merge: [b] }
+                b: { _merge: [c] }
+                c: { _merge: [aaa] }
+              contain: aaa
+          - input:
+              schema: |-
+                main: animal
+                animal: { _merge: [animal] }
+              contain: animal
+          - input:
+              schema: 'main: { _merge: [main] }'
+              contain: main
+          - input:
+              schema: 'main: { _merge: [{ _merge: [main] }] }'
+              contain: main
