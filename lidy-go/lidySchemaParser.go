@@ -239,7 +239,9 @@ func missingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tExpres
 }
 
 // Error
-func (sp tSchemaParser) schemaError(node yaml.Node, expected string) []error {
+func (sp tSchemaParser) schemaError(node yaml.Node, expected string, args ...interface{}) []error {
+	expected = fmt.Sprintf(expected, args...)
+
 	if node.Kind == yaml.Kind(0) {
 		return []error{fmt.Errorf("tried to use uninitialized yaml node [node, expected: %s]; %s", expected, pleaseReport)}
 	}

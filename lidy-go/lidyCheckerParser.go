@@ -254,14 +254,14 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 
 	var sizing tSizing
 
-	tryDecodeInteger := func(theNode yaml.Node) int {
+	tryDecodeInteger := func(theNode yaml.Node, context string) int {
 		var theInt int
 		err := theNode.Decode(&theInt)
 		if err != nil {
-			errList.Push(sp.schemaError(theNode, "an integer (yaml error happened trying to read the integer) "+err.Error()))
+			errList.Push(sp.schemaError(theNode, "%s to be associated with an integer (yaml error happened trying to read the integer): %s", context, err.Error()))
 		}
 		if theInt < 0 {
-			errList.Push(sp.schemaError(theNode, "a _positive_ integer"))
+			errList.Push(sp.schemaError(theNode, "%s to be associated with a _positive_ integer", context))
 		}
 		return theInt
 	}
@@ -272,14 +272,14 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 	case !_min && !_max && !_nb:
 		sizing = tSizingNone{}
 	case _nb:
-		sizing = tSizingNb{nb: tryDecodeInteger(nbNode)}
+		sizing = tSizingNb{nb: tryDecodeInteger(nbNode, "_nb")}
 	case _min && !_max:
-		sizing = tSizingMin{min: tryDecodeInteger(minNode)}
+		sizing = tSizingMin{min: tryDecodeInteger(minNode, "_min")}
 	case _max && !_min:
-		sizing = tSizingMax{max: tryDecodeInteger(maxNode)}
+		sizing = tSizingMax{max: tryDecodeInteger(maxNode, "_max")}
 	case _min && _max:
-		min := tryDecodeInteger(minNode)
-		max := tryDecodeInteger(maxNode)
+		min := tryDecodeInteger(minNode, "_min")
+		max := tryDecodeInteger(maxNode, "_max")
 		sizing = tSizingMinMax{
 			tSizingMin{min: min},
 			tSizingMax{max: max},
@@ -291,11 +291,12 @@ func sizingChecker(sp tSchemaParser, node yaml.Node, formMap tFormMap) (tSizing,
 	return sizing, errList.ConcatError()
 }
 
+// oneOfChecker checks that the value of the _oneOf entry of the formMap is valid
 func oneOfChecker(sp tSchemaParser, _ yaml.Node, formMap tFormMap) (tExpression, []error) {
 	oneOfValueNode := formMap["_oneOf"]
 
 	if oneOfValueNode.Kind != yaml.SequenceNode {
-		return nil, sp.schemaError(oneOfValueNode, "a sequence (of lidy expressions)")
+		return nil, sp.schemaError(oneOfValueNode, "the _oneOf value to be a sequence (of lidy expressions)")
 	}
 	errList := errorlist.List{}
 	optionList := []tExpression{}
@@ -315,7 +316,7 @@ func inChecker(sp tSchemaParser, _ yaml.Node, formMap tFormMap) (tExpression, []
 	inValueNode := formMap["_in"]
 
 	if inValueNode.Kind != yaml.SequenceNode {
-		return nil, sp.schemaError(inValueNode, "a sequence (of YAML scalars)")
+		return nil, sp.schemaError(inValueNode, "the value of the '_in' entry to be a sequence (of YAML scalars)")
 	}
 	errList := errorlist.List{}
 	valueMap := make(map[string][]string)
@@ -324,7 +325,7 @@ NodeContentLoop:
 	for _, value := range inValueNode.Content {
 		// scalar values only
 		if value.Kind != yaml.ScalarNode {
-			errList.Push(sp.schemaError(inValueNode, "a scalar value"))
+			errList.Push(sp.schemaError(inValueNode, "the value of the '_in' entry to be a scalar value"))
 			continue
 		}
 

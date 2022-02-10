@@ -16,7 +16,11 @@ func (rule *tRule) name() string {
 }
 
 func (rule *tRule) description() string {
-	return fmt.Sprintf("Rule %s %s", rule.ruleName, rule.expression.name())
+	if rule.expression != nil {
+		return fmt.Sprintf("Rule %s %s", rule.ruleName, rule.expression.name())
+	} else {
+		return fmt.Sprintf("Rule %s", rule.ruleName)
+	}
 }
 
 // Map

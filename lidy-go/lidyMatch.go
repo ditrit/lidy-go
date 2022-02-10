@@ -246,7 +246,7 @@ func (list tList) match(content yaml.Node, parser *tParser) (tResult, []error) {
 	// Signaling missing keys
 	for k := len(content.Content); k < len(list.form.list); k++ {
 		message := fmt.Sprintf(
-			"a %dth entry %s",
+			"a %d-th entry %s",
 			k, list.form.list[k].description(),
 		)
 		errList.Push(parser.contentError(content, message))
