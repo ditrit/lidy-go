@@ -1,4 +1,4 @@
-import { newToscaDescription } from "../tosca/description.js"
+import { newToscaDescription } from "../model/description.js"
 
 export default {
     exit_description(parsed_rule) {

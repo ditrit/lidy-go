@@ -9,7 +9,6 @@ import { ListParser } from './listparser.js'
 import { parse as parse_yaml, parseDocument, isMap, LineCounter } from 'yaml'
 import { RuleParser } from './ruleparser.js'
 import { isScalarType} from './utils.js'
-import { ToscaProg } from '../tosca/prog.js'
 
 export function parse_rule(ctx, rule_name, rule, current) {
   if (rule_name) { 

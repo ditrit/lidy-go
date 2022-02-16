@@ -1,4 +1,4 @@
-import { newToscaRepository } from "../tosca/repository.js"
+import { newToscaRepository } from "../model/repository.js"
 
 function exit_repositories(parsed_rule) {
     for (const key in parsed_rule.value) {

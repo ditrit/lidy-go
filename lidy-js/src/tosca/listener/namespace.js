@@ -1,4 +1,4 @@
-import { newToscaNamespace } from "../tosca/namespace.js"
+import { newToscaNamespace } from "../model/namespace.js"
 
 export default {
     exit_namespace(parsed_rule) {

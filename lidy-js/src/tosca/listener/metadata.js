@@ -1,4 +1,4 @@
-import { newToscaMetadata, newMetadataLeaf } from "../tosca/metadata.js";
+import { newToscaMetadata, newMetadataLeaf } from "../model/metadata.js";
 
 export default {
     exit_metadata(parsed_rule) {

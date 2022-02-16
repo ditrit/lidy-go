@@ -1,4 +1,4 @@
-import { newToscaVersion } from "../tosca/version.js"
+import { newToscaVersion } from "../model/version.js"
 
 export default {
     exit_version(parsed_rule) {

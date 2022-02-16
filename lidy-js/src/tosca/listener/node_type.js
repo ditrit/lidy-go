@@ -1,12 +1,9 @@
-import { newToscaNodeType } from "../tosca/node_type.js";
+import { newToscaNodeType } from "../model/node_type.js";
 
 export default {
     exit_node_types(parsed_rule) {
         for (const key in parsed_rule.value) {
             parsed_rule.value[key].tosca.setId(key, parsed_rule, "node_types")
-
-            // let node_type = parsed_rule.value[key].tosca            
-            // parsed_rule.ctx.prog.current_service_template.node_types[key] = node_type
         }
     },
 
