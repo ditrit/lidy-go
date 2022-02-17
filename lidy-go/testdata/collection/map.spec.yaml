@@ -83,7 +83,7 @@ content:
             input:
               data: '{ z: 12 }'
 
-  - flag: SKIP
+  - flag: PENDING
     name: _map 1 entry whose property is a lidy keyword
     matrix:
       keywordValue:

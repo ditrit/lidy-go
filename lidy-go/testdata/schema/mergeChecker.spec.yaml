@@ -2,7 +2,7 @@ name: document
 box: make lidy parser
 content:
   - name: _merge requires identifiers to refer to mapCheckers
-    flag: SKIP # (requires on-demand-rule-loading)
+    flag: PENDING # (requires on-demand-rule-loading)
     input:
       outcome: accept
     content:
@@ -68,7 +68,7 @@ content:
   - name: detect invalid self-references in _merge expressions
     content:
       - name: accept if the self-reference is sufficiently indirect
-        flag: SKIP # (requires on-demand-rule-loading)
+        flag: PENDING # (requires on-demand-rule-loading)
         input:
           schema: |-
             main: a

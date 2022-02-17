@@ -1,13 +1,14 @@
 name: _merge
 content:
   - name: 0 _mapFacultative 2 entries
-    schema: |-
-      main:
-        _merge:
-          - _map: { a: string }
-            _mapFacultative: { b: int, c: boolean }
-          - _map: { c: int }
-            _mapFacultative: { a: int }
+    input:
+      schema: |-
+        main:
+          _merge:
+            - _map: { a: string }
+              _mapFacultative: { b: int, c: boolean }
+            - _map: { c: int }
+              _mapFacultative: { a: int }
     content:
       - box: trial ACCEPT
         content:
@@ -35,19 +36,20 @@ content:
           input:
             data: '{ a: "va", b: 2, c: 3}'
   - name: _merge _map override
-    schema: |-
-      main:
-        _merge:
-          - boat
-          - car
-      boat:
-        _map:
-          id: int
-          capacity: float
-      car:
-        _map:
-          id: string
-          engine: string
+    input:
+      schema: |-
+        main:
+          _merge:
+            - boat
+            - car
+        boat:
+          _map:
+            id: int
+            capacity: float
+        car:
+          _map:
+            id: string
+            engine: string
     content:
       - name: if all keys are present and matching
         box: trial ACCEPT
@@ -89,15 +91,16 @@ content:
               contain: type
 
   - name: a _merge of _mapOf-s beahves like a _oneOf and does not override
-    schema: |-
-      main:
-        _merge:
-          - { _mapFacultative: { kkey: boolean } }
-          - _mapOf: { string: string }
-          - _mapOf: { { _list: [] }: int }
-          - _mapOf: { { _list: [] }: string }
-          - _mapOf: { { _list: [string] }: int }
-          - { _mapFacultative: { pkey: null } }
+    input:
+      schema: |-
+        main:
+          _merge:
+            - { _mapFacultative: { kkey: boolean } }
+            - _mapOf: { string: string }
+            - _mapOf: { { _list: [] }: int }
+            - _mapOf: { { _list: [] }: string }
+            - _mapOf: { { _list: [string] }: int }
+            - { _mapFacultative: { pkey: null } }
     content:
       - box: trial ACCEPT
         matrix:
@@ -122,9 +125,10 @@ content:
             input: {}
 
   - name: _merge empty does nothing
-    schema: |-
-      main:
-        _merge: []
+    input:
+      schema: |-
+        main:
+          _merge: []
     content:
       - box: trial ACCEPT
         input:

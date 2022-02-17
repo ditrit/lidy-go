@@ -4,7 +4,7 @@ content:
   - name: detect invalid self-references in documents
     content:
       - name: reject if the self-reference is too direct
-        flag: SKIP
+        flag: PENDING
         input:
           outcome: reject
         content:
@@ -114,7 +114,7 @@ content:
           schema: 'main: animal'
           contain: animal
       - name: reject if the target rule -main- is missing
-        flag: SKIP
+        flag: PENDING
         input:
           outcome: reject
           schema: 'animal: string'
