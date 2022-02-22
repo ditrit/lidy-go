@@ -1,0 +1,37 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+metadata:
+  template_name:    policy_types
+  template_author:  ditrit
+  template_version: "1.0"
+
+
+description: TOSCA 1.1 normative types defintion, policy types part
+#url: http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.2/csprd01/TOSCA-Simple-Profile-YAML-v1.2-csprd01.html
+
+policy_types:
+
+  #section: 5.11.1 tosca.policies.Root
+  tosca.policies.Root:
+    description: The TOSCA Policy Type all other TOSCA Policy Types derive from
+  
+  #section:5.11.2 tosca.policies.Placement
+  tosca.policies.Placement:
+    derived_from: tosca.policies.Root
+    description: The TOSCA Policy Type definition that is used to govern placement of TOSCA nodes or groups of nodes.  
+  
+  #section: 5.11.3 tosca.policies.Scaling
+  tosca.policies.Scaling:
+    derived_from: tosca.policies.Root
+    description: The TOSCA Policy Type definition that is used to govern scaling of TOSCA nodes or groups of nodes.  
+  
+  #section: 5.11.4 tosca.policies.Update
+  ca.policies.Update:
+    derived_from: tosca.policies.Root
+    description: The TOSCA Policy Type definition that is used to govern update of TOSCA nodes or groups of nodes.  
+  
+  #section: 5.11.5 tosca.policies.Performance
+  tosca.policies.Performance:
+    derived_from: tosca.policies.Root
+    description: The TOSCA Policy Type definition that is used to declare performance requirements for TOSCA nodes or groups of nodes.  
+  

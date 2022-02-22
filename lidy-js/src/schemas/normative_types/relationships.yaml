@@ -1,0 +1,108 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+metadata:
+  template_name:    relationship_types
+  template_author:  ditrit
+  template_version: "1.0"
+
+imports:
+  - datatypes.yaml
+  - capabilities.yaml
+  - interfaces.yaml
+
+
+
+description: TOSCA 1.2 normative types defintion, interface types part
+#url: http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.2/csprd01/TOSCA-Simple-Profile-YAML-v1.2-csprd01.html
+
+relationship_types:
+  
+  #section: 5.7.1 tosca.relationships.Root
+  tosca.relationships.Root:
+    description: The TOSCA root Relationship Type all other TOSCA base Relationship Types derive from
+    attributes:
+      tosca_id:
+        type: string
+      tosca_name:
+        type: string
+    interfaces:
+      Configure:
+        type: tosca.interfaces.relationship.Configure
+  
+  #section: 5.7.2 tosca.relationships.DependsOn
+  tosca.relationships.DependsOn:
+    derived_from: tosca.relationships.Root
+
+    valid_target_types: [ tosca.capabilities.Node ]
+
+    workflows:
+      install:
+        source_weaving:
+          - before: creating
+            wait_target: started
+
+  
+  #section: 5.7.3 tosca.relationships.HostedOn
+  tosca.relationships.HostedOn:
+    description: The TOSCA HostedOn Relationship Type
+    derived_from: tosca.relationships.Root
+
+    valid_target_types: [ tosca.capabilities.Container ]
+
+    workflows:
+      install:
+        source_weaving:
+          - before: creating
+            wait_target: started
+  
+  #section: 5.7.4 tosca.relationships.ConnectsTo
+  tosca.relationships.ConnectsTo:
+    derived_from: tosca.relationships.Root
+
+    valid_target_types: [ tosca.capabilities.Endpoint ]
+
+    properties:
+      credential:
+        type: tosca.datatypes.Credential
+        required: false
+
+    workflows:
+      install:
+        source_weaving:
+          - after: configuring
+            wait_target: started
+            activity: tosca.interfaces.relationships.Configure.pre_configure_source
+          - before: configured
+            activity: tosca.interfaces.relationships.Configure.post_configure_source
+          - before: starting
+            wait_target: started
+          - after: started
+            activity: tosca.interfaces.relationships.Configure.add_target
+        target_weaving:
+          - after: configuring
+            after_source: created
+            activity: tosca.interfaces.relationships.Configure.pre_configure_target
+          - before: configured
+            activity: tosca.interfaces.relationships.Configure.post_configure_target
+          - after: started
+            activity: tosca.interfaces.relationships.Configure.add_source
+
+  
+  #section: 5.7.5 tosca.relationships.AttachesTo
+  tosca.relationships.AttachesTo:
+    derived_from: tosca.relationships.Root
+    valid_target_types: [ tosca.capabilities.Attachment ]
+    properties:
+      location:
+        type: string
+        constraints:
+          - min_length: 1
+      device:
+        type: string
+        required: false
+  
+  #section: 5.7.6 tosca.relationships.RoutesTo
+  tosca.relationships.RoutesTo:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ tosca.capabilities.Endpoint ]
+  

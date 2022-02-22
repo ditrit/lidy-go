@@ -1,0 +1,23 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+metadata:
+  template_name:    group_types
+  template_author:  ditrit
+  template_version: "1.0"
+
+description: TOSCA 1.2 normative types defintion, group types part
+#url: http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.2/csprd01/TOSCA-Simple-Profile-YAML-v1.2-csprd01.html
+
+imports:
+  - relationships.yaml
+
+
+group_types:
+ 
+  #section: 5.10.1 tosca.groups.Root
+  tosca.groups.Root:
+    description: The TOSCA Group Type all other TOSCA Group Types derive from
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+  

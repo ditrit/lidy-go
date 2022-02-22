@@ -1,0 +1,168 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+description: Template for deploying a Nextcloud server using a DB server. 
+
+namespace: http://companyB.com/service/namespace/
+
+metadata:
+  creation_date: 2015-04-14
+  date_updated: 2015-05-01
+  status: developmental
+  template_version: 2.0.17
+  template_author: Jean-Luc Duvivier
+  template_name: My service template
+
+imports:
+  # - ./my_typedefs_1.yaml
+  # - ./src/testFichierdistant.yaml
+  # - https://raw.githubusercontent.com/ditrit/lidy/lidy-js/lidy-js/src/schemas/normative_types/tosca_types.yaml
+  - http://127.0.0.1:8080/tosca_types.yaml
+  # - file: my_defns/my_typesdefs_n.yaml
+  #   repository: my_company_repo
+  #   namespace_prefix: mycompany
+
+############################
+##### TOSCA REPOSITORY #####
+############################
+repositories:
+
+  my_company_repo:
+    url: http://mycompany.com/repository/myproject/
+    description: development repository for TAR archives and Bash scripts
+    
+
+
+############################
+##### TOSCA NODE_TYPES #####
+############################
+node_types:
+  
+  Compute: 
+    derived_from: tosca.nodes.Root
+    description: tagada
+    version: "1.0"
+    metadata:
+      liunx: love
+
+  Software: 
+    derived_from: tosca.nodes.Root
+    description: pouetpouet
+
+  DBMS: 
+    derived_from: Software
+
+  Mysql: 
+    derived_from: DBMS
+
+  VM: 
+    derived_from: Compute
+
+  Docker: 
+    derived_from: Compute
+
+
+
+####################################
+##### TOSCA RELATIONSHIP_TYPES #####
+####################################
+relationship_types:
+
+  mycompany.mytypes.myCustomClientServerType:
+    derived_from: tosca.relationships.HostedOn
+
+  mycompany.mytypes.myCustomConnectionType:
+    derived_from: tosca.relationships.ConnectsTo
+    
+
+
+############################
+##### TOSCA DATA_TYPES #####
+############################
+data_types:
+
+  NetworkInfo:
+    derived_from: tosca.Data.Root
+    properties:
+      name:
+        type: string
+      gateway:
+        type: string
+    
+  RouterInfo:
+    derived_from: tosca.Data.Root
+    properties:
+      ip:
+        type: string
+      external:
+        type: string
+
+
+
+##################################
+##### TOSCA CAPABILITY_TYPES #####
+##################################
+capability_types: 
+
+  tosca.capabilities.Compute:
+    derived_from: tosca.capabilities.Container
+    properties:
+      name:
+        type: string
+        required: false
+      num_cpus:
+        type: integer
+        required: false
+        constraints:
+        - greater_or_equal: 1
+      cpu_frequency:
+        type: scalar-unit.frequency
+        required: false
+        constraints:
+          - greater_or_equal: 0.1 GHz
+      disk_size:
+        type: scalar-unit.size
+        required: false
+        constraints:
+          - greater_or_equal: 0 MB
+      mem_size:
+        type: scalar-unit.size
+        required: false
+        constraints:
+          - greater_or_equal: 0 MB
+
+
+################################
+##### TOSCA ARTIFACT_TYPES #####
+################################
+artifact_types:
+
+  jar: 
+    description: Java Archive artifact type
+    derived_from: tosca.artifact.Root
+    mime_type: application/java-archive
+    file_ext: [ jar ]
+    properties:
+      id:
+        description: Identifier of the jar
+        type: string
+        required: true
+      creator:
+        description: Vendor of the java implementation on which the jar is based
+        type: string
+        required: false
+
+
+
+#############################
+##### TOSCA GROUP_TYPES #####
+#############################
+
+#################################
+##### TOSCA INTERFACE_TYPES #####
+#################################
+
+##############################
+##### TOSCA POLICY_TYPES #####
+##############################
+
+
