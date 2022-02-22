@@ -5,7 +5,8 @@ import metadata from './metadata.js'
 import namespace from './namespace.js'
 import nodetype from './node_type.js'
 import repository from './repository.js'
-
+import version from './version.js'
+import servicetemplate from './service_template.js'
 
 export default {
     ...prog,
@@ -15,4 +16,6 @@ export default {
     ...namespace, 
     ...nodetype,
     ...repository,
+    ...version,
+    ...servicetemplate,
 }

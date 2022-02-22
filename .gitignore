@@ -92,3 +92,5 @@ typings/
 
 # Dependency directories
 docref/
+lidy-js/.vscode/launch.json
+lidy-js/package-lock.json

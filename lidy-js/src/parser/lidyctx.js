@@ -39,6 +39,12 @@ export class Ctx {
         return e
     }
 
+    typeError(current, message) {
+        let e = new LidyError('TYPE_ERROR', (current.range) ? current.range[0] : 0, `TypeError : ${message}`)
+        this.errors.push(e)
+        return e
+    }
+
     grammarError(message) {
         let e = new LidyError('GRAMMAR_ERROR', 0, `GrammarError : ${message}`)
         this.errors.push(e)

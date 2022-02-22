@@ -4,13 +4,15 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack"
   },
   "author": "Xavier Talon",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "glob": "^7.1.6",
     "jasmine": "^3.7.0",
+    "package.json": "^2.0.1",
+    "sync-request": "^6.1.0",
     "yaml": "^2.0.0-5"
   },
   "description": "js lidy version",
@@ -24,8 +26,5 @@
     "webpack": "^5.44.0",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2"
-  },
-  "scripts":  {
-    "build": "webpack"
   }
 }

@@ -9,7 +9,7 @@ export class LidyError extends YAMLError {
     pretty(ctx) {
         this.linePos = ctx.lineCounter.linePos(this.pos)
         const { line, col } = this.linePos
-        this.message += ` at line ${line}, column ${col}`;
+        this.message += ` at line ${line}, column ${col} ${(ctx.file) ? ' @'+ctx.file : ''}`;
     }
 }
 
