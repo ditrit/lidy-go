@@ -105,7 +105,7 @@ func (sp tSchemaParser) createRule(key yaml.Node, value yaml.Node) (*tRule, []er
 			exportName = nameSlice[2]
 		}
 
-		builder, _ = sp.builderMap[exportName]
+		builder = sp.builderMap[exportName]
 	}
 
 	return &tRule{

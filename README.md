@@ -165,7 +165,7 @@ See [DOCUMENTATION.md](DOCUMENTATION.md)
   <dt>Scalar type</dt>
   <dd>Scalar types are predefined lidy rules which allow to check for a given scalar type, i.e. a type that is not a container</dd>
   <dt>Container checker</dt>
-  <dd>A container checker allows to create a lidy expression for a YAML map or a YAML sequence matching certain types</dd>
+  <dd>A container checker allows to create a lidy expression for a YAML map or a YAML sequence matching certain criteria</dd>
 </dl>
 
 ### Lidy expression

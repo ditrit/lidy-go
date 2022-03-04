@@ -17,6 +17,11 @@ type tSchemaParser tParser
 // parseSchema parses the schema as yaml and lidy schema and stores it
 // in the parser object, or return a non-empty error slice.
 func (p *tParser) parseSchema() []error {
+	// A. Analyse of the headers of rules (rule name and presence of a builder if exported)
+	// B. Topological order cycle search
+	// C. Rule analysis with report of the errors of the developer
+	// -
+	// D. Validation of user data, with report of the user
 	if p.schema.ruleMap != nil {
 		return p.schemaErrorSlice
 	}

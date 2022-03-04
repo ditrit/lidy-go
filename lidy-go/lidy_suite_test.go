@@ -1,4 +1,4 @@
-package lidy
+package lidy_test
 
 import (
 	"testing"
