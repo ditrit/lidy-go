@@ -3,7 +3,7 @@ package lidy
 import (
 	"fmt"
 
-	"github.com/ditrit/lidy/errorlist"
+	"github.com/ditrit/lidy/lidy-go/errorlist"
 	"gopkg.in/yaml.v3"
 )
 

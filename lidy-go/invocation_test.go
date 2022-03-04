@@ -3,7 +3,7 @@ package lidy_test
 import (
 	"io/ioutil"
 
-	"github.com/ditrit/lidy"
+	lidy "github.com/ditrit/lidy/lidy-go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
